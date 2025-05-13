@@ -12,6 +12,7 @@ import DashboardFilial from './screens/DashboardFilial';
 import QRCode from './screens/QRCode';
 
 
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {

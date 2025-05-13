@@ -26,7 +26,7 @@ const opcoes = [
     id: '3',
     titulo: 'QR Code',
     subtitulo: 'escanear motos',
-    rota: 'QRCode',
+    rota: 'QR Code', 
     icone: 'qrcode',
   },
   {
