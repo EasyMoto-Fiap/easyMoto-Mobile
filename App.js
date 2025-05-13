@@ -10,8 +10,7 @@ import HomeTabs from './screens/HomeTabs';
 import PatioMapaRealComModal from './screens/PatioMapaRealComModal';
 import DashboardFilial from './screens/DashboardFilial';
 import QRCode from './screens/QRCode';
-
-
+import Relatorios from './screens/Relatorios';
 
 const Stack = createNativeStackNavigator();
 
@@ -29,6 +28,7 @@ export default function App() {
           <Stack.Screen name="PatioMapaReal" component={PatioMapaRealComModal} />
           <Stack.Screen name="DashboardFilial" component={DashboardFilial} />
           <Stack.Screen name="QRCode" component={QRCode} />
+          <Stack.Screen name="Relatorios" component={Relatorios} />
         </Stack.Navigator>
       </NavigationContainer>
     </ThemeProvider>
