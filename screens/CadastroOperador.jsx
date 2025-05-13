@@ -6,7 +6,6 @@ import ThemeToggleButton from '../components/ThemeToggleButton';
 import { FontAwesome } from '@expo/vector-icons';
 import VoltarParaHome from '../components/VoltarParaHome';
 
-
 export default function CadastroOperador({ navigation }) {
 const { theme } = useContext(ThemeContext);
 const isDark = theme === 'dark';
@@ -145,9 +144,17 @@ return (
         maxLength={9}
     />
 
-    <TouchableOpacity style={styles.button} onPress={validarCampos}>
-        <Text style={styles.buttonText}>Acessar</Text>
+            <TouchableOpacity
+    style={styles.button}
+    onPress={() => {
+        if (validarCampos()) {
+        navigation.navigate('HomeOperador');
+    }
+    }}
+    >
+    <Text style={styles.buttonText}>Acessar</Text>
     </TouchableOpacity>
+
 
     <TouchableOpacity onPress={() => navigation.navigate('LoginOperador')}>
         <Text style={[styles.linkText, { color: themeColors.text }]}>

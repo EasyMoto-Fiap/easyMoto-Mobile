@@ -6,7 +6,6 @@ import ThemeToggleButton from '../components/ThemeToggleButton';
 import { FontAwesome } from '@expo/vector-icons';
 import VoltarParaHome from '../components/VoltarParaHome';
 
-
 export default function LoginOperador({ navigation }) {
   const { theme } = useContext(ThemeContext);
   const isDark = theme === 'dark';
@@ -51,7 +50,7 @@ export default function LoginOperador({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('HomeOperador')}>
         <Text style={styles.buttonText}>Acessar</Text>
       </TouchableOpacity>
 
