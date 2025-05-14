@@ -24,7 +24,8 @@ export default function PatioMapaRealComModal({ route }) {
     const carregarMotosSalvas = async () => {
       const dados = await AsyncStorage.getItem('motos');
       if (dados) {
-        setMotos(JSON.parse(dados));
+        const lista = JSON.parse(dados);
+        setMotos(lista);
       }
     };
     carregarMotosSalvas();
@@ -39,8 +40,8 @@ export default function PatioMapaRealComModal({ route }) {
         {
           latitude: primeira.lat || -23.5505,
           longitude: primeira.lng || -46.6333,
-          latitudeDelta: 0.0012,
-          longitudeDelta: 0.0012,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
         },
         1000
       );
@@ -81,8 +82,8 @@ export default function PatioMapaRealComModal({ route }) {
         initialRegion={{
           latitude: -23.5505,
           longitude: -46.6333,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
+          latitudeDelta: 0.05,
+          longitudeDelta: 0.05,
         }}
       >
         {motosFiltradas.map((moto) => (

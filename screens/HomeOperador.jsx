@@ -10,7 +10,7 @@ const opcoes = [
     id: '1',
     titulo: 'Dashboard Motos',
     subtitulo: 'Filiais das motos',
-    rota: 'Dashboard',
+    rota: 'DashboardMotos',
     icone: 'dashboard',
   },
   {

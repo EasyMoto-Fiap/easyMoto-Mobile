@@ -7,13 +7,13 @@ import { colors } from '../styles/colors';
 import ThemeToggleButton from '../components/ThemeToggleButton';
 
 const legendaCores = {
-  'Pendência': '#e6c300',
-  'Reparos Simples': '#0074cc',
-  'Danos Estruturais Graves': '#ff4500',
-  'Motor Defeituoso': '#ff0000',
-  'Agendada para Manutenção': '#808080',
-  'Pronta para Aluguel': '#006400',
-  'Sem Placa': '#da70d6'
+    'Pendência': '#e6c300',
+    'Reparos Simples': '#0074cc',
+    'Danos Estruturais Graves': '#ff4500',
+    'Motor Defeituoso': '#ff0000',
+    'Agendada para Manutenção': '#808080',
+    'Pronta para Aluguel': '#006400',
+    'Sem Placa': '#da70d6'
 };
 
 const corToLegenda = {
@@ -27,30 +27,30 @@ const corToLegenda = {
 };
 
 export default function Relatorios() {
-  const { theme } = useContext(ThemeContext);
-  const isDark = theme === 'dark';
-  const themeColors = isDark ? colors.dark : colors.light;
-  const [contagem, setContagem] = useState({});
+    const { theme } = useContext(ThemeContext);
+    const isDark = theme === 'dark';
+    const themeColors = isDark ? colors.dark : colors.light;
+    const [contagem, setContagem] = useState({});
 
-  useEffect(() => {
+    useEffect(() => {
     const contarStatus = async () => {
-      const dados = await AsyncStorage.getItem('motos');
-      const lista = dados ? JSON.parse(dados) : [];
-      const cont = {};
-      lista.forEach((moto) => {
+        const dados = await AsyncStorage.getItem('motos');
+        const lista = dados ? JSON.parse(dados) : [];
+        const cont = {};
+        lista.forEach((moto) => {
         const statusNome = corToLegenda[moto.status];
         if (statusNome) {
-          cont[statusNome] = (cont[statusNome] || 0) + 1;
+            cont[statusNome] = (cont[statusNome] || 0) + 1;
         }
-      });
-      setContagem(cont);
+        });
+        setContagem(cont);
     };
     contarStatus();
-  }, []);
+}, []);
 
-  const labels = Object.keys(contagem);
-  const data = Object.keys(contagem).map((key) => contagem[key]);
-  const barColors = Object.keys(contagem).map((label) => legendaCores[label]);
+    const labels = Object.keys(contagem);
+    const data = Object.keys(contagem).map((key) => contagem[key]);
+    const barColors = Object.keys(contagem).map((label) => legendaCores[label]);
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: themeColors.background }]} contentContainerStyle={{ paddingBottom: 40 }}>
