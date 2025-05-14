@@ -5,6 +5,7 @@ import { colors } from '../styles/colors';
 import ThemeToggleButton from '../components/ThemeToggleButton';
 import { FontAwesome } from '@expo/vector-icons';
 import VoltarParaHome from '../components/VoltarParaHome';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function CadastroAdmin({ navigation }) {
   const { theme } = useContext(ThemeContext);
@@ -33,7 +34,7 @@ export default function CadastroAdmin({ navigation }) {
     return numeros.replace(/^(\d{5})(\d{1,3})/, '$1-$2');
   };
 
-  const validarCampos = () => {
+  const validarCampos = async () => {
     const cpfLimpo = cpf.replace(/\D/g, '');
     const cepLimpo = cep.replace(/\D/g, '');
 
@@ -67,12 +68,23 @@ export default function CadastroAdmin({ navigation }) {
       return;
     }
 
+    const dadosAdmin = {
+      nome,
+      email,
+      senha,
+      cpf: cpfLimpo,
+      filial: cepLimpo,
+    };
+
+    await AsyncStorage.setItem('admin', JSON.stringify(dadosAdmin));
+
     Alert.alert('Cadastro realizado com sucesso!');
+    navigation.navigate('HomeTabsAdmin');
   };
 
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-        <VoltarParaHome />
+      <VoltarParaHome />
       <ThemeToggleButton />
 
       <Text style={[styles.logo, { color: themeColors.text }]}>
@@ -88,7 +100,6 @@ export default function CadastroAdmin({ navigation }) {
         value={nome}
         onChangeText={setNome}
       />
-
       <TextInput
         style={styles.input}
         placeholder="Email:"
@@ -97,7 +108,6 @@ export default function CadastroAdmin({ navigation }) {
         value={email}
         onChangeText={setEmail}
       />
-
       <View style={styles.senhaContainer}>
         <TextInput
           style={[styles.input, { flex: 1, marginBottom: 0 }]}
@@ -111,7 +121,6 @@ export default function CadastroAdmin({ navigation }) {
           <FontAwesome name={mostrarSenha ? 'eye' : 'eye-slash'} size={20} color="#666" />
         </TouchableOpacity>
       </View>
-
       <View style={styles.senhaContainer}>
         <TextInput
           style={[styles.input, { flex: 1, marginBottom: 0 }]}
@@ -125,7 +134,6 @@ export default function CadastroAdmin({ navigation }) {
           <FontAwesome name={mostrarConfirmar ? 'eye' : 'eye-slash'} size={20} color="#666" />
         </TouchableOpacity>
       </View>
-
       <TextInput
         style={styles.input}
         placeholder="CPF:"
@@ -135,7 +143,6 @@ export default function CadastroAdmin({ navigation }) {
         onChangeText={(valor) => setCpf(formatarCPF(valor))}
         maxLength={14}
       />
-
       <TextInput
         style={styles.input}
         placeholder="CEP da Filial:"
@@ -145,11 +152,9 @@ export default function CadastroAdmin({ navigation }) {
         onChangeText={(valor) => setCep(formatarCEP(valor))}
         maxLength={9}
       />
-
       <TouchableOpacity style={styles.button} onPress={validarCampos}>
         <Text style={styles.buttonText}>Acessar</Text>
       </TouchableOpacity>
-
       <TouchableOpacity onPress={() => navigation.navigate('LoginAdmin')}>
         <Text style={[styles.linkText, { color: themeColors.text }]}>
           Já tem conta? Faça Login
@@ -160,37 +165,12 @@ export default function CadastroAdmin({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 30,
-    justifyContent: 'center',
-  },
-  logo: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 50,
-  },
-  title: {
-    fontSize: 18,
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  input: {
-    backgroundColor: '#e4e4e4',
-    padding: 15,
-    borderRadius: 30,
-    marginBottom: 15,
-  },
-  senhaContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  iconeOlho: {
-    position: 'absolute',
-    right: 15,
-  },
+  container: { flex: 1, padding: 30, justifyContent: 'center' },
+  logo: { fontSize: 36, fontWeight: 'bold', textAlign: 'center', marginBottom: 50 },
+  title: { fontSize: 18, marginBottom: 20, textAlign: 'center' },
+  input: { backgroundColor: '#e4e4e4', padding: 15, borderRadius: 30, marginBottom: 15 },
+  senhaContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
+  iconeOlho: { position: 'absolute', right: 15 },
   button: {
     backgroundColor: '#004d25',
     padding: 15,
@@ -199,13 +179,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 20,
   },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  linkText: {
-    textAlign: 'center',
-    fontSize: 14,
-  },
+  buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  linkText: { textAlign: 'center', fontSize: 14 },
 });
