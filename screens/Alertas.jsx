@@ -1,4 +1,3 @@
-// Alertas.jsx com botões inferiores e ícones verdes
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useContext, useEffect, useState } from 'react';
 import { ThemeContext } from '../contexts/ThemeContext';

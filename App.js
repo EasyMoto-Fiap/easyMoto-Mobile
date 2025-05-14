@@ -17,7 +17,6 @@ import GerenciarOperadores from './screens/GerenciarOperadores';
 import AlertasAdmin from './screens/AlertasAdmin';
 import HomeTabsAdmin from './screens/HomeTabsAdmin';
 
-
 const Stack = createNativeStackNavigator();
 
 export default function App() {
