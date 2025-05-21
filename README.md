@@ -27,7 +27,7 @@ Trata-se de um **protótipo funcional** que simula o controle de motos em pátio
 
 | Login Operador | Mapa Real | Cadastro Moto |
 |----------------|-----------|----------------|
-| ![login](https://media.discordapp.net/attachments/954097907806642297/1372307087480066048/image.png?ex=68264c11&is=6824fa91&hm=ffe961ac424dbb5683214fa678dd99c623a8384d0fdd081e7ed9a7ff1d451d7e&=&format=webp&quality=lossless) | ![mapa](https://media.discordapp.net/attachments/954097907806642297/1372307360038523013/image.png?ex=68264c52&is=6824fad2&hm=8db54b0a532c3ef7cd10f8dd47ac95b353b516da7153a76a021342c7119e0ece&=&format=webp&quality=lossless) | ![cadastro](https://cdn.discordapp.com/attachments/954097907806642297/1372307596693999627/image.png?ex=68264c8b&is=6824fb0b&hm=d3cbb78432c9f6f0d616d13cee9d05a37bb361f4968a1b5d0519fe1d37ce0cb5&format=webp&quality=lossless) |
+| ![login](https://media.discordapp.net/attachments/954097907806642297/1372307087480066048/image.png?ex=68264c11&is=6824fa91&hm=ffe961ac424dbb5683214fa678dd99c623a8384d0fdd081e7ed9a7ff1d451d7e&=&format=webp&quality=lossless) | ![mapa](https://media.discordapp.net/attachments/954097907806642297/1372307360038523013/image.png?ex=68264c52&is=6824fad2&hm=8db54b0a532c3ef7cd10f8dd47ac95b353b516da7153a76a021342c7119e0ece&=&format=webp&quality=lossless) | ![cadastro](https://media.discordapp.net/attachments/954097907806642297/1374763461883596810/image.png?ex=682f3bbf&is=682dea3f&hm=5ddf8de8d3f34ba5d3d936c6c9d7f194a2bed3ee49cfc07992d4a128e17a5141&=&format=webp&quality=lossless) |
 
 ---
 
