@@ -7,6 +7,7 @@ import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { colors } from '../../styles/colors';
+import VoltarParaHome from '../../components/VoltarParaHome';
 
 function formatarCPF(valor: string) {
     const numeros = valor.replace(/\D/g, '');
@@ -25,6 +26,7 @@ export default function Register() {
     const route = useRoute<RouteProp<RootStackParamList, 'Register'>>();
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
     const role = route.params.role;
+
     const [nome, setNome] = useState('');
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
@@ -83,6 +85,7 @@ async function validarCampos() {
         <TouchableOpacity onPress={() => navigation.navigate('Login', { role })}>
             <Text style={styles.linkText}>Já tem conta? Faça Login</Text>
         </TouchableOpacity>
+        <VoltarParaHome />
         </View>
     );
 }

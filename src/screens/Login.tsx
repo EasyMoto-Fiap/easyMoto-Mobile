@@ -6,6 +6,7 @@ import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { colors } from '../../styles/colors';
+import VoltarParaHome from '../../components/VoltarParaHome';
 
 export default function Login() {
   const route = useRoute<RouteProp<RootStackParamList, 'Login'>>();
@@ -50,6 +51,7 @@ export default function Login() {
       <TouchableOpacity onPress={() => navigation.navigate('Register', { role })}>
         <Text style={styles.linkText}>Não tem conta? Cadastre-se</Text>
       </TouchableOpacity>
+      <VoltarParaHome />
     </View>
   );
 }
