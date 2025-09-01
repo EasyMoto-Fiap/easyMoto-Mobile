@@ -1,7 +1,15 @@
-import { View, Text, StyleSheet, StatusBar, Alert } from 'react-native';
+import { View, Text, StyleSheet, StatusBar } from 'react-native';
 import BotaoGradiente from '../../components/BotaoGradiente';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation/RootNavigator';
+
+const BG = '#121212';
+const GREEN = '#16a34a';
 
 export default function Home() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
@@ -14,44 +22,24 @@ export default function Home() {
         <BotaoGradiente
           icone="user"
           titulo="Operador"
-          onPress={() => Alert.alert('Operador')}
+          onPress={() => navigation.navigate('Login', { role: 'operador' })}
           style={{ marginBottom: 20 }}
         />
         <BotaoGradiente
           icone="cog"
           titulo="Administrador"
-          onPress={() => Alert.alert('Administrador')}
+          onPress={() => navigation.navigate('Login', { role: 'admin' })}
         />
       </View>
     </View>
   );
 }
 
-const BG = '#121212';
-const GREEN = '#16a34a';
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: BG,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 30,
-    paddingBottom: 24
-  },
-  logo: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    marginBottom: 50,
-    color: '#ffffff'
-  },
+  container: { flex: 1, backgroundColor: BG, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 30, paddingBottom: 24 },
+  logo: { fontSize: 36, fontWeight: 'bold', marginBottom: 50, color: '#ffffff' },
   logoEasy: { color: GREEN },
   logoMoto: { color: '#ffffff' },
-  subtext: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 40,
-    color: '#D9D9D9'
-  },
+  subtext: { fontSize: 16, textAlign: 'center', marginBottom: 40, color: '#D9D9D9' },
   buttonContainer: { width: '100%' }
 });
