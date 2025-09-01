@@ -1,8 +1,9 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useState } from 'react';
 import { FontAwesome } from '@expo/vector-icons';
-import { useRoute } from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 
 const BG = '#121212';
@@ -10,7 +11,9 @@ const GREEN = '#16a34a';
 
 export default function Login() {
   const route = useRoute<RouteProp<RootStackParamList, 'Login'>>();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const role = route.params.role;
+
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
@@ -47,7 +50,7 @@ export default function Login() {
       <TouchableOpacity style={styles.button}>
         <Text style={styles.buttonText}>Acessar</Text>
       </TouchableOpacity>
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('Register', { role })}>
         <Text style={styles.linkText}>Não tem conta? Cadastre-se</Text>
       </TouchableOpacity>
     </View>
@@ -55,15 +58,15 @@ export default function Login() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: BG, padding: 30, justifyContent: 'center' },
-    logo: { fontSize: 36, fontWeight: 'bold', textAlign: 'center', marginBottom: 50, color: '#fff' },
-    logoEasy: { color: GREEN },
-    logoMoto: { color: '#fff' },
-    title: { fontSize: 18, marginBottom: 20, textAlign: 'center', color: '#fff' },
-    input: { backgroundColor: '#e4e4e4', padding: 15, borderRadius: 30, marginBottom: 15, color: '#000' },
-    senhaContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
-    iconeOlho: { position: 'absolute', right: 15 },
-    button: { backgroundColor: '#004d25', padding: 15, borderRadius: 30, alignItems: 'center', marginTop: 10, marginBottom: 20 },
-    buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-    linkText: { textAlign: 'center', fontSize: 14, color: '#d9d9d9' }
+  container: { flex: 1, backgroundColor: BG, padding: 30, justifyContent: 'center' },
+  logo: { fontSize: 36, fontWeight: 'bold', textAlign: 'center', marginBottom: 50, color: '#fff' },
+  logoEasy: { color: GREEN },
+  logoMoto: { color: '#fff' },
+  title: { fontSize: 18, marginBottom: 20, textAlign: 'center', color: '#fff' },
+  input: { backgroundColor: '#e4e4e4', padding: 15, borderRadius: 30, marginBottom: 15, color: '#000' },
+  senhaContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
+  iconeOlho: { position: 'absolute', right: 15 },
+  button: { backgroundColor: '#004d25', padding: 15, borderRadius: 30, alignItems: 'center', marginTop: 10, marginBottom: 20 },
+  buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  linkText: { textAlign: 'center', fontSize: 14, color: '#d9d9d9' }
 });
