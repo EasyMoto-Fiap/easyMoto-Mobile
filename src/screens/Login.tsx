@@ -5,15 +5,12 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
-
-const BG = '#121212';
-const GREEN = '#16a34a';
+import { colors } from '../../styles/colors';
 
 export default function Login() {
   const route = useRoute<RouteProp<RootStackParamList, 'Login'>>();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const role = route.params.role;
-
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
@@ -58,15 +55,15 @@ export default function Login() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: BG, padding: 30, justifyContent: 'center' },
-  logo: { fontSize: 36, fontWeight: 'bold', textAlign: 'center', marginBottom: 50, color: '#fff' },
-  logoEasy: { color: GREEN },
-  logoMoto: { color: '#fff' },
-  title: { fontSize: 18, marginBottom: 20, textAlign: 'center', color: '#fff' },
-  input: { backgroundColor: '#e4e4e4', padding: 15, borderRadius: 30, marginBottom: 15, color: '#000' },
+  container: { flex: 1, backgroundColor: colors.bg, padding: 30, justifyContent: 'center' },
+  logo: { fontSize: 36, fontWeight: 'bold', textAlign: 'center', marginBottom: 50, color: colors.text },
+  logoEasy: { color: colors.primary },
+  logoMoto: { color: colors.text },
+  title: { fontSize: 18, marginBottom: 20, textAlign: 'center', color: colors.text },
+  input: { backgroundColor: colors.inputBg, padding: 15, borderRadius: 30, marginBottom: 15, color: '#000' },
   senhaContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
   iconeOlho: { position: 'absolute', right: 15 },
-  button: { backgroundColor: '#004d25', padding: 15, borderRadius: 30, alignItems: 'center', marginTop: 10, marginBottom: 20 },
+  button: { backgroundColor: colors.buttonBg, padding: 15, borderRadius: 30, alignItems: 'center', marginTop: 10, marginBottom: 20 },
   buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-  linkText: { textAlign: 'center', fontSize: 14, color: '#d9d9d9' }
+  linkText: { textAlign: 'center', fontSize: 14, color: colors.mutedText }
 });
