@@ -4,6 +4,8 @@ import Login from '../screens/Login';
 import Register from '../screens/Register';
 import HomeOperador from '../screens/HomeOperador';
 import PrototipoDeTela from '../screens/PrototipoDeTela';
+import PatioModelos from '../screens/PatioModelos';
+import Patio from '../screens/Patio';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -11,6 +13,8 @@ export type RootStackParamList = {
   Register: { role: 'operador' | 'admin' };
   HomeOperador: undefined;
   PrototipoDeTela: { titulo: string };
+  PatioModelos: undefined;
+  Patio: { tipo: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -22,6 +26,8 @@ export default function RootNavigator() {
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Register" component={Register} />
       <Stack.Screen name="HomeOperador" component={HomeOperador} />
+      <Stack.Screen name="PatioModelos" component={PatioModelos} />
+      <Stack.Screen name="Patio" component={Patio} />
       <Stack.Screen name="PrototipoDeTela" component={PrototipoDeTela} />
     </Stack.Navigator>
   );

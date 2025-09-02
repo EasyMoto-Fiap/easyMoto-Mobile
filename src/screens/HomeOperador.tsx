@@ -16,12 +16,12 @@ type Opcao = {
 };
 
 const opcoes: Opcao[] = [
-  { id: '1', titulo: 'Pátio', subtitulo: 'Mapa do pátio e localização das motos', icone: 'dashboard' },
-  { id: '2', titulo: 'Motos Cadastradas', subtitulo: 'Registro das motos já cadastradas', icone: 'motorcycle' },
-  { id: '3', titulo: 'QR Code', subtitulo: 'Escanear motos', icone: 'qrcode' },
-  { id: '4', titulo: 'Notificações', subtitulo: 'Alertas operacionais', icone: 'exclamation-circle' },
-  { id: '5', titulo: 'Relatórios das Motos', subtitulo: 'Atualização semanal da filial', icone: 'bar-chart' },
-  { id: '6', titulo: 'Meu Perfil', subtitulo: 'Gerenciar meu perfil', icone: 'user' }
+  { id: 'patio', titulo: 'Pátio', subtitulo: 'Mapa do pátio e localização das motos', icone: 'dashboard' },
+  { id: 'motos', titulo: 'Motos Cadastradas', subtitulo: 'Registro das motos já cadastradas', icone: 'motorcycle' },
+  { id: 'qrcode', titulo: 'QR Code', subtitulo: 'Escanear motos', icone: 'qrcode' },
+  { id: 'notificacoes', titulo: 'Notificações', subtitulo: 'Alertas operacionais', icone: 'exclamation-circle' },
+  { id: 'relatorios', titulo: 'Relatórios das Motos', subtitulo: 'Atualização semanal da filial', icone: 'bar-chart' },
+  { id: 'perfil', titulo: 'Meu Perfil', subtitulo: 'Gerenciar meu perfil', icone: 'user' }
 ];
 
 export default function HomeOperador() {
@@ -30,11 +30,19 @@ export default function HomeOperador() {
   const themeColors = isDark ? colors.dark : colors.light;
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
+  function handlePress(item: Opcao) {
+    if (item.id === 'patio') {
+      navigation.navigate('PatioModelos');
+      return;
+    }
+    navigation.navigate('PrototipoDeTela', { titulo: item.titulo });
+  }
+
   function renderItem({ item }: { item: Opcao }) {
     return (
       <TouchableOpacity
         style={[styles.card, { backgroundColor: isDark ? '#1e1e1e' : '#f3f3f3' }]}
-        onPress={() => navigation.navigate('PrototipoDeTela', { titulo: item.titulo })}
+        onPress={() => handlePress(item)}
         activeOpacity={0.9}
       >
         <FontAwesome name={item.icone} size={26} color={isDark ? '#00c853' : colors.buttonBg} />
