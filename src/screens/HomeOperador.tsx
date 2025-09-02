@@ -29,6 +29,7 @@ export default function HomeOperador() {
     if (item.id === 'patio') { navigation.navigate('PatioModelos'); return; }
     if (item.id === 'motos') { navigation.navigate('RegistroDasMotos', { origem: 'painel' }); return; }
     if (item.id === 'qrcode') { navigation.navigate('QRCode'); return; }
+    if (item.id === 'notificacoes') { navigation.navigate('Notificacoes'); return; }
     navigation.navigate('PrototipoDeTela', { titulo: item.titulo });
   }
 
