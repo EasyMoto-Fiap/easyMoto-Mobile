@@ -8,12 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 
-type Opcao = {
-  id: string;
-  titulo: string;
-  subtitulo: string;
-  icone: keyof typeof FontAwesome.glyphMap;
-};
+type Opcao = { id: string; titulo: string; subtitulo: string; icone: keyof typeof FontAwesome.glyphMap };
 
 const opcoes: Opcao[] = [
   { id: 'patio', titulo: 'Pátio', subtitulo: 'Mapa do pátio e localização das motos', icone: 'dashboard' },
@@ -33,6 +28,10 @@ export default function HomeOperador() {
   function handlePress(item: Opcao) {
     if (item.id === 'patio') {
       navigation.navigate('PatioModelos');
+      return;
+    }
+    if (item.id === 'motos') {
+      navigation.navigate('RegistroDasMotos', { origem: 'painel' });
       return;
     }
     navigation.navigate('PrototipoDeTela', { titulo: item.titulo });
