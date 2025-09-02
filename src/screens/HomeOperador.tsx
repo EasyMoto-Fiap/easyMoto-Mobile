@@ -26,14 +26,9 @@ export default function HomeOperador() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   function handlePress(item: Opcao) {
-    if (item.id === 'patio') {
-      navigation.navigate('PatioModelos');
-      return;
-    }
-    if (item.id === 'motos') {
-      navigation.navigate('RegistroDasMotos', { origem: 'painel' });
-      return;
-    }
+    if (item.id === 'patio') { navigation.navigate('PatioModelos'); return; }
+    if (item.id === 'motos') { navigation.navigate('RegistroDasMotos', { origem: 'painel' }); return; }
+    if (item.id === 'qrcode') { navigation.navigate('QRCode'); return; }
     navigation.navigate('PrototipoDeTela', { titulo: item.titulo });
   }
 
