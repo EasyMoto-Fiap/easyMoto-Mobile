@@ -16,12 +16,12 @@ type Opcao = {
 };
 
 const opcoes: Opcao[] = [
-  { id: '1', titulo: 'Dashboard Motos', subtitulo: 'Filiais das motos', icone: 'dashboard' },
-  { id: '2', titulo: 'Painel Das Motos', subtitulo: 'Filiais das motos', icone: 'motorcycle' },
-  { id: '3', titulo: 'QR Code', subtitulo: 'escanear motos', icone: 'qrcode' },
-  { id: '4', titulo: 'Meu Perfil', subtitulo: 'gerenciar meu perfil', icone: 'user' },
-  { id: '5', titulo: 'Aviso De Anomalias', subtitulo: 'alertas operacionais', icone: 'exclamation-circle' },
-  { id: '6', titulo: 'Graficos De Relatorios', subtitulo: 'Atualização semanal da filial', icone: 'bar-chart' }
+  { id: '1', titulo: 'Pátio', subtitulo: 'Mapa do pátio e localização das motos', icone: 'dashboard' },
+  { id: '2', titulo: 'Motos Cadastradas', subtitulo: 'Registro das motos já cadastradas', icone: 'motorcycle' },
+  { id: '3', titulo: 'QR Code', subtitulo: 'Escanear motos', icone: 'qrcode' },
+  { id: '4', titulo: 'Notificações', subtitulo: 'Alertas operacionais', icone: 'exclamation-circle' },
+  { id: '5', titulo: 'Relatórios das Motos', subtitulo: 'Atualização semanal da filial', icone: 'bar-chart' },
+  { id: '6', titulo: 'Meu Perfil', subtitulo: 'Gerenciar meu perfil', icone: 'user' }
 ];
 
 export default function HomeOperador() {
