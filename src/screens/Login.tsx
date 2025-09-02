@@ -21,6 +21,14 @@ export default function Login() {
   const [senha, setSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
 
+  function onAcessar() {
+    if (role === 'operador') {
+      navigation.replace('HomeOperador');
+    } else {
+      navigation.navigate('Home');
+    }
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
       <ThemeToggleButton />
@@ -53,7 +61,7 @@ export default function Login() {
           <FontAwesome name={mostrarSenha ? 'eye' : 'eye-slash'} size={20} color="#666" />
         </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={onAcessar}>
         <Text style={styles.buttonText}>Acessar</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => navigation.navigate('Register', { role })}>

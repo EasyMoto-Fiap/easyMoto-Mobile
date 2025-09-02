@@ -49,15 +49,22 @@ export default function Register() {
     if (senha !== confirmarSenha) { Alert.alert('Senhas diferentes', 'As senhas não coincidem.'); return; }
     if (!/^\d{11}$/.test(cpfLimpo)) { Alert.alert('CPF inválido', 'O CPF deve conter exatamente 11 dígitos numéricos.'); return; }
     if (!/^\d{8}$/.test(cepLimpo)) { Alert.alert('CEP inválido', 'O CEP deve conter exatamente 8 dígitos numéricos.'); return; }
+
     const novo = { id: Date.now().toString(), nome, email, senha, cpf, filial: cep, telefone: '', role };
     const listaKey = role === 'operador' ? 'operadores' : 'admins';
     const dados = await AsyncStorage.getItem(listaKey);
     const lista = dados ? JSON.parse(dados) : [];
     const novaLista = [...lista, novo];
+
     await AsyncStorage.setItem(listaKey, JSON.stringify(novaLista));
     await AsyncStorage.setItem('usuario', JSON.stringify(novo));
+
     Alert.alert('Cadastro realizado com sucesso!');
-    navigation.replace('Login', { role });
+    if (role === 'operador') {
+      navigation.replace('HomeOperador');
+    } else {
+      navigation.replace('Home');
+    }
   }
 
   return (
