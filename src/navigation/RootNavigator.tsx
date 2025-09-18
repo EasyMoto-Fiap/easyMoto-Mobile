@@ -6,9 +6,10 @@ import HomeOperador from '../screens/HomeOperador';
 import PrototipoDeTela from '../screens/PrototipoDeTela';
 import PatioModelos from '../screens/PatioModelos';
 import Patio from '../screens/Patio';
-import RegistroDasMotos from '../screens/RegistroDasMotos';
+import Registro from '../screens/Registro';
 import QRCode from '../screens/QRCode';
 import Notificacoes from '../screens/Notificacoes';
+import Relatorio from '../screens/Relatorio';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -18,9 +19,10 @@ export type RootStackParamList = {
   PrototipoDeTela: { titulo: string };
   PatioModelos: undefined;
   Patio: { tipo: string };
-  RegistroDasMotos: { origem?: 'dashboard' | 'painel' };
+  Registro: { origem?: 'dashboard' | 'painel' };
   QRCode: undefined;
   Notificacoes: undefined;
+  Relatorio: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -34,9 +36,10 @@ export default function RootNavigator() {
       <Stack.Screen name="HomeOperador" component={HomeOperador} />
       <Stack.Screen name="PatioModelos" component={PatioModelos} />
       <Stack.Screen name="Patio" component={Patio} />
-      <Stack.Screen name="RegistroDasMotos" component={RegistroDasMotos} />
+      <Stack.Screen name="Registro" component={Registro} />
       <Stack.Screen name="QRCode" component={QRCode} />
       <Stack.Screen name="Notificacoes" component={Notificacoes} />
+      <Stack.Screen name="Relatorio" component={Relatorio} />
       <Stack.Screen name="PrototipoDeTela" component={PrototipoDeTela} />
     </Stack.Navigator>
   );
