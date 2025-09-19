@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesome } from '@expo/vector-icons';
 import { useContext } from 'react';
-import ThemeToggleButton from '../../components/ThemeToggleButton';
+import ThemeToggleButton from '../components/ThemeToggleButton';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { colors } from '../styles/colors';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
