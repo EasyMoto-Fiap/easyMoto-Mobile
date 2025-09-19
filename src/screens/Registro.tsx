@@ -5,6 +5,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { colors } from '../../styles/colors';
 import ThemeToggleButton from '../../components/ThemeToggleButton';
+import { useRoute, RouteProp } from '@react-navigation/native';
+import type { RootStackParamList } from '../navigation/RootNavigator';
 
 type TipoMoto = 'Pop' | 'Sport' | 'E';
 type CorHex = string;
@@ -16,16 +18,6 @@ type Moto = {
   status: CorHex;
   lat: number;
   lng: number;
-};
-
-const legendaCores = {
-  pendencia: '#e6c300',
-  reparos: '#0074cc',
-  danos: '#ff4500',
-  defeituoso: '#ff0000',
-  manutencao: '#808080',
-  pronta: '#006400',
-  sem_placa: '#da70d6'
 };
 
 const coresLabel: Record<CorHex, string> = {
@@ -45,9 +37,12 @@ export default function Registro() {
   const isDark = theme === 'dark';
   const themeColors = isDark ? colors.dark : colors.light;
 
+  const route = useRoute<RouteProp<RootStackParamList, 'Registro'>>();
+  const canEdit = route.params?.canEdit === true;
+
   const [motos, setMotos] = useState<Moto[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [novaMoto, setNovaMoto] = useState<NovaMotoForm>({ nome: '', tipo: 'Pop', status: legendaCores.pronta });
+  const [novaMoto, setNovaMoto] = useState<NovaMotoForm>({ nome: '', tipo: 'Pop', status: '#006400' });
   const [editandoId, setEditandoId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -85,7 +80,7 @@ export default function Registro() {
       setMotos(prev => [...prev, nova]);
       registrarAlerta(`Moto ${nova.nome} foi cadastrada.`);
     }
-    setNovaMoto({ nome: '', tipo: 'Pop', status: legendaCores.pronta });
+    setNovaMoto({ nome: '', tipo: 'Pop', status: '#006400' });
     setEditandoId(null);
     setModalVisible(false);
   }
@@ -107,17 +102,19 @@ export default function Registro() {
         easy<Text style={{ color: colors.primary }}>Moto</Text>
       </Text>
 
-      <TouchableOpacity
-        style={styles.botaoCadastrar}
-        onPress={() => {
-          setEditandoId(null);
-          setNovaMoto({ nome: '', tipo: 'Pop', status: legendaCores.pronta });
-          setModalVisible(true);
-        }}
-        activeOpacity={0.9}
-      >
-        <Text style={styles.botaoCadastrarTexto}>Cadastrar nova moto</Text>
-      </TouchableOpacity>
+      {canEdit && (
+        <TouchableOpacity
+          style={styles.botaoCadastrar}
+          onPress={() => {
+            setEditandoId(null);
+            setNovaMoto({ nome: '', tipo: 'Pop', status: '#006400' });
+            setModalVisible(true);
+          }}
+          activeOpacity={0.9}
+        >
+          <Text style={styles.botaoCadastrarTexto}>Cadastrar nova moto</Text>
+        </TouchableOpacity>
+      )}
 
       <ScrollView style={{ flex: 1 }}>
         {(['Pop', 'Sport', 'E'] as TipoMoto[]).map(tipo => (
@@ -130,20 +127,22 @@ export default function Registro() {
                   <Text style={[styles.cardTitulo, { color: themeColors.text }]}>{moto.nome}</Text>
                   <Text style={{ color: themeColors.text }}>Status: {coresLabel[moto.status]}</Text>
                 </View>
-                <View>
-                  <TouchableOpacity
-                    onPress={() => {
-                      setNovaMoto({ nome: moto.nome, tipo: moto.tipo, status: moto.status });
-                      setEditandoId(moto.id);
-                      setModalVisible(true);
-                    }}
-                  >
-                    <Text style={styles.botaoEditar}>Editar</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => excluirMoto(moto.id)}>
-                    <Text style={styles.botaoExcluir}>Excluir</Text>
-                  </TouchableOpacity>
-                </View>
+                {canEdit && (
+                  <View>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setNovaMoto({ nome: moto.nome, tipo: moto.tipo, status: moto.status });
+                        setEditandoId(moto.id);
+                        setModalVisible(true);
+                      }}
+                    >
+                      <Text style={styles.botaoEditar}>Editar</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => excluirMoto(moto.id)}>
+                      <Text style={styles.botaoExcluir}>Excluir</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
               </View>
             ))}
           </View>
@@ -163,9 +162,7 @@ export default function Registro() {
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: themeColors.background }]}>
-            <Text style={[styles.modalTitulo, { color: themeColors.text }]}>
-              {editandoId ? 'Editar Moto' : 'Nova Moto'}
-            </Text>
+            <Text style={[styles.modalTitulo, { color: themeColors.text }]}>{editandoId ? 'Editar Moto' : 'Nova Moto'}</Text>
             <TextInput
               placeholder="Nome da moto"
               placeholderTextColor="#aaa"
@@ -201,7 +198,7 @@ export default function Registro() {
               <Text style={styles.botaoCadastrarTexto}>{editandoId ? 'Salvar edição' : 'Cadastrar'}</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => setModalVisible(false)} activeOpacity={0.8}>
-              <Text style={{ marginTop: 10, color: themeColors.text }}>Cancelar</Text>
+              <Text style={{ marginTop: 10, color: themeColors.text, textAlign: 'center' }}>Cancelar</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -211,28 +208,28 @@ export default function Registro() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, paddingTop: 60, paddingHorizontal: 20 },
-    logo: { fontSize: 32, fontWeight: 'bold', textAlign: 'center', marginBottom: 10 },
-    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
-    modalContent: { width: '90%', padding: 20, borderRadius: 12 },
-    modalTitulo: { fontSize: 18, fontWeight: 'bold', marginBottom: 12 },
-    input: { borderWidth: 1, padding: 10, borderRadius: 8 },
-    tipoContainer: { flexDirection: 'row', gap: 8, marginTop: 8 },
-    tipoBotao: { borderWidth: 1, paddingVertical: 6, paddingHorizontal: 14, borderRadius: 6 },
-    tipoSelecionado: { backgroundColor: '#00c853', borderColor: '#00c853' },
-    statusContainer: { marginTop: 8 },
-    statusBotao: { paddingVertical: 8, paddingHorizontal: 10, borderRadius: 6, marginBottom: 6 },
-    statusSelecionado: { borderWidth: 2, borderColor: '#000' },
-    statusTexto: { color: '#fff', fontWeight: 'bold' },
-    botaoCadastrar: { backgroundColor: '#00c853', padding: 12, borderRadius: 10, alignItems: 'center', marginVertical: 16 },
-    botaoCadastrarTexto: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-    tipoTitulo: { fontSize: 16, fontWeight: '600', marginBottom: 8 },
-    card: { flexDirection: 'row', alignItems: 'center', borderRadius: 16, padding: 15, marginBottom: 16 },
-    cardTitulo: { fontSize: 16, fontWeight: '600' },
-    botaoEditar: { color: '#2196f3', fontWeight: 'bold' },
-    botaoExcluir: { color: '#ff5252', fontWeight: 'bold' },
-    legendaContainer: { marginTop: 20 },
-    legendaTitulo: { fontWeight: 'bold', marginBottom: 4 },
-    legendaItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
-    legendaCor: { width: 16, height: 16, marginRight: 6, borderRadius: 4 }
-    });
+  container: { flex: 1, paddingTop: 60, paddingHorizontal: 20 },
+  logo: { fontSize: 32, fontWeight: 'bold', textAlign: 'center', marginBottom: 10 },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
+  modalContent: { width: '90%', padding: 20, borderRadius: 12 },
+  modalTitulo: { fontSize: 18, fontWeight: 'bold', marginBottom: 12 },
+  input: { borderWidth: 1, padding: 10, borderRadius: 8 },
+  tipoContainer: { flexDirection: 'row', gap: 8, marginTop: 8 },
+  tipoBotao: { borderWidth: 1, paddingVertical: 6, paddingHorizontal: 14, borderRadius: 6 },
+  tipoSelecionado: { backgroundColor: '#00c853', borderColor: '#00c853' },
+  statusContainer: { marginTop: 8 },
+  statusBotao: { paddingVertical: 8, paddingHorizontal: 10, borderRadius: 6, marginBottom: 6 },
+  statusSelecionado: { borderWidth: 2, borderColor: '#000' },
+  statusTexto: { color: '#fff', fontWeight: 'bold' },
+  botaoCadastrar: { backgroundColor: '#00c853', padding: 12, borderRadius: 10, alignItems: 'center', marginVertical: 16 },
+  botaoCadastrarTexto: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  tipoTitulo: { fontSize: 16, fontWeight: '600', marginBottom: 8 },
+  card: { flexDirection: 'row', alignItems: 'center', borderRadius: 16, padding: 15, marginBottom: 16 },
+  cardTitulo: { fontSize: 16, fontWeight: '600' },
+  botaoEditar: { color: '#2196f3', fontWeight: 'bold' },
+  botaoExcluir: { color: '#ff5252', fontWeight: 'bold' },
+  legendaContainer: { marginTop: 20 },
+  legendaTitulo: { fontWeight: 'bold', marginBottom: 4 },
+  legendaItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
+  legendaCor: { width: 16, height: 16, marginRight: 6, borderRadius: 4 }
+});

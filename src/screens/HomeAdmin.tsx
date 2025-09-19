@@ -8,27 +8,25 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 
-type Opcao = { id: 'patio' | 'motos' | 'qrcode' | 'notificacoes' | 'relatorios' | 'perfil'; titulo: string; subtitulo: string; icone: keyof typeof FontAwesome.glyphMap };
+type Opcao = { id: 'operadores' | 'patio' | 'notificacoes' | 'relatorios' | 'perfil'; titulo: string; subtitulo: string; icone: keyof typeof FontAwesome.glyphMap };
 
 const opcoes: Opcao[] = [
+  { id: 'operadores', titulo: 'Gerenciar Operadores', subtitulo: 'Criar, editar e remover', icone: 'users' },
   { id: 'patio', titulo: 'Pátio', subtitulo: 'Mapa do pátio e localização das motos', icone: 'dashboard' },
-  { id: 'motos', titulo: 'Motos Cadastradas', subtitulo: 'Registro das motos já cadastradas', icone: 'motorcycle' },
-  { id: 'qrcode', titulo: 'QR Code', subtitulo: 'Escanear motos', icone: 'qrcode' },
   { id: 'notificacoes', titulo: 'Notificações', subtitulo: 'Alertas operacionais', icone: 'exclamation-circle' },
   { id: 'relatorios', titulo: 'Relatórios das Motos', subtitulo: 'Atualização semanal da filial', icone: 'bar-chart' },
   { id: 'perfil', titulo: 'Meu Perfil', subtitulo: 'Gerenciar meu perfil', icone: 'user' }
 ];
 
-export default function HomeOperador() {
+export default function HomeAdmin() {
   const { theme } = useContext(ThemeContext);
   const isDark = theme === 'dark';
   const themeColors = isDark ? colors.dark : colors.light;
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   function handlePress(item: Opcao) {
+    if (item.id === 'operadores') { navigation.navigate('GerenciarOperadores'); return; }
     if (item.id === 'patio') { navigation.navigate('PatioModelos'); return; }
-    if (item.id === 'motos') { navigation.navigate('Registro', { canEdit: true }); return; }
-    if (item.id === 'qrcode') { navigation.navigate('QRCode'); return; }
     if (item.id === 'notificacoes') { navigation.navigate('Notificacoes'); return; }
     if (item.id === 'relatorios') { navigation.navigate('Relatorio'); return; }
     if (item.id === 'perfil') { navigation.navigate('Perfil'); return; }

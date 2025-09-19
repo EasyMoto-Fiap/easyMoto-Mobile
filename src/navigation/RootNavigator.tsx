@@ -3,6 +3,8 @@ import Home from '../screens/Home';
 import Login from '../screens/Login';
 import Register from '../screens/Register';
 import HomeOperador from '../screens/HomeOperador';
+import HomeAdmin from '../screens/HomeAdmin';
+import GerenciarOperadores from '../screens/GerenciarOperadores';
 import PrototipoDeTela from '../screens/PrototipoDeTela';
 import PatioModelos from '../screens/PatioModelos';
 import Patio from '../screens/Patio';
@@ -17,10 +19,12 @@ export type RootStackParamList = {
   Login: { role: 'operador' | 'admin' };
   Register: { role: 'operador' | 'admin' };
   HomeOperador: undefined;
+  HomeAdmin: undefined;
+  GerenciarOperadores: undefined;
   PrototipoDeTela: { titulo: string };
   PatioModelos: undefined;
   Patio: { tipo: string };
-  Registro: { origem?: 'dashboard' | 'painel' };
+  Registro: { canEdit?: boolean };
   QRCode: undefined;
   Notificacoes: undefined;
   Relatorio: undefined;
@@ -36,6 +40,8 @@ export default function RootNavigator() {
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Register" component={Register} />
       <Stack.Screen name="HomeOperador" component={HomeOperador} />
+      <Stack.Screen name="HomeAdmin" component={HomeAdmin} />
+      <Stack.Screen name="GerenciarOperadores" component={GerenciarOperadores} />
       <Stack.Screen name="PatioModelos" component={PatioModelos} />
       <Stack.Screen name="Patio" component={Patio} />
       <Stack.Screen name="Registro" component={Registro} />
