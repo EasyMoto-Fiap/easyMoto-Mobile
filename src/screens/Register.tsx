@@ -12,6 +12,8 @@ import ThemeToggleButton from '../components/ThemeToggleButton';
 import { ThemeContext } from '../contexts/ThemeContext';
 import ErrorSnackbar from '../components/ErrorSnackbar';
 import LoadingOverlay from '../components/LoadingOverlay';
+import LoadingButton from '../components/LoadingButton';
+import useRequest from '../hooks/useRequest';
 
 function formatarCPF(valor: string) {
   const numeros = valor.replace(/\D/g, '');
@@ -41,9 +43,8 @@ export default function Register() {
   const [cep, setCep] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [mostrarConfirmar, setMostrarConfirmar] = useState(false);
-  const [errorVisible, setErrorVisible] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [loadingVisible, setLoadingVisible] = useState(false);
+
+  const { run, loadingVisible, loadingText, errorVisible, errorMessage, hideError } = useRequest();
 
   async function validarCampos() {
     const cpfLimpo = cpf.replace(/\D/g, '');
@@ -72,6 +73,10 @@ export default function Register() {
     }
   }
 
+  function onSubmit() {
+    run(validarCampos, { loadingText: 'Cadastrando...' });
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
       <ThemeToggleButton />
@@ -97,15 +102,13 @@ export default function Register() {
       </View>
       <TextInput style={styles.input} placeholder="CPF:" placeholderTextColor="#666" value={cpf} onChangeText={(v) => setCpf(formatarCPF(v))} maxLength={14} />
       <TextInput style={styles.input} placeholder="CEP da Filial:" placeholderTextColor="#666" value={cep} onChangeText={(v) => setCep(formatarCEP(v))} maxLength={9} />
-      <TouchableOpacity style={styles.button} onPress={validarCampos}>
-        <Text style={styles.buttonText}>Acessar</Text>
-      </TouchableOpacity>
+      <LoadingButton title="Acessar" onPress={onSubmit} loading={loadingVisible} style={styles.button} />
       <TouchableOpacity onPress={() => navigation.navigate('Login', { role })}>
         <Text style={[styles.linkText, { color: themeColors.text }]}>Já tem conta? Faça Login</Text>
       </TouchableOpacity>
       <VoltarParaHome />
-      <ErrorSnackbar visible={errorVisible} message={errorMessage} onDismiss={() => setErrorVisible(false)} />
-      <LoadingOverlay visible={loadingVisible} text="Carregando..." />
+      <ErrorSnackbar visible={errorVisible} message={errorMessage} onDismiss={hideError} />
+      <LoadingOverlay visible={loadingVisible} text={loadingText} />
     </View>
   );
 }
@@ -122,3 +125,4 @@ const styles = StyleSheet.create({
   buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   linkText: { textAlign: 'center', fontSize: 14 }
 });
+  
