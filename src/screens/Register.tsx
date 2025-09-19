@@ -10,6 +10,7 @@ import { colors } from '../styles/colors';
 import VoltarParaHome from '../components/VoltarParaHome';
 import ThemeToggleButton from '../components/ThemeToggleButton';
 import { ThemeContext } from '../contexts/ThemeContext';
+import ErrorSnackbar from '../components/ErrorSnackbar';
 
 function formatarCPF(valor: string) {
   const numeros = valor.replace(/\D/g, '');
@@ -39,6 +40,8 @@ export default function Register() {
   const [cep, setCep] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [mostrarConfirmar, setMostrarConfirmar] = useState(false);
+  const [errorVisible, setErrorVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   async function validarCampos() {
     const cpfLimpo = cpf.replace(/\D/g, '');
@@ -63,7 +66,7 @@ export default function Register() {
     if (role === 'operador') {
       navigation.replace('HomeOperador');
     } else {
-      navigation.replace('Home');
+      navigation.replace('HomeAdmin');
     }
   }
 
@@ -71,16 +74,15 @@ export default function Register() {
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
       <ThemeToggleButton />
       <Text style={[styles.logo, { color: themeColors.text }]}>
-        <Text style={styles.logoEasy}>easy</Text>
-        <Text style={{ color: themeColors.text }}>Moto</Text>
+        <Text style={styles.logoEasy}>easy</Text>Moto
       </Text>
       <Text style={[styles.title, { color: themeColors.text }]}>
         Cadastro do {role === 'operador' ? 'operador' : 'administrador'}:
       </Text>
       <TextInput style={styles.input} placeholder="Nome:" placeholderTextColor="#666" value={nome} onChangeText={setNome} />
-      <TextInput style={styles.input} placeholder="Email:" placeholderTextColor="#666" keyboardType="email-address" value={email} onChangeText={setEmail} autoCapitalize="none" />
+      <TextInput style={styles.input} placeholder="Email:" placeholderTextColor="#666" value={email} onChangeText={setEmail} autoCapitalize="none" />
       <View style={styles.senhaContainer}>
-        <TextInput style={[styles.input, { flex: 1, marginBottom: 0 }]} placeholder="Senha (8 caracteres):" placeholderTextColor="#666" secureTextEntry={!mostrarSenha} value={senha} onChangeText={setSenha} />
+        <TextInput style={[styles.input, { flex: 1, marginBottom: 0 }]} placeholder="Senha:" placeholderTextColor="#666" secureTextEntry={!mostrarSenha} value={senha} onChangeText={setSenha} />
         <TouchableOpacity onPress={() => setMostrarSenha(!mostrarSenha)} style={styles.iconeOlho}>
           <FontAwesome name={mostrarSenha ? 'eye' : 'eye-slash'} size={20} color="#666" />
         </TouchableOpacity>
@@ -91,8 +93,8 @@ export default function Register() {
           <FontAwesome name={mostrarConfirmar ? 'eye' : 'eye-slash'} size={20} color="#666" />
         </TouchableOpacity>
       </View>
-      <TextInput style={styles.input} placeholder="CPF:" placeholderTextColor="#666" keyboardType="numeric" value={cpf} onChangeText={(v) => setCpf(formatarCPF(v))} maxLength={14} />
-      <TextInput style={styles.input} placeholder="CEP da Filial:" placeholderTextColor="#666" keyboardType="numeric" value={cep} onChangeText={(v) => setCep(formatarCEP(v))} maxLength={9} />
+      <TextInput style={styles.input} placeholder="CPF:" placeholderTextColor="#666" value={cpf} onChangeText={(v) => setCpf(formatarCPF(v))} maxLength={14} />
+      <TextInput style={styles.input} placeholder="CEP da Filial:" placeholderTextColor="#666" value={cep} onChangeText={(v) => setCep(formatarCEP(v))} maxLength={9} />
       <TouchableOpacity style={styles.button} onPress={validarCampos}>
         <Text style={styles.buttonText}>Acessar</Text>
       </TouchableOpacity>
@@ -100,6 +102,7 @@ export default function Register() {
         <Text style={[styles.linkText, { color: themeColors.text }]}>Já tem conta? Faça Login</Text>
       </TouchableOpacity>
       <VoltarParaHome />
+      <ErrorSnackbar visible={errorVisible} message={errorMessage} onDismiss={() => setErrorVisible(false)} />
     </View>
   );
 }

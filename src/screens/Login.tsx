@@ -8,6 +8,7 @@ import VoltarParaHome from '../components/VoltarParaHome';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import ErrorSnackbar from '../components/ErrorSnackbar';
 
 export default function Login() {
   const { theme } = useContext(ThemeContext);
@@ -22,6 +23,8 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [errorVisible, setErrorVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   function acessar() {
     if (role === 'admin') {
@@ -40,14 +43,13 @@ export default function Login() {
         <Text style={{ color: colors.primary }}>easy</Text>Moto
       </Text>
 
-      <Text style={[styles.title, { color: themeColors.text }]}>
-        {role === 'admin' ? 'Login do administrador:' : 'Login do operador:'}
-      </Text>
+      <Text style={[styles.title, { color: themeColors.text }]}>Login do {role === 'admin' ? 'administrador' : 'operador'}:</Text>
 
       <TextInput
         style={styles.input}
-        placeholder="Email:"
+        placeholder="E-mail:"
         placeholderTextColor="#666"
+        autoCapitalize="none"
         keyboardType="email-address"
         value={email}
         onChangeText={setEmail}
@@ -74,6 +76,8 @@ export default function Login() {
       <TouchableOpacity onPress={() => navigation.navigate('Register', { role })}>
         <Text style={[styles.linkText, { color: themeColors.text }]}>Não tem conta? Cadastre-se</Text>
       </TouchableOpacity>
+
+      <ErrorSnackbar visible={errorVisible} message={errorMessage} onDismiss={() => setErrorVisible(false)} />
     </View>
   );
 }

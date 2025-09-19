@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useContext } from 'react';
-import { ThemeContext } from '../src/contexts/ThemeContext';
+import { ThemeContext } from '../contexts/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../styles/colors';
 
