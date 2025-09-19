@@ -4,7 +4,7 @@ import { useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { ThemeContext } from '../contexts/ThemeContext';
-import { colors } from '../../styles/colors';
+import { colors } from '../styles/colors';
 
 export default function PrototipoDeTela() {
   const route = useRoute<RouteProp<RootStackParamList, 'PrototipoDeTela'>>();

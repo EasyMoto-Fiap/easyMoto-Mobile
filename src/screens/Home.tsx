@@ -1,8 +1,8 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useContext } from 'react';
 import { ThemeContext } from '../contexts/ThemeContext';
-import { colors } from '../../styles/colors';
-import ThemeToggleButton from '../../components/ThemeToggleButton';
+import { colors } from '../styles/colors';
+import ThemeToggleButton from '../components/ThemeToggleButton';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';

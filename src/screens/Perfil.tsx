@@ -3,8 +3,8 @@ import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useContext, useEffect, useState } from 'react';
 import { ThemeContext } from '../contexts/ThemeContext';
-import { colors } from '../../styles/colors';
-import ThemeToggleButton from '../../components/ThemeToggleButton';
+import { colors } from '../styles/colors';
+import ThemeToggleButton from '../components/ThemeToggleButton';
 import { FontAwesome } from '@expo/vector-icons';
 
 type Usuario = {

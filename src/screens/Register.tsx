@@ -6,9 +6,9 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
-import { colors } from '../../styles/colors';
-import VoltarParaHome from '../../components/VoltarParaHome';
-import ThemeToggleButton from '../../components/ThemeToggleButton';
+import { colors } from '../styles/colors';
+import VoltarParaHome from '../components/VoltarParaHome';
+import ThemeToggleButton from '../components/ThemeToggleButton';
 import { ThemeContext } from '../contexts/ThemeContext';
 
 function formatarCPF(valor: string) {

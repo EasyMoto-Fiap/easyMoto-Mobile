@@ -2,8 +2,8 @@ import { View, Text, StyleSheet, Alert } from 'react-native';
 import { useEffect, useRef, useState, useContext } from 'react';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { ThemeContext } from '../contexts/ThemeContext';
-import ThemeToggleButton from '../../components/ThemeToggleButton';
-import { colors } from '../../styles/colors';
+import ThemeToggleButton from '../components/ThemeToggleButton';
+import { colors } from '../styles/colors';
 
 export default function QRCode() {
     const { theme } = useContext(ThemeContext);

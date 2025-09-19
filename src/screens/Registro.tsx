@@ -3,8 +3,8 @@ import { useContext, useState, useEffect } from 'react';
 import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemeContext } from '../contexts/ThemeContext';
-import { colors } from '../../styles/colors';
-import ThemeToggleButton from '../../components/ThemeToggleButton';
+import { colors } from '../styles/colors';
+import ThemeToggleButton from '../components/ThemeToggleButton';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 

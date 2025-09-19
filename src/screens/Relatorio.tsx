@@ -3,8 +3,8 @@ import { useEffect, useState, useContext, useMemo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BarChart } from 'react-native-chart-kit';
 import { ThemeContext } from '../contexts/ThemeContext';
-import { colors } from '../../styles/colors';
-import ThemeToggleButton from '../../components/ThemeToggleButton';
+import { colors } from '../styles/colors';
+import ThemeToggleButton from '../components/ThemeToggleButton';
 
 type TipoMoto = 'Pop' | 'Sport' | 'E';
 type CorHex = string;

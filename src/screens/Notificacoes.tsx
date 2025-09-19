@@ -3,8 +3,8 @@ import { useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FontAwesome } from '@expo/vector-icons';
 import { ThemeContext } from '../contexts/ThemeContext';
-import { colors } from '../../styles/colors';
-import ThemeToggleButton from '../../components/ThemeToggleButton';
+import { colors } from '../styles/colors';
+import ThemeToggleButton from '../components/ThemeToggleButton';
 
 export default function Notificacoes() {
   const { theme } = useContext(ThemeContext);

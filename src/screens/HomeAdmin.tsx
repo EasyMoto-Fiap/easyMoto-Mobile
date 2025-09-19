@@ -1,9 +1,9 @@
 import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import { useContext } from 'react';
 import { FontAwesome } from '@expo/vector-icons';
-import ThemeToggleButton from '../../components/ThemeToggleButton';
+import ThemeToggleButton from '../components/ThemeToggleButton';
 import { ThemeContext } from '../contexts/ThemeContext';
-import { colors } from '../../styles/colors';
+import { colors } from '../styles/colors';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';

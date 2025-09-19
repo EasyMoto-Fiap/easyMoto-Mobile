@@ -2,9 +2,9 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Modal,
 import { useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FontAwesome } from '@expo/vector-icons';
-import ThemeToggleButton from '../../components/ThemeToggleButton';
+import ThemeToggleButton from '../components/ThemeToggleButton';
 import { ThemeContext } from '../contexts/ThemeContext';
-import { colors } from '../../styles/colors';
+import { colors } from '../styles/colors';
 
 type Operador = {
     id: string;
