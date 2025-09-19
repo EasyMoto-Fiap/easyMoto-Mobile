@@ -8,7 +8,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 
-type Opcao = { id: string; titulo: string; subtitulo: string; icone: keyof typeof FontAwesome.glyphMap };
+type Opcao = { id: 'patio' | 'motos' | 'qrcode' | 'notificacoes' | 'relatorios' | 'perfil'; titulo: string; subtitulo: string; icone: keyof typeof FontAwesome.glyphMap };
 
 const opcoes: Opcao[] = [
   { id: 'patio', titulo: 'Pátio', subtitulo: 'Mapa do pátio e localização das motos', icone: 'dashboard' },
@@ -26,21 +26,21 @@ export default function HomeOperador() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   function handlePress(item: Opcao) {
-    if (item.id === 'patio') { navigation.navigate('PatioModelos'); return; }
-    if (item.id === 'motos') { navigation.navigate('Registro', { origem: 'painel' }); return; }
-    if (item.id === 'qrcode') { navigation.navigate('QRCode'); return; }
-    if (item.id === 'notificacoes') { navigation.navigate('Notificacoes'); return; }
-    if (item.id === 'relatorios') { navigation.navigate('Relatorio'); return; }
-    navigation.navigate('PrototipoDeTela', { titulo: item.titulo });
+    const map: Record<Opcao['id'], [keyof RootStackParamList, any?]> = {
+      patio: ['PatioModelos'],
+      motos: ['Registro', { origem: 'painel' }],
+      qrcode: ['QRCode'],
+      notificacoes: ['Notificacoes'],
+      relatorios: ['Relatorio'],
+      perfil: ['Perfil']
+    };
+    const [route, params] = map[item.id];
+    navigation.navigate(route as any, params as any);
   }
 
   function renderItem({ item }: { item: Opcao }) {
     return (
-      <TouchableOpacity
-        style={[styles.card, { backgroundColor: isDark ? '#1e1e1e' : '#f3f3f3' }]}
-        onPress={() => handlePress(item)}
-        activeOpacity={0.9}
-      >
+      <TouchableOpacity style={[styles.card, { backgroundColor: isDark ? '#1e1e1e' : '#f3f3f3' }]} onPress={() => handlePress(item)} activeOpacity={0.9}>
         <FontAwesome name={item.icone} size={26} color={isDark ? '#00c853' : colors.buttonBg} />
         <View style={styles.cardText}>
           <Text style={[styles.cardTitle, { color: themeColors.text }]}>{item.titulo}</Text>
@@ -57,13 +57,7 @@ export default function HomeOperador() {
       <Text style={[styles.logo, { color: themeColors.text }]}>
         <Text style={{ color: colors.primary }}>easy</Text>Moto
       </Text>
-      <FlatList
-        data={opcoes}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: 30 }}
-        showsVerticalScrollIndicator={false}
-      />
+      <FlatList data={opcoes} keyExtractor={(i) => i.id} renderItem={renderItem} contentContainerStyle={{ paddingBottom: 30 }} showsVerticalScrollIndicator={false} />
     </View>
   );
 }

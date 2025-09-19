@@ -10,6 +10,7 @@ import Registro from '../screens/Registro';
 import QRCode from '../screens/QRCode';
 import Notificacoes from '../screens/Notificacoes';
 import Relatorio from '../screens/Relatorio';
+import Perfil from '../screens/Perfil';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -23,6 +24,7 @@ export type RootStackParamList = {
   QRCode: undefined;
   Notificacoes: undefined;
   Relatorio: undefined;
+  Perfil: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -40,6 +42,7 @@ export default function RootNavigator() {
       <Stack.Screen name="QRCode" component={QRCode} />
       <Stack.Screen name="Notificacoes" component={Notificacoes} />
       <Stack.Screen name="Relatorio" component={Relatorio} />
+      <Stack.Screen name="Perfil" component={Perfil} />
       <Stack.Screen name="PrototipoDeTela" component={PrototipoDeTela} />
     </Stack.Navigator>
   );
