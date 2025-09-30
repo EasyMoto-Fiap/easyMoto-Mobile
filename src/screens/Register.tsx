@@ -12,6 +12,9 @@ import ThemeToggleButton from '../components/ThemeToggleButton';
 import { ThemeContext } from '../contexts/ThemeContext';
 import ErrorSnackbar from '../components/ErrorSnackbar';
 import { criarUsuario, listarFiliais } from '../services/usuarios';
+import LoadingOverlay from '../components/LoadingOverlay';
+import LoadingButton from '../components/LoadingButton';
+import useRequest from '../hooks/useRequest';
 
 
 function formatarCPF(valor: string) {
@@ -54,6 +57,17 @@ async function validarCampos() {
   if (senha !== confirmarSenha) { Alert.alert('Senhas diferentes', 'As senhas não coincidem.'); return; }
   if (!/^\d{11}$/.test(cpfLimpo)) { Alert.alert('CPF inválido', 'O CPF deve conter exatamente 11 dígitos numéricos.'); return; }
   if (!/^\d{8}$/.test(cepLimpo)) { Alert.alert('CEP inválido', 'O CEP deve conter exatamente 8 dígitos numéricos.'); return; }
+  const { run, loadingVisible, loadingText, errorVisible, errorMessage, hideError } = useRequest();
+
+  async function validarCampos() {
+    const cpfLimpo = cpf.replace(/\D/g, '');
+    const cepLimpo = cep.replace(/\D/g, '');
+    if (!/^[A-Za-zÀ-ú\s]+$/.test(nome)) { Alert.alert('Nome inválido', 'O nome não pode conter números ou símbolos.'); return; }
+    if (!email.includes('@')) { Alert.alert('Email inválido', 'O email deve conter @'); return; }
+    if (senha.length !== 8) { Alert.alert('Senha inválida', 'A senha deve conter exatamente 8 caracteres.'); return; }
+    if (senha !== confirmarSenha) { Alert.alert('Senhas diferentes', 'As senhas não coincidem.'); return; }
+    if (!/^\d{11}$/.test(cpfLimpo)) { Alert.alert('CPF inválido', 'O CPF deve conter exatamente 11 dígitos numéricos.'); return; }
+    if (!/^\d{8}$/.test(cepLimpo)) { Alert.alert('CEP inválido', 'O CEP deve conter exatamente 8 dígitos numéricos.'); return; }
 
   const perfil = role === 'operador' ? 0 : 1;
   const filiais = await listarFiliais(1, 100);
@@ -78,9 +92,20 @@ async function validarCampos() {
     navigation.replace('HomeOperador');
   } else {
     navigation.replace('HomeAdmin');
+    Alert.alert('Cadastro realizado com sucesso!');
+    if (role === 'operador') {
+      navigation.replace('HomeOperador');
+    } else {
+      navigation.replace('HomeAdmin');
+    }
+
   }
 }
 
+
+  function onSubmit() {
+    run(validarCampos, { loadingText: 'Cadastrando...' });
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
@@ -110,11 +135,14 @@ async function validarCampos() {
       <TouchableOpacity style={styles.button} onPress={validarCampos}>
         <Text style={styles.buttonText}>Acessar</Text>
       </TouchableOpacity>
+      <LoadingButton title="Acessar" onPress={onSubmit} loading={loadingVisible} style={styles.button} />
       <TouchableOpacity onPress={() => navigation.navigate('Login', { role })}>
         <Text style={[styles.linkText, { color: themeColors.text }]}>Já tem conta? Faça Login</Text>
       </TouchableOpacity>
       <VoltarParaHome />
       <ErrorSnackbar visible={errorVisible} message={errorMessage} onDismiss={() => setErrorVisible(false)} />
+      <ErrorSnackbar visible={errorVisible} message={errorMessage} onDismiss={hideError} />
+      <LoadingOverlay visible={loadingVisible} text={loadingText} />
     </View>
   );
 }
@@ -131,3 +159,4 @@ const styles = StyleSheet.create({
   buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   linkText: { textAlign: 'center', fontSize: 14 }
 });
+  

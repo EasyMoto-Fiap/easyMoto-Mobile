@@ -9,6 +9,9 @@ import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ErrorSnackbar from '../components/ErrorSnackbar';
+import LoadingOverlay from '../components/LoadingOverlay';
+import LoadingButton from '../components/LoadingButton';
+import useRequest from '../hooks/useRequest';
 
 export default function Login() {
   const { theme } = useContext(ThemeContext);
@@ -26,12 +29,17 @@ export default function Login() {
   const [errorVisible, setErrorVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const { run, loadingVisible, loadingText, errorVisible, errorMessage, hideError } = useRequest();
+
   function acessar() {
-    if (role === 'admin') {
-      navigation.navigate('HomeAdmin');
-    } else {
-      navigation.navigate('HomeOperador');
-    }
+    run(async () => {
+      if (role === 'admin') {
+        navigation.navigate('HomeAdmin');
+      } else {
+        navigation.navigate('HomeOperador');
+      }
+      return true;
+    }, { loadingText: 'Entrando...' });
   }
 
   return (
@@ -69,15 +77,15 @@ export default function Login() {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={acessar}>
-        <Text style={styles.buttonText}>Acessar</Text>
-      </TouchableOpacity>
+      <LoadingButton title="Acessar" onPress={acessar} loading={loadingVisible} style={styles.button} />
 
       <TouchableOpacity onPress={() => navigation.navigate('Register', { role })}>
         <Text style={[styles.linkText, { color: themeColors.text }]}>Não tem conta? Cadastre-se</Text>
       </TouchableOpacity>
 
       <ErrorSnackbar visible={errorVisible} message={errorMessage} onDismiss={() => setErrorVisible(false)} />
+      <ErrorSnackbar visible={errorVisible} message={errorMessage} onDismiss={hideError} />
+      <LoadingOverlay visible={loadingVisible} text={loadingText} />
     </View>
   );
 }
