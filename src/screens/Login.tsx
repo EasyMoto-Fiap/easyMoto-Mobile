@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useContext, useState } from 'react';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { colors } from '../styles/colors';
@@ -8,10 +8,11 @@ import VoltarParaHome from '../components/VoltarParaHome';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import ErrorSnackbar from '../components/ErrorSnackbar';
-import LoadingOverlay from '../components/LoadingOverlay';
-import LoadingButton from '../components/LoadingButton';
 import useRequest from '../hooks/useRequest';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { login } from '../services/auth';
+import api from '../services/api';
+import axios from 'axios';
 
 export default function Login() {
   const { theme } = useContext(ThemeContext);
@@ -20,42 +21,65 @@ export default function Login() {
 
   const route = useRoute<RouteProp<RootStackParamList, 'Login'>>();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-
-  const role = route.params?.role ?? 'operador';
+  const role = route.params?.role;
 
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
-  const [errorVisible, setErrorVisible] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const { run, loadingVisible, loadingText, errorVisible, errorMessage, hideError } = useRequest();
+  const { run, loadingVisible, errorVisible, errorMessage, hideError } = useRequest();
 
-  function acessar() {
-    run(async () => {
-      if (role === 'admin') {
-        navigation.navigate('HomeAdmin');
-      } else {
-        navigation.navigate('HomeOperador');
+  async function onSubmit() {
+    const e = email.trim();
+    const s = senha.trim();
+    if (!e || !e.includes('@')) throw new Error('Email inválido');
+    if (!s || s.length < 6) throw new Error('Senha inválida');
+    try {
+      const resp = await login({ email: e, senha: s });
+      if (role === 'operador' && resp.usuario.perfil !== 0) {
+        throw new Error('Você tentou logar como Operador usando uma conta de Administrador.');
       }
-      return true;
-    }, { loadingText: 'Entrando...' });
+      if (role === 'admin' && resp.usuario.perfil !== 1) {
+        throw new Error('Você tentou logar como Administrador usando uma conta de Operador.');
+      }
+      await AsyncStorage.setItem('token', resp.token);
+      await AsyncStorage.setItem('usuarioAtual', JSON.stringify(resp.usuario));
+      api.defaults.headers.common['Authorization'] = `Bearer ${resp.token}`;
+      if (resp.usuario.perfil === 0) {
+        navigation.replace('HomeOperador');
+      } else {
+        navigation.replace('HomeAdmin');
+      }
+    } catch (err: any) {
+      if (axios.isAxiosError(err)) {
+        if (err.response?.status === 401) {
+          throw new Error('Email ou senha inválidos');
+        }
+        if (!err.response) {
+          throw new Error('Não foi possível conectar ao servidor. Verifique sua internet ou tente novamente.');
+        }
+      }
+      throw err;
+    }
   }
 
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <ThemeToggleButton />
       <VoltarParaHome />
+      <ThemeToggleButton />
 
-      <Text style={[styles.logo, { color: themeColors.text }]}>
-        <Text style={{ color: colors.primary }}>easy</Text>Moto
+      <Text style={styles.logoRow}>
+        <Text style={[styles.logo, styles.logoEasy]}>easy</Text>
+        <Text style={[styles.logo, { color: themeColors.text }]}>Moto</Text>
       </Text>
 
-      <Text style={[styles.title, { color: themeColors.text }]}>Login do {role === 'admin' ? 'administrador' : 'operador'}:</Text>
+      <Text style={[styles.title, { color: themeColors.text }]}>
+        {role === 'admin' ? 'Login Administrador' : 'Login Operador'}
+      </Text>
 
       <TextInput
-        style={styles.input}
-        placeholder="E-mail:"
+        style={[styles.input, { backgroundColor: colors.inputBg, color: '#111' }]}
+        placeholder="Email"
         placeholderTextColor="#666"
         autoCapitalize="none"
         keyboardType="email-address"
@@ -65,39 +89,62 @@ export default function Login() {
 
       <View style={styles.senhaContainer}>
         <TextInput
-          style={[styles.input, { flex: 1, marginBottom: 0 }]}
-          placeholder="Senha:"
+          style={[styles.input, { flex: 1, marginBottom: 0, backgroundColor: colors.inputBg, color: '#111' }]}
+          placeholder="Senha"
           placeholderTextColor="#666"
           secureTextEntry={!mostrarSenha}
           value={senha}
           onChangeText={setSenha}
         />
-        <TouchableOpacity onPress={() => setMostrarSenha(!mostrarSenha)} style={styles.iconeOlho}>
-          <FontAwesome name={mostrarSenha ? 'eye' : 'eye-slash'} size={20} color="#666" />
+        <TouchableOpacity style={styles.iconeOlho} onPress={() => setMostrarSenha(v => !v)}>
+          <FontAwesome name={mostrarSenha ? 'eye-slash' : 'eye'} size={20} color="#666" />
         </TouchableOpacity>
       </View>
 
-      <LoadingButton title="Acessar" onPress={acessar} loading={loadingVisible} style={styles.button} />
-
-      <TouchableOpacity onPress={() => navigation.navigate('Register', { role })}>
-        <Text style={[styles.linkText, { color: themeColors.text }]}>Não tem conta? Cadastre-se</Text>
+      <TouchableOpacity
+        style={[styles.button, { backgroundColor: colors.buttonBg, opacity: loadingVisible ? 0.9 : 1 }]}
+        onPress={() => run(onSubmit, { loadingText: 'Entrando...' })}
+        activeOpacity={0.9}
+        disabled={loadingVisible}
+      >
+        {loadingVisible ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.buttonText}>Entrar</Text>}
       </TouchableOpacity>
 
-      <ErrorSnackbar visible={errorVisible} message={errorMessage} onDismiss={() => setErrorVisible(false)} />
-      <ErrorSnackbar visible={errorVisible} message={errorMessage} onDismiss={hideError} />
-      <LoadingOverlay visible={loadingVisible} text={loadingText} />
+      <View style={styles.signupRow}>
+        <Text style={[styles.signupText, { color: isDark ? '#A6A6A6' : '#686868' }]}>Não tem conta? </Text>
+        <TouchableOpacity onPress={() => navigation.navigate('Register', { role })}>
+          <Text style={[styles.signupLink, { color: colors.primary }]}>Cadastre-se</Text>
+        </TouchableOpacity>
+      </View>
+
+      {errorVisible && (
+        <View style={[styles.bannerInline, { backgroundColor: themeColors.background, borderColor: colors.primary }]}>
+          <Text style={[styles.bannerText, { color: themeColors.text }]} numberOfLines={2}>{errorMessage}</Text>
+          <TouchableOpacity onPress={hideError} style={styles.bannerAction}>
+            <Text style={[styles.bannerActionText, { color: colors.primary }]}>Fechar</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 30, justifyContent: 'center' },
-  logo: { fontSize: 36, fontWeight: 'bold', textAlign: 'center', marginBottom: 50 },
+  logoRow: { textAlign: 'center', marginBottom: 50 },
+  logo: { fontSize: 36, fontWeight: 'bold' },
+  logoEasy: { color: colors.primary },
   title: { fontSize: 18, marginBottom: 20, textAlign: 'center' },
-  input: { backgroundColor: '#e4e4e4', padding: 15, borderRadius: 30, marginBottom: 15 },
+  input: { padding: 15, borderRadius: 30, marginBottom: 15 },
   senhaContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
   iconeOlho: { position: 'absolute', right: 15 },
-  button: { backgroundColor: '#004d25', padding: 15, borderRadius: 30, alignItems: 'center', marginTop: 10, marginBottom: 20 },
+  button: { padding: 15, borderRadius: 30, alignItems: 'center', marginTop: 10, marginBottom: 12 },
   buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-  linkText: { textAlign: 'center', fontSize: 14 }
+  signupRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
+  signupText: { fontSize: 14 },
+  signupLink: { fontSize: 14, fontWeight: '700' },
+  bannerInline: { marginTop: 8, paddingVertical: 12, paddingHorizontal: 14, borderRadius: 14, borderWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  bannerText: { flex: 1, marginRight: 12, fontSize: 14 },
+  bannerAction: { paddingHorizontal: 6, paddingVertical: 4, borderRadius: 8 },
+  bannerActionText: { fontSize: 14, fontWeight: '700' }
 });

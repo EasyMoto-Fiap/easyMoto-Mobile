@@ -11,7 +11,9 @@
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff",
-      "extra": { "API_URL" : "http://172.203.27.184" }
+      "extra": {
+        "API_URL": "http://172.203.27.184"
+      }
     },
     "ios": {
       "supportsTablet": true
@@ -25,6 +27,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-asset",
+      "expo-font",
+      "expo-secure-store"
+    ]
   }
 }
