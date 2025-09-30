@@ -26,6 +26,8 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [errorVisible, setErrorVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { run, loadingVisible, loadingText, errorVisible, errorMessage, hideError } = useRequest();
 
@@ -81,6 +83,7 @@ export default function Login() {
         <Text style={[styles.linkText, { color: themeColors.text }]}>Não tem conta? Cadastre-se</Text>
       </TouchableOpacity>
 
+      <ErrorSnackbar visible={errorVisible} message={errorMessage} onDismiss={() => setErrorVisible(false)} />
       <ErrorSnackbar visible={errorVisible} message={errorMessage} onDismiss={hideError} />
       <LoadingOverlay visible={loadingVisible} text={loadingText} />
     </View>

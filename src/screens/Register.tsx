@@ -11,9 +11,11 @@ import VoltarParaHome from '../components/VoltarParaHome';
 import ThemeToggleButton from '../components/ThemeToggleButton';
 import { ThemeContext } from '../contexts/ThemeContext';
 import ErrorSnackbar from '../components/ErrorSnackbar';
+import { criarUsuario, listarFiliais } from '../services/usuarios';
 import LoadingOverlay from '../components/LoadingOverlay';
 import LoadingButton from '../components/LoadingButton';
 import useRequest from '../hooks/useRequest';
+
 
 function formatarCPF(valor: string) {
   const numeros = valor.replace(/\D/g, '');
@@ -43,7 +45,18 @@ export default function Register() {
   const [cep, setCep] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [mostrarConfirmar, setMostrarConfirmar] = useState(false);
+  const [errorVisible, setErrorVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+async function validarCampos() {
+  const cpfLimpo = cpf.replace(/\D/g, '');
+  const cepLimpo = cep.replace(/\D/g, '');
+  if (!/^[A-Za-zÀ-ú\s]+$/.test(nome)) { Alert.alert('Nome inválido', 'O nome não pode conter números ou símbolos.'); return; }
+  if (!email.includes('@')) { Alert.alert('Email inválido', 'O email deve conter @'); return; }
+  if (senha.length !== 8) { Alert.alert('Senha inválida', 'A senha deve conter exatamente 8 caracteres.'); return; }
+  if (senha !== confirmarSenha) { Alert.alert('Senhas diferentes', 'As senhas não coincidem.'); return; }
+  if (!/^\d{11}$/.test(cpfLimpo)) { Alert.alert('CPF inválido', 'O CPF deve conter exatamente 11 dígitos numéricos.'); return; }
+  if (!/^\d{8}$/.test(cepLimpo)) { Alert.alert('CEP inválido', 'O CEP deve conter exatamente 8 dígitos numéricos.'); return; }
   const { run, loadingVisible, loadingText, errorVisible, errorMessage, hideError } = useRequest();
 
   async function validarCampos() {
@@ -56,22 +69,39 @@ export default function Register() {
     if (!/^\d{11}$/.test(cpfLimpo)) { Alert.alert('CPF inválido', 'O CPF deve conter exatamente 11 dígitos numéricos.'); return; }
     if (!/^\d{8}$/.test(cepLimpo)) { Alert.alert('CEP inválido', 'O CEP deve conter exatamente 8 dígitos numéricos.'); return; }
 
-    const novo = { id: Date.now().toString(), nome, email, senha, cpf, filial: cep, telefone: '', role };
-    const listaKey = role === 'operador' ? 'operadores' : 'admins';
-    const dados = await AsyncStorage.getItem(listaKey);
-    const lista = dados ? JSON.parse(dados) : [];
-    const novaLista = [...lista, novo];
+  const perfil = role === 'operador' ? 0 : 1;
+  const filiais = await listarFiliais(1, 100);
+  const filial = filiais.items.find(f => f.cep.replace(/\D/g, '') === cepLimpo);
+  if (!filial) { Alert.alert('Filial não encontrada', 'Nenhuma filial com este CEP.'); return; }
 
-    await AsyncStorage.setItem(listaKey, JSON.stringify(novaLista));
-    await AsyncStorage.setItem('usuario', JSON.stringify(novo));
+  const usuario = await criarUsuario({
+    nomeCompleto: nome,
+    email,
+    telefone: '000000000',
+    cpf: cpfLimpo,
+    cepFilial: cepLimpo,
+    senha,
+    confirmarSenha,
+    perfil,
+    ativo: true,
+    filialId: filial.id
+  });
 
+  await AsyncStorage.setItem('usuarioAtual', JSON.stringify(usuario));
+  if (perfil === 0) {
+    navigation.replace('HomeOperador');
+  } else {
+    navigation.replace('HomeAdmin');
     Alert.alert('Cadastro realizado com sucesso!');
     if (role === 'operador') {
       navigation.replace('HomeOperador');
     } else {
       navigation.replace('HomeAdmin');
     }
+
   }
+}
+
 
   function onSubmit() {
     run(validarCampos, { loadingText: 'Cadastrando...' });
@@ -102,11 +132,15 @@ export default function Register() {
       </View>
       <TextInput style={styles.input} placeholder="CPF:" placeholderTextColor="#666" value={cpf} onChangeText={(v) => setCpf(formatarCPF(v))} maxLength={14} />
       <TextInput style={styles.input} placeholder="CEP da Filial:" placeholderTextColor="#666" value={cep} onChangeText={(v) => setCep(formatarCEP(v))} maxLength={9} />
+      <TouchableOpacity style={styles.button} onPress={validarCampos}>
+        <Text style={styles.buttonText}>Acessar</Text>
+      </TouchableOpacity>
       <LoadingButton title="Acessar" onPress={onSubmit} loading={loadingVisible} style={styles.button} />
       <TouchableOpacity onPress={() => navigation.navigate('Login', { role })}>
         <Text style={[styles.linkText, { color: themeColors.text }]}>Já tem conta? Faça Login</Text>
       </TouchableOpacity>
       <VoltarParaHome />
+      <ErrorSnackbar visible={errorVisible} message={errorMessage} onDismiss={() => setErrorVisible(false)} />
       <ErrorSnackbar visible={errorVisible} message={errorMessage} onDismiss={hideError} />
       <LoadingOverlay visible={loadingVisible} text={loadingText} />
     </View>
