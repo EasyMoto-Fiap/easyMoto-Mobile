@@ -11,6 +11,8 @@ import VoltarParaHome from '../components/VoltarParaHome';
 import ThemeToggleButton from '../components/ThemeToggleButton';
 import { ThemeContext } from '../contexts/ThemeContext';
 import ErrorSnackbar from '../components/ErrorSnackbar';
+import { criarUsuario, listarFiliais } from '../services/usuarios';
+
 
 function formatarCPF(valor: string) {
   const numeros = valor.replace(/\D/g, '');
@@ -43,32 +45,42 @@ export default function Register() {
   const [errorVisible, setErrorVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  async function validarCampos() {
-    const cpfLimpo = cpf.replace(/\D/g, '');
-    const cepLimpo = cep.replace(/\D/g, '');
-    if (!/^[A-Za-zÀ-ú\s]+$/.test(nome)) { Alert.alert('Nome inválido', 'O nome não pode conter números ou símbolos.'); return; }
-    if (!email.includes('@')) { Alert.alert('Email inválido', 'O email deve conter @'); return; }
-    if (senha.length !== 8) { Alert.alert('Senha inválida', 'A senha deve conter exatamente 8 caracteres.'); return; }
-    if (senha !== confirmarSenha) { Alert.alert('Senhas diferentes', 'As senhas não coincidem.'); return; }
-    if (!/^\d{11}$/.test(cpfLimpo)) { Alert.alert('CPF inválido', 'O CPF deve conter exatamente 11 dígitos numéricos.'); return; }
-    if (!/^\d{8}$/.test(cepLimpo)) { Alert.alert('CEP inválido', 'O CEP deve conter exatamente 8 dígitos numéricos.'); return; }
+async function validarCampos() {
+  const cpfLimpo = cpf.replace(/\D/g, '');
+  const cepLimpo = cep.replace(/\D/g, '');
+  if (!/^[A-Za-zÀ-ú\s]+$/.test(nome)) { Alert.alert('Nome inválido', 'O nome não pode conter números ou símbolos.'); return; }
+  if (!email.includes('@')) { Alert.alert('Email inválido', 'O email deve conter @'); return; }
+  if (senha.length !== 8) { Alert.alert('Senha inválida', 'A senha deve conter exatamente 8 caracteres.'); return; }
+  if (senha !== confirmarSenha) { Alert.alert('Senhas diferentes', 'As senhas não coincidem.'); return; }
+  if (!/^\d{11}$/.test(cpfLimpo)) { Alert.alert('CPF inválido', 'O CPF deve conter exatamente 11 dígitos numéricos.'); return; }
+  if (!/^\d{8}$/.test(cepLimpo)) { Alert.alert('CEP inválido', 'O CEP deve conter exatamente 8 dígitos numéricos.'); return; }
 
-    const novo = { id: Date.now().toString(), nome, email, senha, cpf, filial: cep, telefone: '', role };
-    const listaKey = role === 'operador' ? 'operadores' : 'admins';
-    const dados = await AsyncStorage.getItem(listaKey);
-    const lista = dados ? JSON.parse(dados) : [];
-    const novaLista = [...lista, novo];
+  const perfil = role === 'operador' ? 0 : 1;
+  const filiais = await listarFiliais(1, 100);
+  const filial = filiais.items.find(f => f.cep.replace(/\D/g, '') === cepLimpo);
+  if (!filial) { Alert.alert('Filial não encontrada', 'Nenhuma filial com este CEP.'); return; }
 
-    await AsyncStorage.setItem(listaKey, JSON.stringify(novaLista));
-    await AsyncStorage.setItem('usuario', JSON.stringify(novo));
+  const usuario = await criarUsuario({
+    nomeCompleto: nome,
+    email,
+    telefone: '000000000',
+    cpf: cpfLimpo,
+    cepFilial: cepLimpo,
+    senha,
+    confirmarSenha,
+    perfil,
+    ativo: true,
+    filialId: filial.id
+  });
 
-    Alert.alert('Cadastro realizado com sucesso!');
-    if (role === 'operador') {
-      navigation.replace('HomeOperador');
-    } else {
-      navigation.replace('HomeAdmin');
-    }
+  await AsyncStorage.setItem('usuarioAtual', JSON.stringify(usuario));
+  if (perfil === 0) {
+    navigation.replace('HomeOperador');
+  } else {
+    navigation.replace('HomeAdmin');
   }
+}
+
 
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
