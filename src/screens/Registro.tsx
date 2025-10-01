@@ -163,15 +163,16 @@ export default function Registro() {
   async function carregar() {
     try {
       await ensureAuthHeader();
-      const res = await listarMotos(1, 500);
-      const items = res.items.map<MotoUI>((m: MotoAPI) => ({
+      const res: any = await listarMotos(1, 500);
+      const src: MotoAPI[] = (Array.isArray(res) ? res : (res?.items ?? [])) as MotoAPI[];
+      const items: MotoUI[] = src.map((m: MotoAPI): MotoUI => ({
         id: m.id,
         placa: m.placa,
         modelo: m.modelo,
         ano: m.ano,
         tipo: categoriaReverse[m.categoria],
-        cor: (Object.keys(legendaIdPorCor).find(c => legendaIdPorCor[c as CorHex] === m.legendaStatusId) ?? '#006400') as CorHex,
-        statusOperacional: m.statusOperacional
+        cor: ((Object.keys(legendaIdPorCor).find((c) => legendaIdPorCor[c as CorHex] === m.legendaStatusId) as CorHex) ?? (m.cor as CorHex) ?? '#006400') as CorHex,
+        statusOperacional: m.statusOperacional as StatusOperacionalNum
       }));
       setMotos(items);
     } catch {
@@ -230,7 +231,8 @@ export default function Registro() {
           if (isTransientAxiosError(e)) {
             try {
               const res = await listarMotos(1, 50);
-              const existente = res.items.find((m: MotoAPI) => m.placa?.toUpperCase() === placaSan);
+              const src: MotoAPI[] = (Array.isArray(res) ? res : (res as any)?.items ?? []) as MotoAPI[];
+              const existente = src.find((m: MotoAPI) => m.placa?.toUpperCase() === placaSan);
               if (existente) created = existente;
             } catch {}
           }

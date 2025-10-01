@@ -5,12 +5,12 @@ import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/nativ
 import type { RouteProp, NavigationProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { FontAwesome, AntDesign } from '@expo/vector-icons';
+import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { colors } from '../styles/colors';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import api from '../services/api';
-import { listarPatioMotos, type PatioMoto } from '../services/patio';
+import { listarMotos } from '../services/motos';
 import React from 'react';
 
 type MotoPin = {
@@ -21,6 +21,8 @@ type MotoPin = {
   lng?: number;
   statusColor?: string;
 };
+
+type Legenda = { id: number; nome?: string; cor?: string };
 
 export default function Patio() {
   const route = useRoute<RouteProp<RootStackParamList, 'Patio'>>();
@@ -49,23 +51,57 @@ export default function Patio() {
     api.defaults.timeout = 15000;
   }
 
+  async function carregarLegendas(): Promise<Record<number, string>> {
+    const res = await api.get('/legendasstatus');
+    const lista: Legenda[] = Array.isArray(res.data) ? res.data : res.data?.items ?? [];
+    const map: Record<number, string> = {};
+    for (const l of lista) {
+      if (l?.id != null && l?.cor) map[Number(l.id)] = String(l.cor);
+    }
+    return map;
+  }
+
+  function corPorStatus(m: any, legendas: Record<number, string>): string {
+    if (m?.cor) return String(m.cor);
+    if (m?.legendaStatusId != null && legendas[m.legendaStatusId]) return legendas[m.legendaStatusId];
+    const fallbackByName: Record<string, string> = {
+      'Pendência': '#e6c300',
+      'Reparos Simples': '#0074cc',
+      'Danos Estruturais Graves': '#ff4500',
+      'Sinistro': '#ff0000',
+      'Pronta para Aluguel': '#006400',
+      'Sem Placa': '#808080'
+    };
+    if (m?.legendaStatusNome && fallbackByName[m.legendaStatusNome]) return fallbackByName[m.legendaStatusNome];
+    if (m?.statusOperacional === 0) return '#006400';
+    if (m?.statusOperacional === 1) return '#e6c300';
+    if (m?.statusOperacional === 2) return '#ff4500';
+    return colors.primary;
+  }
+
   async function carregar() {
     setLoading(true);
     try {
       await ensureAuth();
       const userRaw = await AsyncStorage.getItem('usuarioAtual');
-      const filialId = userRaw ? JSON.parse(userRaw).filialId : undefined;
-      const res = await listarPatioMotos(filialId ?? 0, 1, 500);
-      const mapped: MotoPin[] = (res.items as PatioMoto[]).map((m) => ({
+      const user = userRaw ? JSON.parse(userRaw) : undefined;
+      const filialId = user?.filialId;
+
+      const legendas = await carregarLegendas();
+
+      const data = await listarMotos(1, 1000);
+      const lista: any[] = Array.isArray(data) ? data : data?.items ?? [];
+      const filtrada = filialId ? lista.filter((m) => Number(m.filialId) === Number(filialId)) : lista;
+
+      const mapped: MotoPin[] = filtrada.map((m) => ({
         id: Number(m.id),
         nome: `${m.modelo ?? ''} • ${m.placa ?? ''}`.trim(),
         tipo: catToTipo(m.categoria),
-        lat: m.latitude,
-        lng: m.longitude,
-        statusColor:
-          m.cor ??
-          (m.statusOperacional === 0 ? '#006400' : m.statusOperacional === 1 ? '#e6c300' : '#ff4500')
+        lat: m.latitude ?? m.lat ?? undefined,
+        lng: m.longitude ?? m.lng ?? undefined,
+        statusColor: corPorStatus(m, legendas)
       }));
+
       setMotos(mapped);
       const primeira = mapped.find((x) => x.tipo === filtro);
       if (primeira && mapRef.current) {
@@ -162,7 +198,7 @@ export default function Patio() {
               onPress={() => setMotoSelecionada(moto)}
               anchor={{ x: 0.5, y: 0.5 }}
             >
-              <FontAwesome name="motorcycle" size={28} color={moto.statusColor || colors.primary} />
+              <MaterialCommunityIcons name="motorbike" size={28} color={moto.statusColor || colors.primary} />
             </Marker>
           ))}
         </MapView>
