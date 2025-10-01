@@ -73,14 +73,23 @@ export async function deletarUsuario(id: number) {
   return res.status;
 }
 
-export async function listarUsuarios(page = 1, pageSize = 200, perfil?: number): Promise<Paged<Usuario>> {
+export async function listarUsuarios(
+  page = 1,
+  pageSize = 200,
+  perfil?: number,
+): Promise<Paged<Usuario>> {
   const res = await api.get('/usuarios', { params: { page, pageSize, perfil } });
   const data = res.data as Paged<Usuario> | Usuario[];
   if (Array.isArray(data)) {
-    return { items: perfil != null ? data.filter(u => u.perfil === perfil) : data, totalCount: data.length, page, pageSize };
+    return {
+      items: perfil != null ? data.filter((u) => u.perfil === perfil) : data,
+      totalCount: data.length,
+      page,
+      pageSize,
+    };
   }
   if (perfil != null) {
-    return { ...data, items: data.items.filter(u => u.perfil === perfil) };
+    return { ...data, items: data.items.filter((u) => u.perfil === perfil) };
   }
   return data;
 }

@@ -1,19 +1,20 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { FontAwesome } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useContext } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
 import ThemeToggleButton from '../components/ThemeToggleButton';
 import { ThemeContext } from '../contexts/ThemeContext';
-import { colors } from '../styles/colors';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/RootNavigator';
+import { colors } from '../styles/colors';
 
 type Modelo = { nome: string; desc: string; tipo: string };
 
 const modelos: Modelo[] = [
   { nome: 'Mottu Pop', desc: 'Primeira Mottu', tipo: 'Pop' },
   { nome: 'Mottu Sport', desc: 'Mais econômica', tipo: 'Sport' },
-  { nome: 'Mottu-E', desc: 'Moto elétrica', tipo: 'E' }
+  { nome: 'Mottu-E', desc: 'Moto elétrica', tipo: 'E' },
 ];
 
 export default function PatioModelos() {
@@ -29,10 +30,15 @@ export default function PatioModelos() {
         <Text style={{ color: colors.primary }}>easy</Text>Moto
       </Text>
       <Text style={[styles.title, { color: themeColors.text }]}>Modelos disponíveis:</Text>
-      <Text style={[styles.subtitle, { color: themeColors.text }]}>Visualize no mapa real por tipo</Text>
+      <Text style={[styles.subtitle, { color: themeColors.text }]}>
+        Visualize no mapa real por tipo
+      </Text>
 
       {modelos.map((item) => (
-        <View key={item.nome} style={[styles.card, { backgroundColor: isDark ? '#1e1e1e' : '#f3f3f3' }]}>
+        <View
+          key={item.nome}
+          style={[styles.card, { backgroundColor: isDark ? '#1e1e1e' : '#f3f3f3' }]}
+        >
           <FontAwesome name="motorcycle" size={26} color="#00c853" />
           <View style={styles.textos}>
             <Text style={[styles.cardTitle, { color: themeColors.text }]}>{item.nome}</Text>
@@ -57,10 +63,24 @@ const styles = StyleSheet.create({
   logo: { fontSize: 30, fontWeight: 'bold', marginBottom: 30, textAlign: 'center' },
   title: { fontSize: 18, fontWeight: 'bold' },
   subtitle: { fontSize: 14, marginBottom: 20 },
-  card: { flexDirection: 'row', alignItems: 'center', borderRadius: 16, padding: 15, marginBottom: 15, gap: 15 },
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 16,
+    padding: 15,
+    marginBottom: 15,
+    gap: 15,
+  },
   textos: { flex: 1 },
   cardTitle: { fontSize: 16, fontWeight: 'bold' },
   cardSub: { fontSize: 13, marginTop: 2, marginBottom: 10 },
-  botao: { backgroundColor: '#00c853', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 8, alignItems: 'center', alignSelf: 'flex-start' },
-  botaoTexto: { color: '#fff', fontWeight: 'bold', fontSize: 13 }
+  botao: {
+    backgroundColor: '#00c853',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+  },
+  botaoTexto: { color: '#fff', fontWeight: 'bold', fontSize: 13 },
 });

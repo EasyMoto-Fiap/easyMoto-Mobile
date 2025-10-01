@@ -1,17 +1,38 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Modal, Alert, ActivityIndicator } from 'react-native';
-import { useContext, useEffect, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FontAwesome } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { useContext, useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+
 import ThemeToggleButton from '../components/ThemeToggleButton';
 import { ThemeContext } from '../contexts/ThemeContext';
-import { colors } from '../styles/colors';
 import api from '../services/api';
-import axios from 'axios';
-import { criarUsuario, atualizarUsuario, deletarUsuario, listarUsuarios, listarFiliais, Usuario } from '../services/usuarios';
+import {
+  atualizarUsuario,
+  criarUsuario,
+  deletarUsuario,
+  listarFiliais,
+  listarUsuarios,
+  Usuario,
+} from '../services/usuarios';
+import { colors } from '../styles/colors';
 
 function formatarCPF(valor: string) {
   const n = valor.replace(/\D/g, '');
-  return n.replace(/^(\d{3})(\d)/, '$1.$2').replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3').replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+  return n
+    .replace(/^(\d{3})(\d)/, '$1.$2')
+    .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
 }
 function desmascararCPF(v: string) {
   return v.replace(/\D/g, '');
@@ -60,7 +81,14 @@ export default function GerenciarOperadores() {
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [editandoId, setEditandoId] = useState<number | null>(null);
-  const [form, setForm] = useState<Form>({ nomeCompleto: '', email: '', senha: '', cpf: '', cepFilial: '', telefone: '' });
+  const [form, setForm] = useState<Form>({
+    nomeCompleto: '',
+    email: '',
+    senha: '',
+    cpf: '',
+    cepFilial: '',
+    telefone: '',
+  });
   const [saving, setSaving] = useState(false);
 
   async function ensureAuthHeader() {
@@ -98,7 +126,7 @@ export default function GerenciarOperadores() {
       senha: '',
       cpf: formatarCPF(u.cpf),
       cepFilial: formatarCEP(u.cepFilial),
-      telefone: formatarTelefone(u.telefone || '')
+      telefone: formatarTelefone(u.telefone || ''),
     });
     setModalVisible(true);
   }
@@ -109,13 +137,17 @@ export default function GerenciarOperadores() {
     const cpf = desmascararCPF(form.cpf);
     const cep = desmascararCEP(form.cepFilial);
     const tel = form.telefone ? desmascararTelefone(form.telefone) : '';
-    if (!isNomeValido(nome)) return { ok: false, msg: 'Nome inválido. Use apenas letras e espaços.' };
+    if (!isNomeValido(nome))
+      return { ok: false, msg: 'Nome inválido. Use apenas letras e espaços.' };
     if (!isEmailValido(email)) return { ok: false, msg: 'Email inválido.' };
     if (!/^\d{11}$/.test(cpf)) return { ok: false, msg: 'CPF inválido. Informe 11 dígitos.' };
     if (!/^\d{8}$/.test(cep)) return { ok: false, msg: 'CEP inválido. Informe 8 dígitos.' };
-    if (tel && !/^\d{10,11}$/.test(tel)) return { ok: false, msg: 'Telefone inválido. Use DDD + número (10 ou 11 dígitos).' };
-    if (!editandoId && (!form.senha || form.senha.length < 8)) return { ok: false, msg: 'Senha deve ter pelo menos 8 caracteres.' };
-    if (editandoId && form.senha && form.senha.length < 8) return { ok: false, msg: 'Nova senha deve ter pelo menos 8 caracteres.' };
+    if (tel && !/^\d{10,11}$/.test(tel))
+      return { ok: false, msg: 'Telefone inválido. Use DDD + número (10 ou 11 dígitos).' };
+    if (!editandoId && (!form.senha || form.senha.length < 8))
+      return { ok: false, msg: 'Senha deve ter pelo menos 8 caracteres.' };
+    if (editandoId && form.senha && form.senha.length < 8)
+      return { ok: false, msg: 'Nova senha deve ter pelo menos 8 caracteres.' };
     return { ok: true };
   }
 
@@ -136,7 +168,7 @@ export default function GerenciarOperadores() {
     let filialId: number | undefined = undefined;
     try {
       const filiais = await listarFiliais(1, 200);
-      const filial = filiais.items.find(f => f.cep.replace(/\D/g, '') === cep);
+      const filial = filiais.items.find((f) => f.cep.replace(/\D/g, '') === cep);
       if (filial) filialId = filial.id;
     } catch {}
 
@@ -152,7 +184,7 @@ export default function GerenciarOperadores() {
           confirmarSenha: form.senha || undefined,
           perfil: 0,
           ativo: true,
-          filialId
+          filialId,
         };
         await atualizarUsuario(editandoId, payload);
       } else {
@@ -166,7 +198,7 @@ export default function GerenciarOperadores() {
           confirmarSenha: form.senha as string,
           perfil: 0,
           ativo: true,
-          filialId
+          filialId,
         };
         await criarUsuario(payload);
       }
@@ -174,7 +206,10 @@ export default function GerenciarOperadores() {
       await carregar();
     } catch (err: any) {
       if (axios.isAxiosError(err) && err.response?.status === 400) {
-        Alert.alert('Erro', 'Não foi possível salvar. Verifique o CEP da filial e os dados informados.');
+        Alert.alert(
+          'Erro',
+          'Não foi possível salvar. Verifique o CEP da filial e os dados informados.',
+        );
       } else {
         Alert.alert('Erro', 'Não foi possível salvar.');
       }
@@ -197,18 +232,27 @@ export default function GerenciarOperadores() {
           } catch {
             Alert.alert('Erro', 'Não foi possível excluir.');
           }
-        }
-      }
+        },
+      },
     ]);
   }
 
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
       <ThemeToggleButton />
-      <Text style={[styles.logo, { color: themeColors.text }]}><Text style={{ color: colors.primary }}>easy</Text>Moto</Text>
+      <Text style={[styles.logo, { color: themeColors.text }]}>
+        <Text style={{ color: colors.primary }}>easy</Text>Moto
+      </Text>
 
-      <TouchableOpacity style={styles.botaoPrincipal} onPress={abrirNovo} activeOpacity={0.9} disabled={saving}>
-        <Text style={styles.botaoPrincipalTexto}>{saving ? 'Salvando...' : 'Cadastrar operador'}</Text>
+      <TouchableOpacity
+        style={styles.botaoPrincipal}
+        onPress={abrirNovo}
+        activeOpacity={0.9}
+        disabled={saving}
+      >
+        <Text style={styles.botaoPrincipalTexto}>
+          {saving ? 'Salvando...' : 'Cadastrar operador'}
+        </Text>
       </TouchableOpacity>
 
       {loading ? (
@@ -219,10 +263,15 @@ export default function GerenciarOperadores() {
       ) : (
         <ScrollView style={{ flex: 1 }}>
           {lista.map((u) => (
-            <View key={u.id} style={[styles.card, { backgroundColor: isDark ? '#1e1e1e' : '#f3f3f3' }]}>
+            <View
+              key={u.id}
+              style={[styles.card, { backgroundColor: isDark ? '#1e1e1e' : '#f3f3f3' }]}
+            >
               <FontAwesome name="user" size={22} color={isDark ? '#00c853' : colors.buttonBg} />
               <View style={{ flex: 1, marginLeft: 10 }}>
-                <Text style={[styles.cardTitulo, { color: themeColors.text }]}>{u.nomeCompleto}</Text>
+                <Text style={[styles.cardTitulo, { color: themeColors.text }]}>
+                  {u.nomeCompleto}
+                </Text>
                 <Text style={{ color: isDark ? '#ccc' : '#666' }}>{u.email}</Text>
                 <Text style={{ color: isDark ? '#ccc' : '#666' }}>Filial CEP: {u.cepFilial}</Text>
               </View>
@@ -234,14 +283,20 @@ export default function GerenciarOperadores() {
               </TouchableOpacity>
             </View>
           ))}
-          {lista.length === 0 && <Text style={{ color: themeColors.text, textAlign: 'center', marginTop: 20 }}>Nenhum operador encontrado.</Text>}
+          {lista.length === 0 && (
+            <Text style={{ color: themeColors.text, textAlign: 'center', marginTop: 20 }}>
+              Nenhum operador encontrado.
+            </Text>
+          )}
         </ScrollView>
       )}
 
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: themeColors.background }]}>
-            <Text style={[styles.modalTitulo, { color: themeColors.text }]}>{editandoId ? 'Editar Operador' : 'Novo Operador'}</Text>
+            <Text style={[styles.modalTitulo, { color: themeColors.text }]}>
+              {editandoId ? 'Editar Operador' : 'Novo Operador'}
+            </Text>
 
             <TextInput
               style={styles.input}
@@ -303,11 +358,24 @@ export default function GerenciarOperadores() {
               maxLength={15}
             />
 
-            <TouchableOpacity style={styles.botaoPrincipal} onPress={salvar} activeOpacity={0.9} disabled={saving}>
-              <Text style={styles.botaoPrincipalTexto}>{saving ? 'Salvando...' : editandoId ? 'Salvar' : 'Cadastrar'}</Text>
+            <TouchableOpacity
+              style={styles.botaoPrincipal}
+              onPress={salvar}
+              activeOpacity={0.9}
+              disabled={saving}
+            >
+              <Text style={styles.botaoPrincipalTexto}>
+                {saving ? 'Salvando...' : editandoId ? 'Salvar' : 'Cadastrar'}
+              </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setModalVisible(false)} activeOpacity={0.8} disabled={saving}>
-              <Text style={{ marginTop: 10, color: themeColors.text, textAlign: 'center' }}>Cancelar</Text>
+            <TouchableOpacity
+              onPress={() => setModalVisible(false)}
+              activeOpacity={0.8}
+              disabled={saving}
+            >
+              <Text style={{ marginTop: 10, color: themeColors.text, textAlign: 'center' }}>
+                Cancelar
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -319,14 +387,37 @@ export default function GerenciarOperadores() {
 const styles = StyleSheet.create({
   container: { flex: 1, paddingTop: 60, paddingHorizontal: 20 },
   logo: { fontSize: 32, fontWeight: 'bold', textAlign: 'center', marginBottom: 10 },
-  botaoPrincipal: { backgroundColor: '#00c853', padding: 12, borderRadius: 10, alignItems: 'center', marginVertical: 12 },
+  botaoPrincipal: {
+    backgroundColor: '#00c853',
+    padding: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginVertical: 12,
+  },
   botaoPrincipalTexto: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-  card: { flexDirection: 'row', alignItems: 'center', borderRadius: 14, padding: 14, marginBottom: 12 },
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 12,
+  },
   cardTitulo: { fontSize: 16, fontWeight: '600' },
   linkEditar: { color: '#2196f3', fontWeight: 'bold' },
   linkExcluir: { color: '#ff5252', fontWeight: 'bold' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   modalContent: { width: '92%', padding: 20, borderRadius: 12 },
   modalTitulo: { fontSize: 18, fontWeight: 'bold', marginBottom: 12 },
-  input: { backgroundColor: '#e4e4e4', padding: 12, borderRadius: 10, width: '100%', marginBottom: 10 }
+  input: {
+    backgroundColor: '#e4e4e4',
+    padding: 12,
+    borderRadius: 10,
+    width: '100%',
+    marginBottom: 10,
+  },
 });

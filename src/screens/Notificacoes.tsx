@@ -1,11 +1,19 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { useContext, useEffect, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FontAwesome } from '@expo/vector-icons';
-import { ThemeContext } from '../contexts/ThemeContext';
-import { colors } from '../styles/colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useContext, useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+
 import ThemeToggleButton from '../components/ThemeToggleButton';
-import { listarNotificacoes, deletarNotificacao, type Notificacao } from '../services/notificacoes';
+import { ThemeContext } from '../contexts/ThemeContext';
+import { deletarNotificacao, listarNotificacoes, type Notificacao } from '../services/notificacoes';
+import { colors } from '../styles/colors';
 
 export default function Notificacoes() {
   const { theme } = useContext(ThemeContext);
@@ -20,7 +28,12 @@ export default function Notificacoes() {
     try {
       const userRaw = await AsyncStorage.getItem('usuarioAtual');
       const user = userRaw ? JSON.parse(userRaw) : undefined;
-      const itens = await listarNotificacoes({ page: 1, pageSize: 100, escopo: 0, filialId: user?.filialId });
+      const itens = await listarNotificacoes({
+        page: 1,
+        pageSize: 100,
+        escopo: 0,
+        filialId: user?.filialId,
+      });
       setLista(itens);
     } catch {
       setLista([]);
@@ -34,7 +47,9 @@ export default function Notificacoes() {
     setLoading(true);
     try {
       for (const n of lista) {
-        try { await deletarNotificacao(n.id); } catch {}
+        try {
+          await deletarNotificacao(n.id);
+        } catch {}
       }
       await carregar();
     } finally {
@@ -55,7 +70,9 @@ export default function Notificacoes() {
         <ThemeToggleButton />
       </View>
 
-      <Text style={[styles.title, { color: themeColors.text }]}>Histórico de alterações nas motos</Text>
+      <Text style={[styles.title, { color: themeColors.text }]}>
+        Histórico de alterações nas motos
+      </Text>
 
       <View style={{ flex: 1 }}>
         {loading ? (
@@ -64,13 +81,21 @@ export default function Notificacoes() {
           </View>
         ) : (
           <ScrollView style={{ marginTop: 10, flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
-            {(!lista || lista.length === 0) ? (
-              <Text style={[styles.text, { color: themeColors.text, textAlign: 'center', marginTop: 20 }]}>
+            {!lista || lista.length === 0 ? (
+              <Text
+                style={[
+                  styles.text,
+                  { color: themeColors.text, textAlign: 'center', marginTop: 20 },
+                ]}
+              >
                 Nenhum alerta ou histórico disponível.
               </Text>
             ) : (
               lista.map((n) => (
-                <View key={n.id} style={[styles.alertaItem, { backgroundColor: isDark ? '#1e1e1e' : '#f0f0f0' }]}>
+                <View
+                  key={n.id}
+                  style={[styles.alertaItem, { backgroundColor: isDark ? '#1e1e1e' : '#f0f0f0' }]}
+                >
                   <Text style={{ color: themeColors.text }}>{n.mensagem}</Text>
                 </View>
               ))
@@ -98,5 +123,10 @@ const styles = StyleSheet.create({
   text: { fontSize: 16 },
   alertaItem: { padding: 12, borderRadius: 8, marginBottom: 10 },
   iconButton: { padding: 12, marginHorizontal: 8 },
-  bottomActions: { flexDirection: 'row', justifyContent: 'center', paddingVertical: 12, borderTopWidth: 1 }
+  bottomActions: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    borderTopWidth: 1,
+  },
 });

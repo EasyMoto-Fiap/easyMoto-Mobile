@@ -1,17 +1,18 @@
-import { View, Text, StyleSheet, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
-import { useState, useContext, useRef, useEffect } from 'react';
-import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
-import type { RouteProp, NavigationProp } from '@react-navigation/native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import type { NavigationProp, RouteProp } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
+import { useContext, useEffect, useRef, useState } from 'react';
+import React from 'react';
+import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { ThemeContext } from '../contexts/ThemeContext';
-import { colors } from '../styles/colors';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import api from '../services/api';
 import { listarMotos } from '../services/motos';
-import React from 'react';
+import { colors } from '../styles/colors';
 
 type MotoPin = {
   id: number;
@@ -53,7 +54,7 @@ export default function Patio() {
 
   async function carregarLegendas(): Promise<Record<number, string>> {
     const res = await api.get('/legendasstatus');
-    const lista: Legenda[] = Array.isArray(res.data) ? res.data : res.data?.items ?? [];
+    const lista: Legenda[] = Array.isArray(res.data) ? res.data : (res.data?.items ?? []);
     const map: Record<number, string> = {};
     for (const l of lista) {
       if (l?.id != null && l?.cor) map[Number(l.id)] = String(l.cor);
@@ -63,16 +64,18 @@ export default function Patio() {
 
   function corPorStatus(m: any, legendas: Record<number, string>): string {
     if (m?.cor) return String(m.cor);
-    if (m?.legendaStatusId != null && legendas[m.legendaStatusId]) return legendas[m.legendaStatusId];
+    if (m?.legendaStatusId != null && legendas[m.legendaStatusId])
+      return legendas[m.legendaStatusId];
     const fallbackByName: Record<string, string> = {
-      'Pendência': '#e6c300',
+      Pendência: '#e6c300',
       'Reparos Simples': '#0074cc',
       'Danos Estruturais Graves': '#ff4500',
-      'Sinistro': '#ff0000',
+      Sinistro: '#ff0000',
       'Pronta para Aluguel': '#006400',
-      'Sem Placa': '#808080'
+      'Sem Placa': '#808080',
     };
-    if (m?.legendaStatusNome && fallbackByName[m.legendaStatusNome]) return fallbackByName[m.legendaStatusNome];
+    if (m?.legendaStatusNome && fallbackByName[m.legendaStatusNome])
+      return fallbackByName[m.legendaStatusNome];
     if (m?.statusOperacional === 0) return '#006400';
     if (m?.statusOperacional === 1) return '#e6c300';
     if (m?.statusOperacional === 2) return '#ff4500';
@@ -90,8 +93,10 @@ export default function Patio() {
       const legendas = await carregarLegendas();
 
       const data = await listarMotos(1, 1000);
-      const lista: any[] = Array.isArray(data) ? data : data?.items ?? [];
-      const filtrada = filialId ? lista.filter((m) => Number(m.filialId) === Number(filialId)) : lista;
+      const lista: any[] = Array.isArray(data) ? data : (data?.items ?? []);
+      const filtrada = filialId
+        ? lista.filter((m) => Number(m.filialId) === Number(filialId))
+        : lista;
 
       const mapped: MotoPin[] = filtrada.map((m) => ({
         id: Number(m.id),
@@ -99,7 +104,7 @@ export default function Patio() {
         tipo: catToTipo(m.categoria),
         lat: m.latitude ?? m.lat ?? undefined,
         lng: m.longitude ?? m.lng ?? undefined,
-        statusColor: corPorStatus(m, legendas)
+        statusColor: corPorStatus(m, legendas),
       }));
 
       setMotos(mapped);
@@ -110,9 +115,9 @@ export default function Patio() {
             latitude: primeira.lat ?? -23.5505,
             longitude: primeira.lng ?? -46.6333,
             latitudeDelta: 0.02,
-            longitudeDelta: 0.02
+            longitudeDelta: 0.02,
           },
-          600
+          600,
         );
       }
     } finally {
@@ -128,7 +133,7 @@ export default function Patio() {
     React.useCallback(() => {
       carregar();
       return () => {};
-    }, [])
+    }, []),
   );
 
   const motosFiltradas = motos.filter((m) => m.tipo === filtro);
@@ -141,9 +146,9 @@ export default function Patio() {
           latitude: primeira.lat ?? -23.5505,
           longitude: primeira.lng ?? -46.6333,
           latitudeDelta: 0.02,
-          longitudeDelta: 0.02
+          longitudeDelta: 0.02,
         },
-        600
+        600,
       );
     }
     setFiltro(tipo);
@@ -151,7 +156,11 @@ export default function Patio() {
 
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <TouchableOpacity onPress={() => navigation.goBack()} style={[styles.botaoVoltar, { top: insets.top + 8 }]} activeOpacity={0.9}>
+      <TouchableOpacity
+        onPress={() => navigation.goBack()}
+        style={[styles.botaoVoltar, { top: insets.top + 8 }]}
+        activeOpacity={0.9}
+      >
         <AntDesign name="arrowleft" size={22} color="#fff" />
       </TouchableOpacity>
 
@@ -163,7 +172,13 @@ export default function Patio() {
             key={tipo}
             style={[
               styles.botao,
-              filtro === tipo ? { backgroundColor: colors.primary } : { backgroundColor: 'transparent', borderWidth: 1.5, borderColor: themeColors.text }
+              filtro === tipo
+                ? { backgroundColor: colors.primary }
+                : {
+                    backgroundColor: 'transparent',
+                    borderWidth: 1.5,
+                    borderColor: themeColors.text,
+                  },
             ]}
             onPress={() => handleFiltroPress(tipo)}
             activeOpacity={0.9}
@@ -185,7 +200,7 @@ export default function Patio() {
             latitude: -23.5505,
             longitude: -46.6333,
             latitudeDelta: 0.05,
-            longitudeDelta: 0.05
+            longitudeDelta: 0.05,
           }}
         >
           {motosFiltradas.map((moto) => (
@@ -193,26 +208,46 @@ export default function Patio() {
               key={moto.id}
               coordinate={{
                 latitude: moto.lat ?? -23.5505,
-                longitude: moto.lng ?? -46.6333
+                longitude: moto.lng ?? -46.6333,
               }}
               onPress={() => setMotoSelecionada(moto)}
               anchor={{ x: 0.5, y: 0.5 }}
             >
-              <MaterialCommunityIcons name="motorbike" size={28} color={moto.statusColor || colors.primary} />
+              <MaterialCommunityIcons
+                name="motorbike"
+                size={28}
+                color={moto.statusColor || colors.primary}
+              />
             </Marker>
           ))}
         </MapView>
       )}
 
-      <Modal visible={!!motoSelecionada} transparent animationType="slide" onRequestClose={() => setMotoSelecionada(null)}>
+      <Modal
+        visible={!!motoSelecionada}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setMotoSelecionada(null)}
+      >
         <View style={styles.modalFundo}>
           <View style={[styles.modal, { backgroundColor: themeColors.background }]}>
-            <Text style={[styles.modalTitulo, { color: themeColors.text }]}>{motoSelecionada?.nome}</Text>
+            <Text style={[styles.modalTitulo, { color: themeColors.text }]}>
+              {motoSelecionada?.nome}
+            </Text>
             <Text style={{ color: themeColors.text }}>Tipo: {motoSelecionada?.tipo}</Text>
-            <Text style={{ color: themeColors.text }}>Latitude: {motoSelecionada?.lat !== undefined ? motoSelecionada.lat.toFixed(6) : '--'}</Text>
-            <Text style={{ color: themeColors.text }}>Longitude: {motoSelecionada?.lng !== undefined ? motoSelecionada.lng.toFixed(6) : '--'}</Text>
+            <Text style={{ color: themeColors.text }}>
+              Latitude: {motoSelecionada?.lat !== undefined ? motoSelecionada.lat.toFixed(6) : '--'}
+            </Text>
+            <Text style={{ color: themeColors.text }}>
+              Longitude:{' '}
+              {motoSelecionada?.lng !== undefined ? motoSelecionada.lng.toFixed(6) : '--'}
+            </Text>
 
-            <TouchableOpacity onPress={() => setMotoSelecionada(null)} style={styles.fechar} activeOpacity={0.9}>
+            <TouchableOpacity
+              onPress={() => setMotoSelecionada(null)}
+              style={styles.fechar}
+              activeOpacity={0.9}
+            >
               <Text style={{ color: '#fff', fontWeight: 'bold' }}>Fechar</Text>
             </TouchableOpacity>
           </View>
@@ -239,10 +274,21 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
-    elevation: 4
+    elevation: 4,
   },
-  modalFundo: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' },
+  modalFundo: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   modal: { width: 280, padding: 20, borderRadius: 10 },
   modalTitulo: { fontWeight: 'bold', fontSize: 18, marginBottom: 10 },
-  fechar: { marginTop: 15, backgroundColor: '#00c853', padding: 10, borderRadius: 8, alignItems: 'center' }
+  fechar: {
+    marginTop: 15,
+    backgroundColor: '#00c853',
+    padding: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
 });

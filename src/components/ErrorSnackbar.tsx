@@ -1,5 +1,5 @@
-
 import { Snackbar } from 'react-native-paper';
+
 import * as appColors from '../styles/colors';
 
 type Props = {
@@ -13,7 +13,7 @@ function getPalette() {
   const c: any = (appColors as any).default ?? (appColors as any);
   return {
     bg: c.error || c.danger || '#c62828',
-    text: c.onError || c.white || '#ffffff'
+    text: c.onError || c.white || '#ffffff',
   };
 }
 

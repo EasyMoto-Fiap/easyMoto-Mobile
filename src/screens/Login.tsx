@@ -1,18 +1,26 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import { useContext, useState } from 'react';
-import { ThemeContext } from '../contexts/ThemeContext';
-import { colors } from '../styles/colors';
-import ThemeToggleButton from '../components/ThemeToggleButton';
 import { FontAwesome } from '@expo/vector-icons';
-import VoltarParaHome from '../components/VoltarParaHome';
-import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
-import type { RootStackParamList } from '../navigation/RootNavigator';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import useRequest from '../hooks/useRequest';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { login } from '../services/auth';
-import api from '../services/api';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import axios from 'axios';
+import { useContext, useState } from 'react';
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+
+import ThemeToggleButton from '../components/ThemeToggleButton';
+import VoltarParaHome from '../components/VoltarParaHome';
+import { ThemeContext } from '../contexts/ThemeContext';
+import useRequest from '../hooks/useRequest';
+import type { RootStackParamList } from '../navigation/RootNavigator';
+import api from '../services/api';
+import { login } from '../services/auth';
+import { colors } from '../styles/colors';
 
 export default function Login() {
   const { theme } = useContext(ThemeContext);
@@ -56,7 +64,9 @@ export default function Login() {
           throw new Error('Email ou senha inválidos');
         }
         if (!err.response) {
-          throw new Error('Não foi possível conectar ao servidor. Verifique sua internet ou tente novamente.');
+          throw new Error(
+            'Não foi possível conectar ao servidor. Verifique sua internet ou tente novamente.',
+          );
         }
       }
       throw err;
@@ -89,37 +99,56 @@ export default function Login() {
 
       <View style={styles.senhaContainer}>
         <TextInput
-          style={[styles.input, { flex: 1, marginBottom: 0, backgroundColor: colors.inputBg, color: '#111' }]}
+          style={[
+            styles.input,
+            { flex: 1, marginBottom: 0, backgroundColor: colors.inputBg, color: '#111' },
+          ]}
           placeholder="Senha"
           placeholderTextColor="#666"
           secureTextEntry={!mostrarSenha}
           value={senha}
           onChangeText={setSenha}
         />
-        <TouchableOpacity style={styles.iconeOlho} onPress={() => setMostrarSenha(v => !v)}>
+        <TouchableOpacity style={styles.iconeOlho} onPress={() => setMostrarSenha((v) => !v)}>
           <FontAwesome name={mostrarSenha ? 'eye-slash' : 'eye'} size={20} color="#666" />
         </TouchableOpacity>
       </View>
 
       <TouchableOpacity
-        style={[styles.button, { backgroundColor: colors.buttonBg, opacity: loadingVisible ? 0.9 : 1 }]}
+        style={[
+          styles.button,
+          { backgroundColor: colors.buttonBg, opacity: loadingVisible ? 0.9 : 1 },
+        ]}
         onPress={() => run(onSubmit, { loadingText: 'Entrando...' })}
         activeOpacity={0.9}
         disabled={loadingVisible}
       >
-        {loadingVisible ? <ActivityIndicator size="small" color="#fff" /> : <Text style={styles.buttonText}>Entrar</Text>}
+        {loadingVisible ? (
+          <ActivityIndicator size="small" color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Entrar</Text>
+        )}
       </TouchableOpacity>
 
       <View style={styles.signupRow}>
-        <Text style={[styles.signupText, { color: isDark ? '#A6A6A6' : '#686868' }]}>Não tem conta? </Text>
+        <Text style={[styles.signupText, { color: isDark ? '#A6A6A6' : '#686868' }]}>
+          Não tem conta?{' '}
+        </Text>
         <TouchableOpacity onPress={() => navigation.navigate('Register', { role })}>
           <Text style={[styles.signupLink, { color: colors.primary }]}>Cadastre-se</Text>
         </TouchableOpacity>
       </View>
 
       {errorVisible && (
-        <View style={[styles.bannerInline, { backgroundColor: themeColors.background, borderColor: colors.primary }]}>
-          <Text style={[styles.bannerText, { color: themeColors.text }]} numberOfLines={2}>{errorMessage}</Text>
+        <View
+          style={[
+            styles.bannerInline,
+            { backgroundColor: themeColors.background, borderColor: colors.primary },
+          ]}
+        >
+          <Text style={[styles.bannerText, { color: themeColors.text }]} numberOfLines={2}>
+            {errorMessage}
+          </Text>
           <TouchableOpacity onPress={hideError} style={styles.bannerAction}>
             <Text style={[styles.bannerActionText, { color: colors.primary }]}>Fechar</Text>
           </TouchableOpacity>
@@ -140,11 +169,25 @@ const styles = StyleSheet.create({
   iconeOlho: { position: 'absolute', right: 15 },
   button: { padding: 15, borderRadius: 30, alignItems: 'center', marginTop: 10, marginBottom: 12 },
   buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-  signupRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
+  signupRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
   signupText: { fontSize: 14 },
   signupLink: { fontSize: 14, fontWeight: '700' },
-  bannerInline: { marginTop: 8, paddingVertical: 12, paddingHorizontal: 14, borderRadius: 14, borderWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  bannerInline: {
+    marginTop: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   bannerText: { flex: 1, marginRight: 12, fontSize: 14 },
   bannerAction: { paddingHorizontal: 6, paddingVertical: 4, borderRadius: 8 },
-  bannerActionText: { fontSize: 14, fontWeight: '700' }
+  bannerActionText: { fontSize: 14, fontWeight: '700' },
 });

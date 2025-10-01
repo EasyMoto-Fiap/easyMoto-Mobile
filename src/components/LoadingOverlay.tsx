@@ -1,4 +1,5 @@
-import { Modal, View, ActivityIndicator, Text, StyleSheet } from 'react-native';
+import { ActivityIndicator, Modal, StyleSheet, Text, View } from 'react-native';
+
 import { colors } from '../styles/colors';
 
 type Props = {
@@ -29,7 +30,12 @@ export default function LoadingOverlay({ visible, text }: Props) {
 }
 
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.35)', alignItems: 'center', justifyContent: 'center' },
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   box: { padding: 20, borderRadius: 16, minWidth: 160, alignItems: 'center' },
-  text: { marginTop: 12, fontSize: 14, textAlign: 'center' }
+  text: { marginTop: 12, fontSize: 14, textAlign: 'center' },
 });

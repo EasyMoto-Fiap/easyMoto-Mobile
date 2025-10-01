@@ -1,17 +1,18 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Home from '../screens/Home';
-import Login from '../screens/Login';
-import Register from '../screens/Register';
-import HomeOperador from '../screens/HomeOperador';
-import HomeAdmin from '../screens/HomeAdmin';
+
 import GerenciarOperadores from '../screens/GerenciarOperadores';
-import PatioModelos from '../screens/PatioModelos';
-import Patio from '../screens/Patio';
-import Registro from '../screens/Registro';
-import QRCode from '../screens/QRCode';
+import Home from '../screens/Home';
+import HomeAdmin from '../screens/HomeAdmin';
+import HomeOperador from '../screens/HomeOperador';
+import Login from '../screens/Login';
 import Notificacoes from '../screens/Notificacoes';
-import Relatorio from '../screens/Relatorio';
+import Patio from '../screens/Patio';
+import PatioModelos from '../screens/PatioModelos';
 import Perfil from '../screens/Perfil';
+import QRCode from '../screens/QRCode';
+import Register from '../screens/Register';
+import Registro from '../screens/Registro';
+import Relatorio from '../screens/Relatorio';
 
 export type RootStackParamList = {
   Home: undefined;

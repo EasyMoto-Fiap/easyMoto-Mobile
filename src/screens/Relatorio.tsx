@@ -1,16 +1,17 @@
-import { View, Text, StyleSheet, Dimensions, ScrollView } from 'react-native';
-import { useEffect, useState, useContext, useMemo, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { BarChart } from 'react-native-chart-kit';
-import { ThemeContext } from '../contexts/ThemeContext';
-import { colors } from '../styles/colors';
+
 import ThemeToggleButton from '../components/ThemeToggleButton';
+import { ThemeContext } from '../contexts/ThemeContext';
 import { listarMotos } from '../services/motos';
+import { colors } from '../styles/colors';
 
 type TipoMoto = 'Pop' | 'Sport' | 'E';
 type CorHex = string;
 
-type MotoLocal = {
+type _MotoLocal = {
   id: string;
   nome: string;
   tipo: TipoMoto;
@@ -24,7 +25,7 @@ const legendaCores: Record<string, string> = {
   'Motor Defeituoso': '#ff0000',
   'Agendada para Manutenção': '#808080',
   'Pronta para Aluguel': '#006400',
-  'Sem Placa': '#da70d6'
+  'Sem Placa': '#da70d6',
 };
 
 const corToLegenda: Record<string, string> = {
@@ -34,7 +35,7 @@ const corToLegenda: Record<string, string> = {
   '#ff0000': 'Motor Defeituoso',
   '#808080': 'Agendada para Manutenção',
   '#006400': 'Pronta para Aluguel',
-  '#da70d6': 'Sem Placa'
+  '#da70d6': 'Sem Placa',
 };
 
 export default function Relatorio() {
@@ -46,7 +47,7 @@ export default function Relatorio() {
 
   async function carregar() {
     const data = await listarMotos(1, 1000);
-    const lista: any[] = Array.isArray(data) ? data : data?.items ?? [];
+    const lista: any[] = Array.isArray(data) ? data : (data?.items ?? []);
     const cont: Record<string, number> = {};
     for (const m of lista) {
       const cor = m?.cor as string | undefined;
@@ -66,25 +67,35 @@ export default function Relatorio() {
   useFocusEffect(
     useCallback(() => {
       carregar();
-    }, [])
+    }, []),
   );
 
   const labels = useMemo(() => Object.keys(contagem), [contagem]);
   const values = useMemo(() => labels.map((k) => contagem[k]), [labels, contagem]);
-  const barColors = useMemo(() => labels.map((label) => legendaCores[label] || colors.primary), [labels]);
+  const barColors = useMemo(
+    () => labels.map((label) => legendaCores[label] || colors.primary),
+    [labels],
+  );
 
   const chartData: any = {
     labels,
     datasets: [
       {
         data: values,
-        colors: barColors.map((c) => (opacity: number = 1) => c)
-      }
-    ]
+        colors: barColors.map(
+          (c) =>
+            (_opacity: number = 1) =>
+              c,
+        ),
+      },
+    ],
   };
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: themeColors.background }]} contentContainerStyle={{ paddingBottom: 40 }}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: themeColors.background }]}
+      contentContainerStyle={{ paddingBottom: 40 }}
+    >
       <View style={styles.topHeader}>
         <ThemeToggleButton />
       </View>
@@ -117,7 +128,7 @@ export default function Relatorio() {
             decimalPlaces: 0,
             color: () => 'rgba(0,0,0,1)',
             labelColor: () => themeColors.text,
-            propsForBackgroundLines: { stroke: isDark ? '#444' : '#ccc' }
+            propsForBackgroundLines: { stroke: isDark ? '#444' : '#ccc' },
           }}
           style={{ marginTop: 40, marginBottom: 30, borderRadius: 16 }}
           fromZero
@@ -148,5 +159,5 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 16, fontWeight: 'bold', marginTop: 5, marginBottom: 10 },
   legendaItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
   corBox: { width: 16, height: 16, borderRadius: 4, marginRight: 8 },
-  text: { fontSize: 16, textAlign: 'center', marginTop: 20 }
+  text: { fontSize: 16, textAlign: 'center', marginTop: 20 },
 });

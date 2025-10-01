@@ -1,4 +1,5 @@
-import { TouchableOpacity, Text, ActivityIndicator, StyleSheet, ViewStyle } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, ViewStyle } from 'react-native';
+
 import { colors } from '../styles/colors';
 
 type Props = {
@@ -20,12 +21,16 @@ export default function LoadingButton({ title, onPress, loading, disabled, style
       disabled={isDisabled}
       activeOpacity={0.8}
     >
-      {loading ? <ActivityIndicator size="small" color={textColor} /> : <Text style={[styles.buttonText, { color: textColor }]}>{title}</Text>}
+      {loading ? (
+        <ActivityIndicator size="small" color={textColor} />
+      ) : (
+        <Text style={[styles.buttonText, { color: textColor }]}>{title}</Text>
+      )}
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   button: { padding: 15, borderRadius: 30, alignItems: 'center', justifyContent: 'center' },
-  buttonText: { fontWeight: 'bold', fontSize: 16 }
+  buttonText: { fontWeight: 'bold', fontSize: 16 },
 });

@@ -1,12 +1,12 @@
-import { createContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createContext, ReactNode, useEffect, useState } from 'react';
 
 type Theme = 'light' | 'dark';
 type ThemeContextValue = { theme: Theme; toggleTheme: () => Promise<void> };
 
 export const ThemeContext = createContext<ThemeContextValue>({
   theme: 'light',
-  toggleTheme: async () => {}
+  toggleTheme: async () => {},
 });
 
 export function ThemeProvider({ children }: { children: ReactNode }) {

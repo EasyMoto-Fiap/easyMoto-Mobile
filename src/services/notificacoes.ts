@@ -28,14 +28,19 @@ export async function criarNotificacao(data: NotificacaoRequest) {
       motoId: data.motoId ?? null,
       usuarioOrigemId: data.usuarioOrigemId ?? null,
       criadaEm: new Date().toISOString(),
-      escopo: data.escopo ?? 0
+      escopo: data.escopo ?? 0,
     } as Notificacao;
   }
   const res = await api.post('/notificacoes', data);
   return res.data as Notificacao;
 }
 
-export async function listarNotificacoes(params?: { escopo?: number; filialId?: number; page?: number; pageSize?: number }): Promise<Notificacao[]> {
+export async function listarNotificacoes(params?: {
+  escopo?: number;
+  filialId?: number;
+  page?: number;
+  pageSize?: number;
+}): Promise<Notificacao[]> {
   const res = await api.get('/notificacoes', { params });
   if (Array.isArray(res.data)) return res.data as Notificacao[];
   if (res.data?.items) return res.data.items as Notificacao[];

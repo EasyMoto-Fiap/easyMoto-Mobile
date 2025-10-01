@@ -1,8 +1,10 @@
-import { Pressable, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import React from 'react';
 import { useContext } from 'react';
-import { ThemeContext } from '../contexts/ThemeContext';
+import { Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { ThemeContext } from '../contexts/ThemeContext';
 import { colors } from '../styles/colors';
 
 export default function ThemeToggleButton() {
@@ -19,7 +21,10 @@ export default function ThemeToggleButton() {
       onPress={toggleTheme}
       accessibilityRole="button"
       style={[styles.btn, { top: insets.top + 12, backgroundColor: bg }]}
-      android_ripple={{ color: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.15)', borderless: true }}
+      android_ripple={{
+        color: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.15)',
+        borderless: true,
+      }}
     >
       <Feather name={iconName} size={20} color={iconColor} />
     </Pressable>
@@ -34,6 +39,6 @@ const styles = StyleSheet.create({
     width: 36,
     borderRadius: 18,
     alignItems: 'center',
-    justifyContent: 'center'
-  }
+    justifyContent: 'center',
+  },
 });

@@ -1,5 +1,6 @@
-import api from './api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import api from './api';
 import { criarNotificacao } from './notificacoes';
 
 export type CategoriaNum = 0 | 1 | 2;
@@ -57,7 +58,13 @@ export async function criarMoto(data: CreateOrUpdate): Promise<Moto> {
     const nome = nomeUsuario(u);
     const uid = u?.id ? Number(u.id) : 0;
     const msg = `Moto cadastrada:\nOperador: ${nome} - MOTO: ${created.placa} ${created.modelo}`;
-    await criarNotificacao({ tipo: 0, mensagem: msg, motoId: created.id, usuarioOrigemId: uid, escopo: 0 });
+    await criarNotificacao({
+      tipo: 0,
+      mensagem: msg,
+      motoId: created.id,
+      usuarioOrigemId: uid,
+      escopo: 0,
+    });
   } catch {}
   return created;
 }

@@ -12,7 +12,11 @@ export type PatioMoto = {
   filialId?: number;
 };
 
-export async function listarPatioMotos(filialId: number, page = 1, pageSize = 500): Promise<{ items: PatioMoto[] }> {
+export async function listarPatioMotos(
+  filialId: number,
+  page = 1,
+  pageSize = 500,
+): Promise<{ items: PatioMoto[] }> {
   try {
     const res = await api.get('/patio/motos', { params: { filialId, page, pageSize } });
     if (Array.isArray(res.data)) return { items: res.data };
@@ -26,7 +30,11 @@ export async function listarPatioMotos(filialId: number, page = 1, pageSize = 50
   }
 }
 
-export async function registrarEntradaPatio(data: { motoId: number; filialId: number; statusOperacional: number }) {
+export async function registrarEntradaPatio(data: {
+  motoId: number;
+  filialId: number;
+  statusOperacional: number;
+}) {
   try {
     const res = await api.post('/patio/entradas', data);
     return res.data;

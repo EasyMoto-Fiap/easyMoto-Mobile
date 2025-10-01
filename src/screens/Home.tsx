@@ -1,11 +1,12 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { useContext } from 'react';
-import { ThemeContext } from '../contexts/ThemeContext';
-import { colors } from '../styles/colors';
-import ThemeToggleButton from '../components/ThemeToggleButton';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useContext } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
+import ThemeToggleButton from '../components/ThemeToggleButton';
+import { ThemeContext } from '../contexts/ThemeContext';
 import type { RootStackParamList } from '../navigation/RootNavigator';
+import { colors } from '../styles/colors';
 
 export default function Home() {
   const { theme } = useContext(ThemeContext);
@@ -54,5 +55,5 @@ const styles = StyleSheet.create({
   subtext: { fontSize: 16, textAlign: 'center', marginBottom: 40 },
   buttonContainer: { width: '100%', gap: 20 },
   button: { backgroundColor: GREEN, paddingVertical: 15, borderRadius: 30, alignItems: 'center' },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
+  buttonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
 });
