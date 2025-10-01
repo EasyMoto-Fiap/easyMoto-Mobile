@@ -5,57 +5,86 @@ import { FontAwesome } from '@expo/vector-icons';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { colors } from '../styles/colors';
 import ThemeToggleButton from '../components/ThemeToggleButton';
+import { listarNotificacoes, deletarNotificacao, type Notificacao } from '../services/notificacoes';
 
 export default function Notificacoes() {
   const { theme } = useContext(ThemeContext);
   const isDark = theme === 'dark';
   const themeColors = isDark ? colors.dark : colors.light;
 
-  const [alertas, setAlertas] = useState<string[]>([]);
+  const [lista, setLista] = useState<Notificacao[]>([]);
   const [loading, setLoading] = useState(false);
 
-  async function carregarAlertas() {
+  async function carregar() {
     setLoading(true);
-    const dados = await AsyncStorage.getItem('historicoMotos');
-    setAlertas(dados ? JSON.parse(dados) : []);
-    setLoading(false);
+    try {
+      const userRaw = await AsyncStorage.getItem('usuarioAtual');
+      const user = userRaw ? JSON.parse(userRaw) : undefined;
+      const itens = await listarNotificacoes({ page: 1, pageSize: 100, escopo: 0, filialId: user?.filialId });
+      setLista(itens);
+    } catch {
+      setLista([]);
+    } finally {
+      setLoading(false);
+    }
   }
 
-  async function limparAlertas() {
-    await AsyncStorage.removeItem('historicoMotos');
-    setAlertas([]);
+  async function apagarTodos() {
+    if (!lista?.length) return;
+    setLoading(true);
+    try {
+      for (const n of lista) {
+        try { await deletarNotificacao(n.id); } catch {}
+      }
+      await carregar();
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
-    carregarAlertas();
+    carregar();
   }, []);
 
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <ThemeToggleButton />
-      <Text style={[styles.logo, { color: themeColors.text }]}>
-        easy<Text style={{ color: colors.primary }}>Moto</Text>
-      </Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={[styles.logo, { color: themeColors.text }]}>
+          easy<Text style={{ color: colors.primary }}>Moto</Text>
+        </Text>
+        <ThemeToggleButton />
+      </View>
+
       <Text style={[styles.title, { color: themeColors.text }]}>Histórico de alterações nas motos</Text>
-      <ScrollView style={{ marginTop: 10, flex: 1 }}>
-        {alertas.length === 0 ? (
-          <Text style={[styles.text, { color: themeColors.text, textAlign: 'center', marginTop: 20 }]}>
-            Nenhum alerta ou histórico disponível.
-          </Text>
+
+      <View style={{ flex: 1 }}>
+        {loading ? (
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+            <ActivityIndicator size="small" color={colors.primary} />
+          </View>
         ) : (
-          alertas.map((item, index) => (
-            <View key={index} style={[styles.alertaItem, { backgroundColor: isDark ? '#1e1e1e' : '#f0f0f0' }]}>
-              <Text style={{ color: themeColors.text }}>{item}</Text>
-            </View>
-          ))
+          <ScrollView style={{ marginTop: 10, flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
+            {(!lista || lista.length === 0) ? (
+              <Text style={[styles.text, { color: themeColors.text, textAlign: 'center', marginTop: 20 }]}>
+                Nenhum alerta ou histórico disponível.
+              </Text>
+            ) : (
+              lista.map((n) => (
+                <View key={n.id} style={[styles.alertaItem, { backgroundColor: isDark ? '#1e1e1e' : '#f0f0f0' }]}>
+                  <Text style={{ color: themeColors.text }}>{n.mensagem}</Text>
+                </View>
+              ))
+            )}
+          </ScrollView>
         )}
-      </ScrollView>
+      </View>
+
       <View style={[styles.bottomActions, { borderTopColor: isDark ? '#333' : '#ddd' }]}>
-        <TouchableOpacity onPress={carregarAlertas} style={styles.iconButton} activeOpacity={0.8}>
-          {loading ? <ActivityIndicator size="small" color={colors.primary} /> : <FontAwesome name="refresh" size={22} color={colors.primary} />}
+        <TouchableOpacity style={styles.iconButton} onPress={carregar}>
+          <FontAwesome name="refresh" size={20} color={themeColors.text} />
         </TouchableOpacity>
-        <TouchableOpacity onPress={limparAlertas} style={styles.iconButton} activeOpacity={0.8}>
-          <FontAwesome name="trash" size={22} color={colors.primary} />
+        <TouchableOpacity style={styles.iconButton} onPress={apagarTodos}>
+          <FontAwesome name="trash" size={20} color={themeColors.text} />
         </TouchableOpacity>
       </View>
     </View>
