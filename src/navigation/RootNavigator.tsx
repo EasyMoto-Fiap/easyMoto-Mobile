@@ -5,7 +5,6 @@ import Register from '../screens/Register';
 import HomeOperador from '../screens/HomeOperador';
 import HomeAdmin from '../screens/HomeAdmin';
 import GerenciarOperadores from '../screens/GerenciarOperadores';
-import PrototipoDeTela from '../screens/PrototipoDeTela';
 import PatioModelos from '../screens/PatioModelos';
 import Patio from '../screens/Patio';
 import Registro from '../screens/Registro';
@@ -49,7 +48,6 @@ export default function RootNavigator() {
       <Stack.Screen name="Notificacoes" component={Notificacoes} />
       <Stack.Screen name="Relatorio" component={Relatorio} />
       <Stack.Screen name="Perfil" component={Perfil} />
-      <Stack.Screen name="PrototipoDeTela" component={PrototipoDeTela} />
     </Stack.Navigator>
   );
 }
