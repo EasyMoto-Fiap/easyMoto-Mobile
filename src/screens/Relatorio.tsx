@@ -1,15 +1,16 @@
 import { View, Text, StyleSheet, Dimensions, ScrollView } from 'react-native';
-import { useEffect, useState, useContext, useMemo } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState, useContext, useMemo, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { BarChart } from 'react-native-chart-kit';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { colors } from '../styles/colors';
 import ThemeToggleButton from '../components/ThemeToggleButton';
+import { listarMotos } from '../services/motos';
 
 type TipoMoto = 'Pop' | 'Sport' | 'E';
 type CorHex = string;
 
-type Moto = {
+type MotoLocal = {
   id: string;
   nome: string;
   tipo: TipoMoto;
@@ -43,19 +44,30 @@ export default function Relatorio() {
 
   const [contagem, setContagem] = useState<Record<string, number>>({});
 
+  async function carregar() {
+    const data = await listarMotos(1, 1000);
+    const lista: any[] = Array.isArray(data) ? data : data?.items ?? [];
+    const cont: Record<string, number> = {};
+    for (const m of lista) {
+      const cor = m?.cor as string | undefined;
+      const placa = m?.placa as string | undefined;
+      let statusNome: string | undefined = undefined;
+      if (cor && corToLegenda[cor]) statusNome = corToLegenda[cor];
+      else if (!placa) statusNome = 'Sem Placa';
+      if (statusNome) cont[statusNome] = (cont[statusNome] || 0) + 1;
+    }
+    setContagem(cont);
+  }
+
   useEffect(() => {
-    const contarStatus = async () => {
-      const dados = await AsyncStorage.getItem('motos');
-      const lista: Moto[] = dados ? JSON.parse(dados) : [];
-      const cont: Record<string, number> = {};
-      lista.forEach((moto) => {
-        const statusNome = corToLegenda[moto.status];
-        if (statusNome) cont[statusNome] = (cont[statusNome] || 0) + 1;
-      });
-      setContagem(cont);
-    };
-    contarStatus();
+    carregar();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      carregar();
+    }, [])
+  );
 
   const labels = useMemo(() => Object.keys(contagem), [contagem]);
   const values = useMemo(() => labels.map((k) => contagem[k]), [labels, contagem]);
