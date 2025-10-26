@@ -1,8 +1,11 @@
 import axios from 'axios';
+import { Platform } from 'react-native';
 
-const api = axios.create({
-  baseURL: 'http://172.203.27.184/api',
-  timeout: 15000,
-});
+const PORT = 5230;
 
-export default api;
+const baseURL =
+  Platform.OS === 'android'
+    ? `http://10.0.2.2:${PORT}/api`   // Android Emulator (Expo)
+    : `http://localhost:${PORT}/api`; // iOS Simulator / Web em dev
+
+export default axios.create({ baseURL, timeout: 15000 });

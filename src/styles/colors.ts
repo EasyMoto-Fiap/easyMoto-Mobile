@@ -5,13 +5,7 @@ export const colors = {
   mutedText: '#d9d9d9',
   inputBg: '#e4e4e4',
   buttonBg: '#004d25',
-  gradient: ['#007a2f', '#00c853'] as const,
-  light: {
-    background: '#ffffff',
-    text: '#111111',
-  },
-  dark: {
-    background: '#121212',
-    text: '#ffffff',
-  },
+  gradient: ['#004d25', '#16a34a'] as const,
+  light: { background: '#ffffff', text: '#111111' },
+  dark: { background: '#121212', text: '#ffffff' },
 };
