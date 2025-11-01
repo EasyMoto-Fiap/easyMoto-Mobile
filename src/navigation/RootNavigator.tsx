@@ -10,7 +10,7 @@ import Patio from '../screens/Patio';
 import PatioModelos from '../screens/PatioModelos';
 import Perfil from '../screens/Perfil';
 import QRCode from '../screens/QRCode';
-import Register from '../screens/Register';
+import Register from '../screens/Cadastro';
 import Registro from '../screens/Registro';
 import Relatorio from '../screens/Relatorio';
 

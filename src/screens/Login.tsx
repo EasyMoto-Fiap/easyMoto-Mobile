@@ -5,7 +5,6 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import axios from 'axios';
 import { useContext, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
-
 import ThemeToggleButton from '../components/ThemeToggleButton';
 import VoltarParaHome from '../components/VoltarParaHome';
 import { ThemeContext } from '../contexts/ThemeContext';
@@ -15,6 +14,7 @@ import api from '../services/api';
 import { login } from '../services/auth';
 import { colors } from '../styles/colors';
 import GradientButton from '../components/GradientButton';
+import LogoEasyMoto from '../components/LogoEasyMoto';
 
 export default function Login() {
   const { theme } = useContext(ThemeContext);
@@ -67,74 +67,80 @@ export default function Login() {
 
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <VoltarParaHome />
-      <ThemeToggleButton />
+      <View style={styles.toggle}><ThemeToggleButton /></View>
 
-      <Text style={styles.logoRow}>
-        <Text style={[styles.logo, styles.logoEasy]}>easy</Text>
-        <Text style={[styles.logo, { color: themeColors.text }]}>Moto</Text>
-      </Text>
-
-      <Text style={[styles.title, { color: themeColors.text }]}>
-        {role === 'admin' ? 'Login Administrador' : 'Login Operador'}
-      </Text>
-
-      <TextInput
-        style={[styles.input, { backgroundColor: colors.inputBg, color: '#111' }]}
-        placeholder="Email"
-        placeholderTextColor="#666"
-        autoCapitalize="none"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-      />
-
-      <View style={styles.senhaContainer}>
-        <TextInput
-          style={[styles.input, { flex: 1, marginBottom: 0, backgroundColor: colors.inputBg, color: '#111' }]}
-          placeholder="Senha"
-          placeholderTextColor="#666"
-          secureTextEntry={!mostrarSenha}
-          value={senha}
-          onChangeText={setSenha}
-        />
-        <Text onPress={() => setMostrarSenha(v => !v)} style={styles.iconeOlho}>
-          <FontAwesome name={mostrarSenha ? 'eye-slash' : 'eye'} size={20} color="#666" />
+      <View style={styles.content}>
+        <Text style={styles.logoRow}>
+          <LogoEasyMoto size={38} />
         </Text>
-      </View>
 
-      <GradientButton
-        title="Entrar"
-        loading={loadingVisible}
-        disabled={loadingVisible}
-        onPress={() => run(onSubmit, { loadingText: 'Entrando...' })}
-      />
+        <Text style={[styles.title, { color: themeColors.text }]}>
+          {role === 'admin' ? 'Login Administrador' : 'Login Operador'}
+        </Text>
 
-      <View style={styles.signupRow}>
-        <Text style={[styles.signupText, { color: isDark ? '#A6A6A6' : '#686868' }]}>Não tem conta? </Text>
-        <Text onPress={() => navigation.navigate('Register', { role })} style={[styles.signupLink, { color: colors.primary }]}>Cadastre-se</Text>
-      </View>
+        <TextInput
+          style={[styles.input, { backgroundColor: colors.inputBg, color: '#111' }]}
+          placeholder="Email"
+          placeholderTextColor="#666"
+          autoCapitalize="none"
+          keyboardType="email-address"
+          value={email}
+          onChangeText={setEmail}
+        />
 
-      {errorVisible && (
-        <View style={[styles.bannerInline, { backgroundColor: themeColors.background, borderColor: colors.primary }]}>
-          <Text style={[styles.bannerText, { color: themeColors.text }]} numberOfLines={2}>{errorMessage}</Text>
-          <Text onPress={hideError} style={[styles.bannerActionText, { color: colors.primary }]}>Fechar</Text>
+        <View style={styles.senhaContainer}>
+          <TextInput
+            style={[styles.input, styles.inputSenha]}
+            placeholder="Senha"
+            placeholderTextColor="#666"
+            secureTextEntry={!mostrarSenha}
+            value={senha}
+            onChangeText={setSenha}
+          />
+          <Text onPress={() => setMostrarSenha(v => !v)} style={styles.iconeOlho}>
+            <FontAwesome name={mostrarSenha ? 'eye-slash' : 'eye'} size={20} color="#666" />
+          </Text>
         </View>
-      )}
+
+        <View style={styles.buttonWrapper}>
+          <GradientButton
+            title="Entrar"
+            loading={loadingVisible}
+            disabled={loadingVisible}
+            onPress={() => run(onSubmit, { loadingText: 'Entrando...' })}
+          />
+        </View>
+
+        <View style={styles.signupRow}>
+          <Text style={[styles.signupText, { color: isDark ? '#A6A6A6' : '#686868' }]}>Não tem conta? </Text>
+          <Text onPress={() => navigation.navigate('Register', { role })} style={[styles.signupLink, { color: colors.primary }]}>Cadastre-se</Text>
+        </View>
+
+        {errorVisible && (
+          <View style={[styles.bannerInline, { backgroundColor: themeColors.background, borderColor: colors.primary }]}>
+            <Text style={[styles.bannerText, { color: themeColors.text }]} numberOfLines={2}>{errorMessage}</Text>
+            <Text onPress={hideError} style={[styles.bannerActionText, { color: colors.primary }]}>Fechar</Text>
+          </View>
+        )}
+      </View>
+
+      <VoltarParaHome />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 30, justifyContent: 'center' },
-  logoRow: { textAlign: 'center', marginBottom: 50 },
-  logo: { fontSize: 36, fontWeight: 'bold' },
-  logoEasy: { color: colors.primary },
+  container: { flex: 1, paddingHorizontal: 24, justifyContent: 'center' },
+  toggle: { position: 'absolute', top: 16, right: 16, zIndex: 10 },
+  content: { width: '100%', maxWidth: 420, alignSelf: 'center' },
+  logoRow: { alignSelf: 'center', marginBottom: 16 },
   title: { fontSize: 18, marginBottom: 20, textAlign: 'center' },
-  input: { padding: 15, borderRadius: 30, marginBottom: 15 },
-  senhaContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
-  iconeOlho: { position: 'absolute', right: 15 },
-  signupRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
+  input: { padding: 16, borderRadius: 30, marginBottom: 12 },
+  inputSenha: { flex: 1, marginBottom: 0, backgroundColor: colors.inputBg, color: '#111' },
+  senhaContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  iconeOlho: { position: 'absolute', right: 18 },
+  buttonWrapper: { marginTop: 8, marginBottom: 12 },
+  signupRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 6 },
   signupText: { fontSize: 14 },
   signupLink: { fontSize: 14, fontWeight: '700' },
   bannerInline: { marginTop: 8, paddingVertical: 12, paddingHorizontal: 14, borderRadius: 14, borderWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },

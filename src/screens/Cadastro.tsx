@@ -14,6 +14,7 @@ import type { RootStackParamList } from '../navigation/RootNavigator';
 import { criarUsuario, listarFiliais } from '../services/usuarios';
 import { colors } from '../styles/colors';
 import GradientButton from '../components/GradientButton';
+import LogoEasyMoto from '../components/LogoEasyMoto';
 
 function formatarCPF(valor: string) {
   const numeros = valor.replace(/\D/g, '');
@@ -34,7 +35,7 @@ function formatarTelefone(valor: string) {
   return v;
 }
 
-export default function Register() {
+export default function Cadastro() {
   const route = useRoute<RouteProp<RootStackParamList, 'Register'>>();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const role = route.params?.role;
@@ -87,7 +88,6 @@ export default function Register() {
       Alert.alert('CEP inválido', 'O CEP deve conter exatamente 8 dígitos numéricos.');
       return;
     }
-
     const perfil = role === 'operador' ? 0 : 1;
     const filiais = await listarFiliais(1, 100);
     const filial = filiais.items.find((f) => f.cep.replace(/\D/g, '') === cepLimpo);
@@ -95,7 +95,6 @@ export default function Register() {
       Alert.alert('Filial não encontrada', 'Nenhuma filial com este CEP.');
       return;
     }
-
     const usuario = await criarUsuario({
       nomeCompleto: nome,
       email,
@@ -108,7 +107,6 @@ export default function Register() {
       ativo: true,
       filialId: filial.id,
     });
-
     await AsyncStorage.setItem('usuarioAtual', JSON.stringify(usuario));
     Alert.alert('Cadastro realizado com sucesso!');
     if (perfil === 0) {
@@ -124,35 +122,52 @@ export default function Register() {
 
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <ThemeToggleButton />
-      <Text style={[styles.logo, { color: themeColors.text }]}>
-        <Text style={styles.logoEasy}>easy</Text>Moto
-      </Text>
-      <Text style={[styles.title, { color: themeColors.text }]}>
-        Cadastro do {role === 'operador' ? 'operador' : 'administrador'}:
-      </Text>
-      <TextInput style={styles.input} placeholder="Nome:" placeholderTextColor="#666" value={nome} onChangeText={setNome} />
-      <TextInput style={styles.input} placeholder="Email:" placeholderTextColor="#666" value={email} onChangeText={setEmail} autoCapitalize="none" />
-      <TextInput style={styles.input} placeholder="Telefone:" placeholderTextColor="#666" value={telefone} onChangeText={(v) => setTelefone(formatarTelefone(v))} keyboardType="phone-pad" maxLength={15} />
-      <View style={styles.senhaContainer}>
-        <TextInput style={[styles.input, { flex: 1, marginBottom: 0 }]} placeholder="Senha:" placeholderTextColor="#666" secureTextEntry={!mostrarSenha} value={senha} onChangeText={setSenha} />
-        <TouchableOpacity onPress={() => setMostrarSenha(!mostrarSenha)} style={styles.iconeOlho}>
-          <FontAwesome name={mostrarSenha ? 'eye' : 'eye-slash'} size={20} color="#666" />
-        </TouchableOpacity>
+      <View style={styles.toggle}><ThemeToggleButton /></View>
+
+      <View style={styles.content}>
+        <Text style={styles.logoRow}>
+          <LogoEasyMoto size={38} />
+        </Text>
+
+        <Text style={[styles.title, { color: themeColors.text }]}>
+          Cadastro do {role === 'operador' ? 'operador' : 'administrador'}:
+        </Text>
+
+        <TextInput style={[styles.input, { backgroundColor: colors.inputBg, color: '#000' }]} placeholder="Nome:" placeholderTextColor="#666" value={nome} onChangeText={setNome} />
+        <TextInput style={[styles.input, { backgroundColor: colors.inputBg, color: '#000' }]} placeholder="Email:" placeholderTextColor="#666" value={email} onChangeText={setEmail} autoCapitalize="none" />
+        <TextInput style={[styles.input, { backgroundColor: colors.inputBg, color: '#000' }]} placeholder="Telefone:" placeholderTextColor="#666" value={telefone} onChangeText={(v) => setTelefone(formatarTelefone(v))} keyboardType="phone-pad" maxLength={15} />
+
+        <View style={styles.senhaContainer}>
+          <TextInput style={[styles.input, styles.inputSenha]} placeholder="Senha:" placeholderTextColor="#666" secureTextEntry={!mostrarSenha} value={senha} onChangeText={setSenha} />
+          <TouchableOpacity onPress={() => setMostrarSenha(!mostrarSenha)} style={styles.iconeOlho}>
+            <FontAwesome name={mostrarSenha ? 'eye' : 'eye-slash'} size={20} color="#666" />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.senhaContainer}>
+          <TextInput style={[styles.input, styles.inputSenha]} placeholder="Confirmar senha:" placeholderTextColor="#666" secureTextEntry={!mostrarConfirmar} value={confirmarSenha} onChangeText={setConfirmarSenha} />
+          <TouchableOpacity onPress={() => setMostrarConfirmar(!mostrarConfirmar)} style={styles.iconeOlho}>
+            <FontAwesome name={mostrarConfirmar ? 'eye' : 'eye-slash'} size={20} color="#666" />
+          </TouchableOpacity>
+        </View>
+
+        <TextInput style={[styles.input, { backgroundColor: colors.inputBg, color: '#000' }]} placeholder="CPF:" placeholderTextColor="#666" value={cpf} onChangeText={(v) => setCpf(formatarCPF(v))} maxLength={14} />
+        <TextInput style={[styles.input, { backgroundColor: colors.inputBg, color: '#000' }]} placeholder="CEP da Filial:" placeholderTextColor="#666" value={cep} onChangeText={(v) => setCep(formatarCEP(v))} maxLength={9} />
+
+        <View style={styles.buttonWrapper}>
+          <GradientButton title="Acessar" onPress={onSubmit} loading={loadingVisible} />
+        </View>
+
+        <View style={styles.loginRow}>
+          <Text style={[styles.loginText, { color: theme === 'dark' ? '#A6A6A6' : '#686868' }]}>Já tem conta? </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Login', { role })}>
+            <Text style={[styles.loginLink, { color: colors.primary }]}>Faça login</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-      <View style={styles.senhaContainer}>
-        <TextInput style={[styles.input, { flex: 1, marginBottom: 0 }]} placeholder="Confirmar senha:" placeholderTextColor="#666" secureTextEntry={!mostrarConfirmar} value={confirmarSenha} onChangeText={setConfirmarSenha} />
-        <TouchableOpacity onPress={() => setMostrarConfirmar(!mostrarConfirmar)} style={styles.iconeOlho}>
-          <FontAwesome name={mostrarConfirmar ? 'eye' : 'eye-slash'} size={20} color="#666" />
-        </TouchableOpacity>
-      </View>
-      <TextInput style={styles.input} placeholder="CPF:" placeholderTextColor="#666" value={cpf} onChangeText={(v) => setCpf(formatarCPF(v))} maxLength={14} />
-      <TextInput style={styles.input} placeholder="CEP da Filial:" placeholderTextColor="#666" value={cep} onChangeText={(v) => setCep(formatarCEP(v))} maxLength={9} />
-      <GradientButton title="Acessar" onPress={onSubmit} loading={loadingVisible} style={{ marginTop: 10, marginBottom: 20 }} />
-      <TouchableOpacity onPress={() => navigation.navigate('Login', { role })}>
-        <Text style={[styles.linkText, { color: themeColors.text }]}>Já tem conta? Faça Login</Text>
-      </TouchableOpacity>
+
       <VoltarParaHome />
+
       <ErrorSnackbar visible={errorVisible} message={errorMessage ?? ''} onDismiss={() => setErrorVisible(false)} />
       <ErrorSnackbar visible={reqErrorVisible} message={reqErrorMessage} onDismiss={hideError} />
     </View>
@@ -160,12 +175,17 @@ export default function Register() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 30, justifyContent: 'center' },
-  logo: { fontSize: 36, fontWeight: 'bold', textAlign: 'center', marginBottom: 50 },
-  logoEasy: { color: colors.primary },
-  title: { fontSize: 18, marginBottom: 20, textAlign: 'center' },
-  input: { backgroundColor: colors.inputBg, padding: 15, borderRadius: 30, marginBottom: 15, color: '#000' },
-  senhaContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
-  iconeOlho: { position: 'absolute', right: 15 },
-  linkText: { textAlign: 'center', fontSize: 14 },
+  container: { flex: 1, paddingHorizontal: 24, justifyContent: 'center' },
+  toggle: { position: 'absolute', top: 16, right: 16, zIndex: 10 },
+  content: { width: '100%', maxWidth: 420, alignSelf: 'center', paddingBottom: 90 },
+  logoRow: { alignSelf: 'center', marginBottom: 16 },
+  title: { fontSize: 18, marginBottom: 16, textAlign: 'center' },
+  input: { padding: 16, borderRadius: 30, marginBottom: 12 },
+  senhaContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  inputSenha: { flex: 1, marginBottom: 0, backgroundColor: colors.inputBg, color: '#000' },
+  iconeOlho: { position: 'absolute', right: 18 },
+  buttonWrapper: { marginTop: 8, marginBottom: 12 },
+  loginRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 6 },
+  loginText: { fontSize: 14 },
+  loginLink: { fontSize: 14, fontWeight: '700' },
 });
