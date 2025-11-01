@@ -2,12 +2,12 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useContext } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-
 import ThemeToggleButton from '../components/ThemeToggleButton';
 import { ThemeContext } from '../contexts/ThemeContext';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { colors } from '../styles/colors';
 import GradientButton from '../components/GradientButton';
+import LogoEasyMoto from '../components/LogoEasyMoto';
 
 export default function Home() {
   const { theme } = useContext(ThemeContext);
@@ -19,9 +19,7 @@ export default function Home() {
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
       <ThemeToggleButton />
 
-      <Text style={[styles.logoText, { color: themeColors.text }]}>
-        <Text style={{ color: colors.primary }}>easy</Text>Moto
-      </Text>
+      <LogoEasyMoto style={styles.logoText} />
 
       <Text style={[styles.subtext, { color: themeColors.text }]}>
         Para acessar o aplicativo escolha sua função:
