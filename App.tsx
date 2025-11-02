@@ -5,6 +5,7 @@ import { NavigationContainer, InitialState } from '@react-navigation/native';
 import RootNavigator from './src/navigation/RootNavigator';
 import { ThemeProvider } from './src/contexts/ThemeContext';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
+import { LanguageProvider } from './src/contexts/LanguageContext';
 
 const PERSISTENCE_KEY = 'NAVIGATION_STATE_V1';
 
@@ -46,7 +47,9 @@ export default function App() {
     <SafeAreaProvider>
       <AuthProvider>
         <ThemeProvider>
-          <AppContent />
+          <LanguageProvider>
+            <AppContent />
+          </LanguageProvider>
         </ThemeProvider>
       </AuthProvider>
     </SafeAreaProvider>

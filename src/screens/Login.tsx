@@ -8,8 +8,10 @@ import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { Controller } from 'react-hook-form';
 
 import ThemeToggleButton from '../components/ThemeToggleButton';
+import LanguageToggleButton from '../components/LanguageToggleButton';
 import VoltarParaHome from '../components/VoltarParaHome';
 import { ThemeContext } from '../contexts/ThemeContext';
+import { LanguageContext } from '../contexts/LanguageContext';
 import useRequest from '../hooks/useRequest';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { login } from '../services/auth';
@@ -17,9 +19,11 @@ import { colors } from '../styles/colors';
 import GradientButton from '../components/GradientButton';
 import LogoEasyMoto from '../components/LogoEasyMoto';
 import { useLoginForm } from '../components/FormValidation';
+import { t } from '../i18n';
 
 export default function Login() {
   const { theme } = useContext(ThemeContext);
+  const { lang } = useContext(LanguageContext);
   const isDark = theme === 'dark';
   const themeColors = isDark ? colors.dark : colors.light;
 
@@ -43,8 +47,8 @@ export default function Login() {
       await AsyncStorage.removeItem('token');
       await AsyncStorage.removeItem('usuarioAtual');
       if (axios.isAxiosError(err)) {
-        if (err.response?.status === 401) throw new Error('Email ou senha inválidos');
-        if (!err.response) throw new Error('Não foi possível conectar ao servidor. Verifique sua internet ou tente novamente.');
+        if (err.response?.status === 401) throw new Error(t('errors.invalidCredentials'));
+        if (!err.response) throw new Error(t('errors.network'));
       }
       throw err;
     }
@@ -52,7 +56,10 @@ export default function Login() {
 
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <View style={styles.toggle}><ThemeToggleButton /></View>
+      <ThemeToggleButton />
+      <View pointerEvents="box-none" style={styles.langBadge}>
+        <LanguageToggleButton />
+      </View>
 
       <View style={styles.content}>
         <Text style={styles.logoRow}>
@@ -60,7 +67,7 @@ export default function Login() {
         </Text>
 
         <Text style={[styles.title, { color: themeColors.text }]}>
-          {role === 'admin' ? 'Login Administrador' : 'Login Operador'}
+          {role === 'admin' ? t('login.titleAdmin') : t('login.titleOperador')}
         </Text>
 
         <View style={styles.field}>
@@ -70,7 +77,7 @@ export default function Login() {
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
                 style={[styles.input, { backgroundColor: colors.inputBg, color: '#111' }, errors.email && styles.inputError]}
-                placeholder="Email"
+                placeholder={t('login.emailPlaceholder')}
                 placeholderTextColor="#666"
                 autoCapitalize="none"
                 keyboardType="email-address"
@@ -90,7 +97,7 @@ export default function Login() {
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
                 style={[styles.input, { backgroundColor: colors.inputBg, color: '#111', paddingRight: 48 }, errors.senha && styles.inputError]}
-                placeholder="Senha"
+                placeholder={t('login.senhaPlaceholder')}
                 placeholderTextColor="#666"
                 secureTextEntry={!mostrarSenha}
                 onBlur={onBlur}
@@ -107,16 +114,16 @@ export default function Login() {
 
         <View style={styles.buttonWrapper}>
           <GradientButton
-            title="Entrar"
+            title={t('login.entrar')}
             loading={loadingVisible}
             disabled={!isValid || loadingVisible}
-            onPress={() => run(handleSubmit(submit), { loadingText: 'Entrando...' })}
+            onPress={() => run(handleSubmit(submit), { loadingText: t('login.entrar') + '...' })}
           />
         </View>
 
         <View style={styles.signupRow}>
-          <Text style={[styles.signupText, { color: isDark ? '#A6A6A6' : '#686868' }]}>Não possui conta? </Text>
-          <Text onPress={() => navigation.navigate('Register', { role })} style={[styles.signupLink, { color: colors.primary }]}>Cadastre-se</Text>
+          <Text style={[styles.signupText, { color: isDark ? '#A6A6A6' : '#686868' }]}>{t('login.naoPossuiConta')} </Text>
+          <Text onPress={() => navigation.navigate('Register', { role })} style={[styles.signupLink, { color: colors.primary }]}>{t('login.cadastreSe')}</Text>
         </View>
 
         {errorVisible && (
@@ -134,7 +141,7 @@ export default function Login() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, paddingHorizontal: 24, justifyContent: 'center' },
-  toggle: { position: 'absolute', top: 16, right: 16, zIndex: 10 },
+  langBadge: { position: 'absolute', top: 16, right: 56, zIndex: 10, padding: 20, paddingRight: 1 },
   content: { width: '100%', maxWidth: 420, alignSelf: 'center' },
   logoRow: { alignSelf: 'center', marginBottom: 16 },
   title: { fontSize: 18, marginBottom: 16, textAlign: 'center' },

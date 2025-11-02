@@ -1,0 +1,20 @@
+{
+  "home": {
+    "subtitle": "Para acceder a la aplicación elige tu función:",
+    "operador": "Operador",
+    "admin": "Administrador"
+  },
+  "login": {
+    "titleAdmin": "Inicio de sesión Administrador",
+    "titleOperador": "Inicio de sesión Operador",
+    "emailPlaceholder": "Correo",
+    "senhaPlaceholder": "Contraseña",
+    "entrar": "Entrar",
+    "naoPossuiConta": "¿No tienes cuenta?",
+    "cadastreSe": "Regístrate"
+  },
+  "errors": {
+    "invalidCredentials": "Correo o contraseña inválidos",
+    "network": "No fue posible conectar con el servidor."
+  }
+}
