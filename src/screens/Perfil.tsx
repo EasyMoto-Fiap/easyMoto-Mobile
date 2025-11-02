@@ -204,9 +204,24 @@ export default function Perfil() {
     ]);
   };
 
+  const deslogar = async () => {
+    try {
+      await AsyncStorage.removeItem('usuarioAtual');
+      await AsyncStorage.removeItem('token');
+      // @ts-ignore
+      navigation.reset({ index: 0, routes: [{ name: 'Login', params: { role: perfil === 1 ? 'admin' : 'operador' } }] });
+    } catch {
+      Alert.alert('Erro', 'Não foi possível sair agora.');
+    }
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
       <ThemeToggleButton />
+
+      <TouchableOpacity style={styles.logoutButton} onPress={deslogar} activeOpacity={0.8}>
+        <FontAwesome name="sign-out" size={20} color={isDark ? '#fff' : '#111'} />
+      </TouchableOpacity>
 
       <Text style={[styles.logo, { color: themeColors.text }]}>
         <Text style={{ color: colors.primary }}>easy</Text>Moto
@@ -301,6 +316,7 @@ export default function Perfil() {
 const styles = StyleSheet.create({
   container: { flex: 1, paddingTop: 60, paddingHorizontal: 30, alignItems: 'center' },
   logo: { fontSize: 30, fontWeight: 'bold', marginBottom: 20 },
+  logoutButton: { position: 'absolute', bottom: 16, right: 16, padding: 8, borderRadius: 20, zIndex: 20 },
   avatar: {
     width: 100,
     height: 100,

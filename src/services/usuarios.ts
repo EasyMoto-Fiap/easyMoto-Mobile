@@ -98,3 +98,16 @@ export async function listarFiliais(page = 1, pageSize = 100): Promise<Paged<Fil
   const res = await api.get('/filiais', { params: { page, pageSize } });
   return res.data;
 }
+
+export async function buscarUsuarioPorEmail(email: string): Promise<Usuario | null> {
+  const pageSize = 200;
+  let page = 1;
+  while (true) {
+    const res = await listarUsuarios(page, pageSize);
+    const found = res.items.find(u => u.email?.toLowerCase() === email.toLowerCase()) ?? null;
+    if (found) return found;
+    if (res.items.length < pageSize) break;
+    page += 1;
+  }
+  return null;
+}
