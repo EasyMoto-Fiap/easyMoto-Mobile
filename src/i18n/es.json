@@ -63,7 +63,8 @@
       "patio": { "title": "Patio", "subtitle": "Mapa del patio y ubicación de las motos" },
       "notificacoes": { "title": "Notificaciones", "subtitle": "Alertas operativas" },
       "relatorios": { "title": "Informes de motos", "subtitle": "Actualización semanal de la filial" },
-      "perfil": { "title": "Mi perfil", "subtitle": "Gestionar mi perfil" }
+      "perfil": { "title": "Mi perfil", "subtitle": "Gestionar mi perfil" },
+      "sobreapp": { "title": "Acerca de la App", "subtitle": "Mantén presionado el commit para detalles" }
     }
   },
   "patio": {
@@ -139,7 +140,7 @@
     "title": "Escanea el código QR de la moto",
     "permissionDenied": "Permiso de cámara denegado.",
     "alertTitle": "Código QR leído",
-    "alertContent": "Tipo: {{type}}\nContenido: {{data}}"
+    "alertContent": "Tipo: {{type}}\\nContenido: {{data}}"
   },
   "notifications": {
     "historyTitle": "Historial de cambios en las motos",
@@ -248,5 +249,13 @@
       "senhaCurta": "La contraseña debe tener al menos 8 caracteres.",
       "novaSenhaCurta": "La nueva contraseña debe tener al menos 8 caracteres."
     }
+  },
+  "about": {
+    "title": "Acerca de la App",
+    "name": "Nombre",
+    "version": "Versión",
+    "commit": "Commit",
+    "build": "Build",
+    "hint": "Mantén presionado el commit para detalles"
   }
 }

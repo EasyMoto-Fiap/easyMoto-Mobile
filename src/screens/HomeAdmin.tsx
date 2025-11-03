@@ -14,7 +14,7 @@ import { colors } from '../styles/colors';
 import { t } from '../i18n';
 
 type Opcao = {
-  id: 'operadores' | 'patio' | 'notificacoes' | 'relatorios' | 'perfil';
+  id: 'operadores' | 'patio' | 'notificacoes' | 'relatorios' | 'perfil' | 'sobreapp';
   titulo: string;
   subtitulo: string;
   icone: keyof typeof FontAwesome.glyphMap;
@@ -58,6 +58,12 @@ export default function HomeAdmin() {
       subtitulo: t('adminHome.options.perfil.subtitle'),
       icone: 'user',
     },
+    {
+      id: 'sobreapp',
+      titulo: t('adminHome.options.sobreapp.title'),
+      subtitulo: t('adminHome.options.sobreapp.subtitle'),
+      icone: 'info-circle',
+    },
   ];
 
   function handlePress(item: Opcao) {
@@ -66,6 +72,7 @@ export default function HomeAdmin() {
     if (item.id === 'notificacoes') { navigation.navigate('Notificacoes'); return; }
     if (item.id === 'relatorios') { navigation.navigate('Relatorio'); return; }
     if (item.id === 'perfil') { navigation.navigate('Perfil'); return; }
+    if (item.id === 'sobreapp') { navigation.navigate('SobreApp'); return; }
   }
 
   function renderItem({ item }: { item: Opcao }) {
