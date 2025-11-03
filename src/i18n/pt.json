@@ -49,45 +49,18 @@
   },
   "operatorHome": {
     "options": {
-      "patio": {
-        "title": "Pátio",
-        "subtitle": "Mapa do pátio e localização das motos"
-      },
-      "motos": {
-        "title": "Motos Cadastradas",
-        "subtitle": "Registro das motos já cadastradas"
-      },
-      "qrcode": {
-        "title": "QR Code",
-        "subtitle": "Escanear motos"
-      },
-      "notificacoes": {
-        "title": "Notificações",
-        "subtitle": "Alertas operacionais"
-      },
-      "relatorios": {
-        "title": "Relatórios das Motos",
-        "subtitle": "Atualização semanal da filial"
-      },
-      "perfil": {
-        "title": "Meu Perfil",
-        "subtitle": "Gerenciar meu perfil"
-      }
+      "patio": { "title": "Pátio", "subtitle": "Mapa do pátio e localização das motos" },
+      "motos": { "title": "Motos Cadastradas", "subtitle": "Registro das motos já cadastradas" },
+      "qrcode": { "title": "QR Code", "subtitle": "Escanear motos" },
+      "notificacoes": { "title": "Notificações", "subtitle": "Alertas operacionais" },
+      "relatorios": { "title": "Relatórios das Motos", "subtitle": "Atualização semanal da filial" },
+      "perfil": { "title": "Meu Perfil", "subtitle": "Gerenciar meu perfil" }
     }
   },
   "patio": {
     "title": "Pátio",
-    "filters": {
-      "Pop": "Pop",
-      "Sport": "Sport",
-      "E": "E"
-    },
-    "modal": {
-      "type": "Tipo",
-      "latitude": "Latitude",
-      "longitude": "Longitude",
-      "close": "Fechar"
-    }
+    "filters": { "Pop": "Pop", "Sport": "Sport", "E": "E" },
+    "modal": { "type": "Tipo", "latitude": "Latitude", "longitude": "Longitude", "close": "Fechar" }
   },
   "patioModelos": {
     "title": "Modelos disponíveis:",
@@ -98,5 +71,69 @@
       "sport": { "desc": "Mais econômica" },
       "e": { "desc": "Moto elétrica" }
     }
+  },
+  "registro": {
+    "legendLabels": {
+      "pendencia": "Pendência",
+      "reparosSimples": "Reparos Simples",
+      "danosGraves": "Danos Estruturais Graves",
+      "sinistro": "Sinistro",
+      "semPlaca": "Sem Placa",
+      "prontaAluguel": "Pronta para Aluguel"
+    },
+    "legendSection": "Status da Legenda",
+    "operationalSection": "Status Operacional",
+    "dataSection": "Dados",
+    "statusOps": {
+      "disponivel": "Disponível",
+      "alugada": "Alugada",
+      "manutencao": "Manutenção"
+    },
+    "inputs": {
+      "placa": "Placa",
+      "modelo": "Modelo",
+      "ano": "Ano"
+    },
+    "typeSection": "Tipo",
+    "actions": {
+      "salvarEdicao": "Salvar edição",
+      "cadastrar": "Cadastrar",
+      "cancelar": "Cancelar",
+      "editar": "Editar",
+      "excluir": "Excluir"
+    },
+    "card": { "ano": "Ano" },
+    "empty": "Nenhuma moto encontrada.",
+    "modal": { "editarTitulo": "Editar Moto", "novoTitulo": "Nova Moto" },
+    "delete": { "title": "Excluir", "message": "Deseja remover esta moto?", "cancel": "Cancelar", "remove": "Remover" },
+    "errors": {
+      "title": "Erro",
+      "load": "Não foi possível carregar as motos.",
+      "save": "Não foi possível salvar.",
+      "branchNotFoundTitle": "Filial não encontrada",
+      "branchNotFoundMsg": "Não foi possível identificar a filial do usuário.",
+      "plateConflictTitle": "Placa já cadastrada",
+      "plateConflictMsg": "A placa informada já existe.",
+      "invalidDataTitle": "Dados inválidos",
+      "invalidDataMsg": "Verifique os campos e tente novamente."
+    },
+    "validation": {
+      "placaInvalidaTitle": "Placa inválida",
+      "placaInvalidaMessage": "A placa deve ter exatamente 7 caracteres (letras e números).",
+      "modeloInvalidoTitle": "Modelo inválido",
+      "modeloInvalidoMessage": "Informe o modelo.",
+      "anoInvalidoTitle": "Ano inválido",
+      "anoInvalidoMessage": "Informe um ano entre 1980 e {{anoAtual}}."
+    }
+  },
+  "qrcode": {
+    "title": "Escaneie o QR Code da moto",
+    "permissionDenied": "Permissão da câmera negada.",
+    "alertTitle": "QR Code lido",
+    "alertContent": "Tipo: {{type}}\nConteúdo: {{data}}"
+  },
+  "notifications": {
+    "historyTitle": "Histórico de alterações nas motos",
+    "empty": "Nenhum alerta ou histórico disponível."
   }
 }

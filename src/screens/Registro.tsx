@@ -20,7 +20,10 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ThemeToggleButton from '../components/ThemeToggleButton';
+import LanguageToggleButton from '../components/LanguageToggleButton';
+import LogoEasyMoto from '../components/LogoEasyMoto';
 import { ThemeContext } from '../contexts/ThemeContext';
+import { LanguageContext } from '../contexts/LanguageContext';
 import api from '../services/api';
 import {
   atualizarMoto,
@@ -34,6 +37,7 @@ import {
 import { criarNotificacao } from '../services/notificacoes';
 import { registrarEntradaPatio } from '../services/patio';
 import { colors } from '../styles/colors';
+import { t } from '../i18n';
 
 type TipoMoto = 'Pop' | 'Sport' | 'E';
 type CorHex = '#e6c300' | '#0074cc' | '#ff4500' | '#ff0000' | '#808080' | '#006400' | '#da70d6';
@@ -57,16 +61,6 @@ type NovaMotoState = {
   statusOperacional: StatusOperacionalNum;
 };
 
-const legendaLabelPorCor: Record<CorHex, string> = {
-  '#e6c300': 'Pendência',
-  '#0074cc': 'Reparos Simples',
-  '#ff4500': 'Danos Estruturais Graves',
-  '#ff0000': 'Sinistro',
-  '#808080': 'Sem Placa',
-  '#006400': 'Pronta para Aluguel',
-  '#da70d6': 'Sem Placa'
-};
-
 const legendaIdPorCor: Record<CorHex, number> = {
   '#e6c300': 1,
   '#0074cc': 2,
@@ -80,12 +74,6 @@ const legendaIdPorCor: Record<CorHex, number> = {
 const categoriaMap: Record<TipoMoto, CategoriaNum> = { Pop: 0, Sport: 1, E: 2 };
 const categoriaReverse: Record<CategoriaNum, TipoMoto> = { 0: 'Pop', 1: 'Sport', 2: 'E' };
 
-const statusOps = [
-  { label: 'Disponível', value: 0 as StatusOperacionalNum, color: '#006400' },
-  { label: 'Alugada', value: 1 as StatusOperacionalNum, color: '#e6c300' },
-  { label: 'Manutenção', value: 2 as StatusOperacionalNum, color: '#0074cc' }
-];
-
 export default function Registro() {
   const insets = useSafeAreaInsets();
   const { theme } = useContext(ThemeContext);
@@ -98,6 +86,8 @@ export default function Registro() {
     border: isDark ? '#2a2a2a' : '#e5e5e5',
     shadow: '#000'
   };
+
+  useContext(LanguageContext);
 
   const [motos, setMotos] = useState<MotoUI[]>([]);
   const [novaMoto, setNovaMoto] = useState<NovaMotoState>({
@@ -115,6 +105,23 @@ export default function Registro() {
   const [filtroTipo, setFiltroTipo] = useState<TipoMoto | null>(null);
   const scaleAnim = useRef(new Animated.Value(0.95)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
+
+  function statusOps() {
+    return [
+      { label: t('registro.statusOps.disponivel'), value: 0 as StatusOperacionalNum, color: '#006400' },
+      { label: t('registro.statusOps.alugada'), value: 1 as StatusOperacionalNum, color: '#e6c300' },
+      { label: t('registro.statusOps.manutencao'), value: 2 as StatusOperacionalNum, color: '#0074cc' }
+    ];
+  }
+
+  function legendLabel(c: CorHex) {
+    if (c === '#e6c300') return t('registro.legendLabels.pendencia');
+    if (c === '#0074cc') return t('registro.legendLabels.reparosSimples');
+    if (c === '#ff4500') return t('registro.legendLabels.danosGraves');
+    if (c === '#ff0000') return t('registro.legendLabels.sinistro');
+    if (c === '#006400') return t('registro.legendLabels.prontaAluguel');
+    return t('registro.legendLabels.semPlaca');
+  }
 
   function openModal(editId?: number) {
     setEditandoId(editId ?? null);
@@ -162,9 +169,18 @@ export default function Registro() {
     const modelo = novaMoto.modelo.trim();
     const anoNum = Number(novaMoto.ano);
     const anoAtual = new Date().getFullYear() + 1;
-    if (!/^[A-Z0-9]{7}$/.test(placa)) { Alert.alert('Placa inválida', 'A placa deve ter exatamente 7 caracteres (letras e números).'); return false; }
-    if (!modelo) { Alert.alert('Modelo inválido', 'Informe o modelo.'); return false; }
-    if (!Number.isInteger(anoNum) || anoNum < 1980 || anoNum > anoAtual) { Alert.alert('Ano inválido', `Informe um ano entre 1980 e ${anoAtual}.`); return false; }
+    if (!/^[A-Z0-9]{7}$/.test(placa)) {
+      Alert.alert(t('registro.validation.placaInvalidaTitle'), t('registro.validation.placaInvalidaMessage'));
+      return false;
+    }
+    if (!modelo) {
+      Alert.alert(t('registro.validation.modeloInvalidoTitle'), t('registro.validation.modeloInvalidoMessage'));
+      return false;
+    }
+    if (!Number.isInteger(anoNum) || anoNum < 1980 || anoNum > anoAtual) {
+      Alert.alert(t('registro.validation.anoInvalidoTitle'), t('registro.validation.anoInvalidoMessage', { anoAtual }));
+      return false;
+    }
     return true;
   }
 
@@ -206,7 +222,7 @@ export default function Registro() {
       }));
       setMotos(items);
     } catch {
-      Alert.alert('Erro', 'Não foi possível carregar as motos.');
+      Alert.alert(t('registro.errors.title'), t('registro.errors.load'));
     } finally {
       setLoading(false);
     }
@@ -232,7 +248,10 @@ export default function Registro() {
     const user = userRaw ? JSON.parse(userRaw) : undefined;
     const filialId = user?.filialId;
     const usuarioOrigemId = user?.id;
-    if (!filialId) { Alert.alert('Filial não encontrada', 'Não foi possível identificar a filial do usuário.'); return; }
+    if (!filialId) {
+      Alert.alert(t('registro.errors.branchNotFoundTitle'), t('registro.errors.branchNotFoundMsg'));
+      return;
+    }
     const placaSan = novaMoto.placa.trim().toUpperCase();
     const payload = {
       placa: placaSan,
@@ -290,10 +309,19 @@ export default function Registro() {
     } catch (err: any) {
       setSaving(false);
       const msg = parseDotNetError(err);
-      if (msg) { Alert.alert('Erro', msg); return; }
-      if (axios.isAxiosError(err) && err.response?.status === 409) { Alert.alert('Placa já cadastrada', 'A placa informada já existe.'); return; }
-      if (axios.isAxiosError(err) && err.response?.status === 400) { Alert.alert('Dados inválidos', 'Verifique os campos e tente novamente.'); return; }
-      Alert.alert('Erro', 'Não foi possível salvar.');
+      if (msg) {
+        Alert.alert(t('registro.errors.title'), msg);
+        return;
+      }
+      if (axios.isAxiosError(err) && err.response?.status === 409) {
+        Alert.alert(t('registro.errors.plateConflictTitle'), t('registro.errors.plateConflictMsg'));
+        return;
+      }
+      if (axios.isAxiosError(err) && err.response?.status === 400) {
+        Alert.alert(t('registro.errors.invalidDataTitle'), t('registro.errors.invalidDataMsg'));
+        return;
+      }
+      Alert.alert(t('registro.errors.title'), t('registro.errors.save'));
       return;
     }
     setSaving(false);
@@ -302,10 +330,10 @@ export default function Registro() {
   }
 
   function excluir(id: number) {
-    Alert.alert('Excluir', 'Deseja remover esta moto?', [
-      { text: 'Cancelar', style: 'cancel' },
+    Alert.alert(t('registro.delete.title'), t('registro.delete.message'), [
+      { text: t('registro.delete.cancel'), style: 'cancel' },
       {
-        text: 'Remover',
+        text: t('registro.delete.remove'),
         style: 'destructive',
         onPress: async () => {
           try {
@@ -313,7 +341,7 @@ export default function Registro() {
             await deletarMoto(id);
             setMotos(prev => prev.filter(m => m.id !== id));
           } catch {
-            Alert.alert('Erro', 'Não foi possível excluir.');
+            Alert.alert(t('registro.errors.title'), t('registro.errors.save'));
           }
         }
       }
@@ -344,10 +372,16 @@ export default function Registro() {
   const motosFiltradas = filtroTipo ? motosPorTipo(filtroTipo) : motos;
 
   return (
-    <View style={[styles.container, { backgroundColor: themeColors.background, paddingTop: insets.top }]}>
-      <View style={styles.header}>
-        <Text style={[styles.logo, { color: themeColors.text }]}><Text style={{ color: colors.primary }}>easy</Text>Moto</Text>
-        <View style={styles.themeBtn}><ThemeToggleButton /></View>
+    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
+      <View style={styles.toggle}>
+        <ThemeToggleButton />
+      </View>
+      <View style={styles.langBadge}>
+        <LanguageToggleButton />
+      </View>
+
+      <View style={[styles.logoRow, { marginTop: insets.top }]}>
+        <LogoEasyMoto size={42} />
       </View>
 
       <View style={styles.content}>
@@ -375,13 +409,13 @@ export default function Registro() {
                 <FontAwesome name="motorcycle" size={14} color={m.cor} style={{ marginRight: 8 }} />
                 <Text style={{ color: themeColors.text, fontWeight: '800' }}>{m.modelo} • {m.placa}</Text>
               </View>
-              <Text style={{ color: themeColors.subtext, marginBottom: 6 }}>Ano {m.ano} • {m.tipo}</Text>
+              <Text style={{ color: themeColors.subtext, marginBottom: 6 }}>{t('registro.card.ano')} {m.ano} • {m.tipo}</Text>
               <View style={{ flexDirection: 'row', gap: 10 }}>
                 <TouchableOpacity onPress={() => openModal(m.id)} style={styles.linkBtn}>
-                  <Text style={{ color: colors.primary, fontWeight: '700' }}>Editar</Text>
+                  <Text style={{ color: colors.primary, fontWeight: '700' }}>{t('registro.actions.editar')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => excluir(m.id)} style={styles.linkBtn}>
-                  <Text style={{ color: '#e53935', fontWeight: '700' }}>Excluir</Text>
+                  <Text style={{ color: '#e53935', fontWeight: '700' }}>{t('registro.actions.excluir')}</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -395,7 +429,7 @@ export default function Registro() {
 
           {!loading && motosFiltradas.length === 0 && (
             <View style={{ paddingVertical: 40, alignItems: 'center' }}>
-              <Text style={{ color: themeColors.subtext }}>Nenhuma moto encontrada.</Text>
+              <Text style={{ color: themeColors.subtext }}>{t('registro.empty')}</Text>
             </View>
           )}
         </ScrollView>
@@ -410,31 +444,31 @@ export default function Registro() {
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={80}>
             <Animated.View style={{ transform: [{ scale: scaleAnim }], opacity: opacityAnim }}>
               <ScrollView keyboardShouldPersistTaps="handled" style={[styles.modalCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
-                <Text style={[styles.modalTitulo, { color: themeColors.text }]}>{editandoId ? 'Editar Moto' : 'Nova Moto'}</Text>
+                <Text style={[styles.modalTitulo, { color: themeColors.text }]}>{editandoId ? t('registro.modal.editarTitulo') : t('registro.modal.novoTitulo')}</Text>
 
-                <Text style={[styles.sectionLabel, { color: themeColors.subtext }]}>Status da Legenda</Text>
+                <Text style={[styles.sectionLabel, { color: themeColors.subtext }]}>{t('registro.legendSection')}</Text>
                 {(['#e6c300', '#0074cc', '#ff4500', '#ff0000', '#808080', '#006400', '#da70d6'] as CorHex[]).map((c) => (
                   <TouchableWithoutFeedback key={c} onPress={() => setNovaMoto(prev => ({ ...prev, cor: c }))}>
                     <View style={[styles.colorRow, { borderColor: novaMoto.cor === c ? colors.primary : themeColors.border, backgroundColor: isDark ? '#0f0f0f' : '#fff' }]}>
                       <View style={[styles.colorSwatch, { backgroundColor: c }]} />
-                      <Text style={[styles.colorRowText, { color: themeColors.text }]}>{legendaLabelPorCor[c]}</Text>
+                      <Text style={[styles.colorRowText, { color: themeColors.text }]}>{legendLabel(c)}</Text>
                       {novaMoto.cor === c && <FontAwesome name="check" size={18} color={colors.primary} />}
                     </View>
                   </TouchableWithoutFeedback>
                 ))}
 
-                <Text style={[styles.sectionLabel, { color: themeColors.subtext }]}>Status Operacional</Text>
+                <Text style={[styles.sectionLabel, { color: themeColors.subtext }]}>{t('registro.operationalSection')}</Text>
                 <Segmented
-                  items={statusOps.map(s => ({ label: s.label, value: s.value }))}
+                  items={statusOps().map(s => ({ label: s.label, value: s.value }))}
                   value={novaMoto.statusOperacional}
                   onChange={(v) => setNovaMoto(prev => ({ ...prev, statusOperacional: v }))}
                 />
 
-                <Text style={[styles.sectionLabel, { color: themeColors.subtext }]}>Dados</Text>
+                <Text style={[styles.sectionLabel, { color: themeColors.subtext }]}>{t('registro.dataSection')}</Text>
                 <TextInput
                   value={novaMoto.placa}
-                  onChangeText={(t) => setNovaMoto(prev => ({ ...prev, placa: formatarPlaca(t) }))}
-                  placeholder="Placa"
+                  onChangeText={(tx) => setNovaMoto(prev => ({ ...prev, placa: formatarPlaca(tx) }))}
+                  placeholder={t('registro.inputs.placa')}
                   placeholderTextColor="#888"
                   style={[styles.input, isDark ? styles.inputDark : styles.inputLight, { color: themeColors.text }]}
                   autoCapitalize="characters"
@@ -442,22 +476,22 @@ export default function Registro() {
 
                 <TextInput
                   value={novaMoto.modelo}
-                  onChangeText={(t) => setNovaMoto(prev => ({ ...prev, modelo: t }))}
-                  placeholder="Modelo"
+                  onChangeText={(tx) => setNovaMoto(prev => ({ ...prev, modelo: tx }))}
+                  placeholder={t('registro.inputs.modelo')}
                   placeholderTextColor="#888"
                   style={[styles.input, isDark ? styles.inputDark : styles.inputLight, { color: themeColors.text }]}
                 />
 
                 <TextInput
                   value={novaMoto.ano}
-                  onChangeText={(t) => setNovaMoto(prev => ({ ...prev, ano: t.replace(/[^0-9]/g, '').slice(0, 4) }))}
-                  placeholder="Ano"
+                  onChangeText={(tx) => setNovaMoto(prev => ({ ...prev, ano: tx.replace(/[^0-9]/g, '').slice(0, 4) }))}
+                  placeholder={t('registro.inputs.ano')}
                   placeholderTextColor="#888"
                   keyboardType="number-pad"
                   style={[styles.input, isDark ? styles.inputDark : styles.inputLight, { color: themeColors.text }]}
                 />
 
-                <Text style={[styles.sectionLabel, { color: themeColors.subtext }]}>Tipo</Text>
+                <Text style={[styles.sectionLabel, { color: themeColors.subtext }]}>{t('registro.typeSection')}</Text>
                 <Segmented
                   items={[
                     { label: 'Pop', value: 'Pop' as TipoMoto },
@@ -469,11 +503,11 @@ export default function Registro() {
                 />
 
                 <TouchableOpacity style={[styles.primaryBtn, saving && { opacity: 0.9 }]} onPress={salvar} activeOpacity={0.95} disabled={saving}>
-                  {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryBtnText}>{editandoId ? 'Salvar edição' : 'Cadastrar'}</Text>}
+                  {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryBtnText}>{editandoId ? t('registro.actions.salvarEdicao') : t('registro.actions.cadastrar')}</Text>}
                 </TouchableOpacity>
 
                 <TouchableOpacity onPress={closeModal} activeOpacity={0.9} style={{ alignSelf: 'center', marginTop: 6, marginBottom: 4 }}>
-                  <Text style={{ color: themeColors.text, textAlign: 'center' }}>Cancelar</Text>
+                  <Text style={{ color: themeColors.text, textAlign: 'center' }}>{t('registro.actions.cancelar')}</Text>
                 </TouchableOpacity>
               </ScrollView>
             </Animated.View>
@@ -485,11 +519,11 @@ export default function Registro() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: { height: 64, alignItems: 'center', justifyContent: 'center', position: 'relative' },
-  themeBtn: { position: 'absolute', right: 16, top: 0, bottom: 0, justifyContent: 'center' },
-  logo: { fontSize: 28, fontWeight: '800' },
-  content: { paddingHorizontal: 16, paddingTop: 10, flex: 1 },
+  container: { flex: 1, paddingTop: 120, paddingHorizontal: 16 },
+  toggle: { position: 'absolute', top: 16, right: 16, zIndex: 10 },
+  langBadge: { position: 'absolute', top: 16, right: 60, zIndex: 10, padding: 35, paddingRight: 10 },
+  logoRow: { alignSelf: 'center', marginBottom: 20 },
+  content: { flex: 1 },
   tabs: { flexDirection: 'row', gap: 12, marginBottom: 12 },
   tab: { flex: 1, padding: 12, borderWidth: 1, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   tabTitle: { fontWeight: '800', marginLeft: 8 },
