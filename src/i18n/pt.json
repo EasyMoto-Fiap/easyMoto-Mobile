@@ -16,5 +16,35 @@
 "errors": {
     "invalidCredentials": "Email ou senha inválidos",
     "network": "Não foi possível conectar ao servidor."
+},
+"signup": {
+    "titleOperador": "Cadastro do operador:",
+    "titleAdministrador": "Cadastro do administrador:",
+    "nome": "Nome:",
+    "email": "Email:",
+    "telefone": "Telefone:",
+    "senha": "Senha:",
+    "confirmarSenha": "Confirmar senha:",
+    "cpf": "CPF:",
+    "cepFilial": "CEP da Filial:",
+    "botao": "Cadastrar",
+    "emailJaCadastradoTitle": "Email já cadastrado",
+    "emailJaCadastradoMessage": "Use outro email ou faça login.",
+    "sucesso": "Cadastro realizado com sucesso!",
+    "filialNaoEncontradaTitle": "Filial não encontrada",
+    "filialNaoEncontradaMessage": "Nenhuma filial com este CEP.",
+    "cadastrando": "Cadastrando...",
+    "jaTemConta": "Já tem conta?",
+    "facaLogin": "Faça login",
+"validation": {
+    "nomeObrigatorio": "Nome é obrigatório",
+    "emailInvalido": "Email inválido",
+    "telefoneInvalido": "Telefone deve ter 10 ou 11 dígitos",
+    "senhaCurta": "A senha deve ter pelo menos 8 caracteres",
+    "cpfInvalido": "CPF deve ter 11 dígitos",
+    "cepInvalido": "CEP deve ter 8 dígitos",
+    "senhasNaoConferem": "Senhas não coincidem",
+    "apenasLetras": "Apenas letras"
+    }
 }
 }

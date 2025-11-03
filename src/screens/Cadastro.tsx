@@ -5,11 +5,12 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useContext, useState } from 'react';
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Controller } from 'react-hook-form';
-
 import ErrorSnackbar from '../components/ErrorSnackbar';
 import ThemeToggleButton from '../components/ThemeToggleButton';
+import LanguageToggleButton from '../components/LanguageToggleButton';
 import VoltarParaHome from '../components/VoltarParaHome';
 import { ThemeContext } from '../contexts/ThemeContext';
+import { LanguageContext } from '../contexts/LanguageContext';
 import useRequest from '../hooks/useRequest';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { criarUsuario, listarFiliais, buscarUsuarioPorEmail } from '../services/usuarios';
@@ -17,6 +18,7 @@ import { colors } from '../styles/colors';
 import GradientButton from '../components/GradientButton';
 import LogoEasyMoto from '../components/LogoEasyMoto';
 import { useCadastroForm, formatarCEP, formatarCPF, formatarTelefone } from '../components/FormValidation';
+import { t } from '../i18n';
 
 export default function Cadastro() {
   const route = useRoute<RouteProp<RootStackParamList, 'Register'>>();
@@ -25,6 +27,8 @@ export default function Cadastro() {
 
   const { theme } = useContext(ThemeContext);
   const themeColors = theme === 'dark' ? colors.dark : colors.light;
+
+  useContext(LanguageContext);
 
   const { run, loadingVisible, errorVisible: reqErrorVisible, errorMessage: reqErrorMessage, hideError } = useRequest();
   const { control, handleSubmit, formState: { isValid, errors } } = useCadastroForm();
@@ -35,17 +39,22 @@ export default function Cadastro() {
   async function submit(values: any) {
     const existente = await buscarUsuarioPorEmail(values.email);
     if (existente) {
-      Alert.alert('Email já cadastrado', 'Use outro email ou faça login.');
+      Alert.alert(t('signup.emailJaCadastradoTitle'), t('signup.emailJaCadastradoMessage'));
       return;
     }
+
     const perfil = role === 'operador' ? 0 : 1;
-    const filiais = await listarFiliais(1, 100);
+
+    const resposta = await listarFiliais(1, 100);
+    const lista: any[] = Array.isArray((resposta as any)?.items) ? (resposta as any).items : [];
     const cepLimpo = values.cep.replace(/\D/g, '');
-    const filial = filiais.items.find((f: any) => f.cep.replace(/\D/g, '') === cepLimpo);
+    const filial = lista.find((f: any) => f?.cep?.replace(/\D/g, '') === cepLimpo);
+
     if (!filial) {
-      Alert.alert('Filial não encontrada', 'Nenhuma filial com este CEP.');
+      Alert.alert(t('signup.filialNaoEncontradaTitle'), t('signup.filialNaoEncontradaMessage'));
       return;
     }
+
     const usuario = await criarUsuario({
       nomeCompleto: values.nome,
       email: values.email,
@@ -58,20 +67,27 @@ export default function Cadastro() {
       ativo: true,
       filialId: filial.id,
     });
+
     await AsyncStorage.setItem('usuarioAtual', JSON.stringify(usuario));
-    Alert.alert('Cadastro realizado com sucesso!');
+    Alert.alert(t('signup.sucesso'));
     navigation.replace(perfil === 0 ? 'HomeOperador' : 'HomeAdmin');
   }
 
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <View style={styles.toggle}><ThemeToggleButton /></View>
+      <View style={styles.togglesRow}>
+        <View style={styles.langBadge}>  
+            <LanguageToggleButton />
+        </View>
+        <View style={{ width: 8 }} />
+        <ThemeToggleButton />
+      </View>
 
       <View style={styles.content}>
         <Text style={styles.logoRow}><LogoEasyMoto size={38} /></Text>
 
         <Text style={[styles.title, { color: themeColors.text }]}>
-          Cadastro do {role === 'operador' ? 'operador' : 'administrador'}:
+          {role === 'operador' ? t('signup.titleOperador') : t('signup.titleAdministrador')}
         </Text>
 
         <View style={styles.field}>
@@ -81,7 +97,7 @@ export default function Cadastro() {
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
                 style={[styles.input, { backgroundColor: colors.inputBg, color: '#000' }, errors.nome && styles.inputError]}
-                placeholder="Nome:"
+                placeholder={t('signup.nome')}
                 placeholderTextColor="#666"
                 onBlur={onBlur}
                 value={value}
@@ -99,7 +115,7 @@ export default function Cadastro() {
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
                 style={[styles.input, { backgroundColor: colors.inputBg, color: '#000' }, errors.email && styles.inputError]}
-                placeholder="Email:"
+                placeholder={t('signup.email')}
                 placeholderTextColor="#666"
                 autoCapitalize="none"
                 onBlur={onBlur}
@@ -118,7 +134,7 @@ export default function Cadastro() {
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
                 style={[styles.input, { backgroundColor: colors.inputBg, color: '#000' }, errors.telefone && styles.inputError]}
-                placeholder="Telefone:"
+                placeholder={t('signup.telefone')}
                 placeholderTextColor="#666"
                 keyboardType="phone-pad"
                 onBlur={onBlur}
@@ -137,7 +153,7 @@ export default function Cadastro() {
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
                 style={[styles.input, { backgroundColor: colors.inputBg, color: '#000', paddingRight: 48 }, errors.senha && styles.inputError]}
-                placeholder="Senha:"
+                placeholder={t('signup.senha')}
                 placeholderTextColor="#666"
                 secureTextEntry={!mostrarSenha}
                 onBlur={onBlur}
@@ -159,7 +175,7 @@ export default function Cadastro() {
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
                 style={[styles.input, { backgroundColor: colors.inputBg, color: '#000', paddingRight: 48 }, errors.confirmarSenha && styles.inputError]}
-                placeholder="Confirmar senha:"
+                placeholder={t('signup.confirmarSenha')}
                 placeholderTextColor="#666"
                 secureTextEntry={!mostrarConfirmar}
                 onBlur={onBlur}
@@ -181,7 +197,7 @@ export default function Cadastro() {
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
                 style={[styles.input, { backgroundColor: colors.inputBg, color: '#000' }, errors.cpf && styles.inputError]}
-                placeholder="CPF:"
+                placeholder={t('signup.cpf')}
                 placeholderTextColor="#666"
                 onBlur={onBlur}
                 value={value}
@@ -199,7 +215,7 @@ export default function Cadastro() {
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
                 style={[styles.input, { backgroundColor: colors.inputBg, color: '#000' }, errors.cep && styles.inputError]}
-                placeholder="CEP da Filial:"
+                placeholder={t('signup.cepFilial')}
                 placeholderTextColor="#666"
                 onBlur={onBlur}
                 value={value}
@@ -211,13 +227,20 @@ export default function Cadastro() {
         </View>
 
         <View style={styles.buttonWrapper}>
-          <GradientButton title="Acessar" onPress={() => run(handleSubmit(submit), { loadingText: 'Cadastrando...' })} loading={loadingVisible} disabled={!isValid || loadingVisible} />
+          <GradientButton
+            title={t('signup.botao')}
+            onPress={() => run(handleSubmit(submit), { loadingText: t('signup.cadastrando') })}
+            loading={loadingVisible}
+            disabled={!isValid || loadingVisible}
+          />
         </View>
 
         <View style={styles.loginRow}>
-          <Text style={[styles.loginText, { color: theme === 'dark' ? '#A6A6A6' : '#686868' }]}>Já tem conta? </Text>
+          <Text style={[styles.loginText, { color: theme === 'dark' ? '#A6A6A6' : '#686868' }]}>
+            {t('signup.jaTemConta')}{' '}
+          </Text>
           <TouchableOpacity onPress={() => navigation.navigate('Login', { role })}>
-            <Text style={[styles.loginLink, { color: colors.primary }]}>Faça login</Text>
+            <Text style={[styles.loginLink, { color: colors.primary }]}>{t('signup.facaLogin')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -229,8 +252,9 @@ export default function Cadastro() {
 }
 
 const styles = StyleSheet.create({
+  langBadge: { position: 'absolute', top: 16, right: 56, zIndex: 10, padding: 20, paddingRight: 1  },
   container: { flex: 1, paddingHorizontal: 24, justifyContent: 'center' },
-  toggle: { position: 'absolute', top: 16, right: 16, zIndex: 10 },
+  togglesRow: { position: 'absolute', top: 16, right: 16, zIndex: 10, flexDirection: 'row', alignItems: 'center' },
   content: { width: '100%', maxWidth: 420, alignSelf: 'center', paddingBottom: 90 },
   logoRow: { alignSelf: 'center', marginBottom: 16 },
   title: { fontSize: 18, marginBottom: 16, textAlign: 'center' },

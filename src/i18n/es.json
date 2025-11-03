@@ -1,10 +1,10 @@
 {
-  "home": {
+"home": {
     "subtitle": "Para acceder a la aplicación elige tu función:",
     "operador": "Operador",
     "admin": "Administrador"
   },
-  "login": {
+"login": {
     "titleAdmin": "Inicio de sesión Administrador",
     "titleOperador": "Inicio de sesión Operador",
     "emailPlaceholder": "Correo",
@@ -13,8 +13,39 @@
     "naoPossuiConta": "¿No tienes cuenta?",
     "cadastreSe": "Regístrate"
   },
-  "errors": {
+"errors": {
     "invalidCredentials": "Correo o contraseña inválidos",
     "network": "No fue posible conectar con el servidor."
+  },
+  "signup": {
+    "titleOperador": "Registro del operador:",
+    "titleAdministrador": "Registro del administrador:",
+    "nome": "Nombre:",
+    "email": "Correo:",
+    "telefone": "Teléfono:",
+    "senha": "Contraseña:",
+    "confirmarSenha": "Confirmar contraseña:",
+    "cpf": "CPF:",
+    "cepFilial": "Código postal de la filial:",
+    "botao": "Registrar",
+    "emailJaCadastradoTitle": "Correo ya registrado",
+    "emailJaCadastradoMessage": "Usa otro correo o inicia sesión.",
+    "sucesso": "¡Registro realizado con éxito!",
+    "filialNaoEncontradaTitle": "Sucursal no encontrada",
+    "filialNaoEncontradaMessage": "No hay sucursal con este código postal.",
+    "cadastrando": "Registrando...",
+    "jaTemConta": "¿Ya tienes cuenta?",
+    "facaLogin": "Inicia sesión",
+    "validation": {
+      "nomeObrigatorio": "El nombre es obligatorio",
+      "emailInvalido": "Correo inválido",
+      "telefoneInvalido": "El teléfono debe tener 10 u 11 dígitos",
+      "senhaCurta": "La contraseña debe tener al menos 8 caracteres",
+      "cpfInvalido": "El CPF debe tener 11 dígitos",
+      "cepInvalido": "El código postal debe tener 8 dígitos",
+      "senhasNaoConferem": "Las contraseñas no coinciden",
+      "apenasLetras": "Solo letras"
+    }
   }
+
 }

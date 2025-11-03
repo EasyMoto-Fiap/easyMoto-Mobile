@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { t } from '../i18n'; 
 
 export const formatarCPF = (valor: string) =>
   valor
@@ -37,24 +38,57 @@ export function useLoginForm() {
   });
 }
 
-export const cadastroSchema = z
-  .object({
-    nome: z.string().trim().min(1, 'Informe seu nome').regex(/^[A-Za-zÀ-ú\s]+$/, 'Apenas letras'),
-    email: z.string().trim().email('Email inválido'),
-    telefone: z.string().transform(toDigits).refine(v => v.length === 10 || v.length === 11, 'Telefone inválido'),
-    senha: z.string().min(8, 'Senha com no mínimo 8 caracteres'),
-    confirmarSenha: z.string(),
-    cpf: z.string().transform(toDigits).refine(v => v.length === 11, 'CPF deve ter 11 dígitos'),
-    cep: z.string().transform(toDigits).refine(v => v.length === 8, 'CEP deve ter 8 dígitos'),
-  })
-  .refine(d => d.senha === d.confirmarSenha, { path: ['confirmarSenha'], message: 'Senhas não coincidem' });
+export const makeCadastroSchema = () =>
+  z
+    .object({
+      nome: z
+        .string()
+        .trim()
+        .min(1, t('signup.validation.nomeObrigatorio'))
+        .regex(/^[A-Za-zÀ-ú\s]+$/, t('signup.validation.apenasLetras')), 
+      email: z
+        .string()
+        .trim()
+        .email(t('signup.validation.emailInvalido')),
+      telefone: z
+        .string()
+        .transform(toDigits)
+        .refine(v => v.length === 10 || v.length === 11, t('signup.validation.telefoneInvalido')),
+      senha: z
+        .string()
+        .min(8, t('signup.validation.senhaCurta')),
+      confirmarSenha: z.string(), 
+      cpf: z
+        .string()
+        .transform(toDigits)
+        .refine(v => v.length === 11, t('signup.validation.cpfInvalido')),
+      cep: z
+        .string()
+        .transform(toDigits)
+        .refine(v => v.length === 8, t('signup.validation.cepInvalido')),
+    })
+    .refine(d => d.senha === d.confirmarSenha, {
+      path: ['confirmarSenha'],
+      message: t('signup.validation.senhasNaoConferem'),
+    });
+
+export const cadastroSchema = makeCadastroSchema();
 
 export type CadastroFormValues = z.infer<typeof cadastroSchema>;
 
 export function useCadastroForm() {
+  const schema = makeCadastroSchema();
   return useForm<CadastroFormValues>({
-    resolver: zodResolver(cadastroSchema),
+    resolver: zodResolver(schema),
     mode: 'onChange',
-    defaultValues: { nome: '', email: '', telefone: '', senha: '', confirmarSenha: '', cpf: '', cep: '' },
+    defaultValues: {
+      nome: '',
+      email: '',
+      telefone: '',
+      senha: '',
+      confirmarSenha: '',
+      cpf: '',
+      cep: '',
+    },
   });
 }
