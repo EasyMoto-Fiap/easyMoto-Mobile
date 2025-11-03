@@ -135,5 +135,19 @@
   "notifications": {
     "historyTitle": "Historial de cambios en las motos",
     "empty": "No hay alertas ni historial disponible."
+  },
+  "report": {
+    "title": "Informe de motos por estado",
+    "noData": "No hay datos disponibles.",
+    "legend": "Leyenda:",
+    "status": {
+      "pendencia": "Pendiente",
+      "reparosSimples": "Reparaciones simples",
+      "danosGraves": "Daños estructurales graves",
+      "motorDefeituoso": "Motor defectuoso",
+      "agendada": "Programada para mantenimiento",
+      "pronta": "Lista para alquiler",
+      "semPlaca": "Sin placa"
+    }
   }
 }

@@ -1,61 +1,74 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BarChart } from 'react-native-chart-kit';
 
 import ThemeToggleButton from '../components/ThemeToggleButton';
+import LanguageToggleButton from '../components/LanguageToggleButton';
+import LogoEasyMoto from '../components/LogoEasyMoto';
 import { ThemeContext } from '../contexts/ThemeContext';
+import { LanguageContext } from '../contexts/LanguageContext';
 import { listarMotos } from '../services/motos';
 import { colors } from '../styles/colors';
+import { t } from '../i18n';
 
 type TipoMoto = 'Pop' | 'Sport' | 'E';
-type CorHex = string;
 
-type _MotoLocal = {
-  id: string;
-  nome: string;
-  tipo: TipoMoto;
-  status: CorHex;
+const statusColorByKey: Record<
+  'pendencia' | 'reparosSimples' | 'danosGraves' | 'motorDefeituoso' | 'agendada' | 'pronta' | 'semPlaca',
+  string
+> = {
+  pendencia: '#e6c300',
+  reparosSimples: '#0074cc',
+  danosGraves: '#ff4500',
+  motorDefeituoso: '#ff0000',
+  agendada: '#808080',
+  pronta: '#006400',
+  semPlaca: '#da70d6',
 };
 
-const legendaCores: Record<string, string> = {
-  Pendência: '#e6c300',
-  'Reparos Simples': '#0074cc',
-  'Danos Estruturais Graves': '#ff4500',
-  'Motor Defeituoso': '#ff0000',
-  'Agendada para Manutenção': '#808080',
-  'Pronta para Aluguel': '#006400',
-  'Sem Placa': '#da70d6',
+const colorToKey: Record<string, keyof typeof statusColorByKey> = {
+  '#e6c300': 'pendencia',
+  '#0074cc': 'reparosSimples',
+  '#ff4500': 'danosGraves',
+  '#ff0000': 'motorDefeituoso',
+  '#808080': 'agendada',
+  '#006400': 'pronta',
+  '#da70d6': 'semPlaca',
 };
 
-const corToLegenda: Record<string, string> = {
-  '#e6c300': 'Pendência',
-  '#0074cc': 'Reparos Simples',
-  '#ff4500': 'Danos Estruturais Graves',
-  '#ff0000': 'Motor Defeituoso',
-  '#808080': 'Agendada para Manutenção',
-  '#006400': 'Pronta para Aluguel',
-  '#da70d6': 'Sem Placa',
-};
+const legendOrder: (keyof typeof statusColorByKey)[] = [
+  'pendencia',
+  'reparosSimples',
+  'danosGraves',
+  'motorDefeituoso',
+  'agendada',
+  'pronta',
+  'semPlaca',
+];
 
 export default function Relatorio() {
   const { theme } = useContext(ThemeContext);
   const isDark = theme === 'dark';
   const themeColors = isDark ? colors.dark : colors.light;
+  const insets = useSafeAreaInsets();
 
-  const [contagem, setContagem] = useState<Record<string, number>>({});
+  useContext(LanguageContext);
+
+  const [contagem, setContagem] = useState<Record<keyof typeof statusColorByKey, number>>({} as any);
 
   async function carregar() {
     const data = await listarMotos(1, 1000);
     const lista: any[] = Array.isArray(data) ? data : (data?.items ?? []);
-    const cont: Record<string, number> = {};
+    const cont: Record<keyof typeof statusColorByKey, number> = {} as any;
     for (const m of lista) {
       const cor = m?.cor as string | undefined;
       const placa = m?.placa as string | undefined;
-      let statusNome: string | undefined = undefined;
-      if (cor && corToLegenda[cor]) statusNome = corToLegenda[cor];
-      else if (!placa) statusNome = 'Sem Placa';
-      if (statusNome) cont[statusNome] = (cont[statusNome] || 0) + 1;
+      let key: keyof typeof statusColorByKey | undefined = undefined;
+      if (cor && colorToKey[cor]) key = colorToKey[cor];
+      else if (!placa) key = 'semPlaca';
+      if (key) cont[key] = (cont[key] || 0) + 1;
     }
     setContagem(cont);
   }
@@ -70,23 +83,17 @@ export default function Relatorio() {
     }, []),
   );
 
-  const labels = useMemo(() => Object.keys(contagem), [contagem]);
-  const values = useMemo(() => labels.map((k) => contagem[k]), [labels, contagem]);
-  const barColors = useMemo(
-    () => labels.map((label) => legendaCores[label] || colors.primary),
-    [labels],
-  );
+  const keys = useMemo(() => Object.keys(contagem) as (keyof typeof statusColorByKey)[], [contagem]);
+  const values = useMemo(() => keys.map(k => contagem[k]), [keys, contagem]);
+  const barColors = useMemo(() => keys.map(k => statusColorByKey[k]), [keys]);
+  const xLabels = useMemo(() => keys.map(() => ''), [keys]);
 
   const chartData: any = {
-    labels,
+    labels: xLabels,
     datasets: [
       {
         data: values,
-        colors: barColors.map(
-          (c) =>
-            (_opacity: number = 1) =>
-              c,
-        ),
+        colors: barColors.map((c) => () => c),
       },
     ],
   };
@@ -96,19 +103,16 @@ export default function Relatorio() {
       style={[styles.container, { backgroundColor: themeColors.background }]}
       contentContainerStyle={{ paddingBottom: 40 }}
     >
-      <View style={styles.topHeader}>
-        <ThemeToggleButton />
+      <View style={[styles.headerButtons, { paddingTop: insets.top + 8 }]}>
+        <View style={styles.themeBtn}><ThemeToggleButton /></View>
+        <View style={styles.langBadge}><LanguageToggleButton /></View>
       </View>
 
-      <View style={styles.logoContainer}>
-        <Text style={[styles.logo, { color: themeColors.text }]}>
-          easy<Text style={{ color: colors.primary }}>Moto</Text>
-        </Text>
-      </View>
+      <View style={styles.logoRow}><LogoEasyMoto size={42} /></View>
 
-      <Text style={[styles.title, { color: themeColors.text }]}>Relatório de Motos por Status</Text>
+      <Text style={[styles.title, { color: themeColors.text }]}>{t('report.title')}</Text>
 
-      {labels.length > 0 ? (
+      {values.length > 0 ? (
         <BarChart
           data={chartData}
           width={Dimensions.get('window').width - 40}
@@ -130,20 +134,19 @@ export default function Relatorio() {
             labelColor: () => themeColors.text,
             propsForBackgroundLines: { stroke: isDark ? '#444' : '#ccc' },
           }}
-          style={{ marginTop: 40, marginBottom: 30, borderRadius: 16 }}
+          style={{ marginTop: 24, marginBottom: 30, borderRadius: 16 }}
           fromZero
           showValuesOnTopOfBars
-          verticalLabelRotation={20}
         />
       ) : (
-        <Text style={[styles.text, { color: themeColors.text }]}>Nenhum dado disponível.</Text>
+        <Text style={[styles.text, { color: themeColors.text }]}>{t('report.noData')}</Text>
       )}
 
-      <Text style={[styles.subtitle, { color: themeColors.text }]}>Legenda:</Text>
-      {Object.entries(legendaCores).map(([label, cor]) => (
-        <View key={label} style={styles.legendaItem}>
-          <View style={[styles.corBox, { backgroundColor: cor }]} />
-          <Text style={{ color: themeColors.text }}>{label}</Text>
+      <Text style={[styles.subtitle, { color: themeColors.text }]}>{t('report.legend')}</Text>
+      {legendOrder.map((k) => (
+        <View key={k} style={styles.legendaItem}>
+          <View style={[styles.corBox, { backgroundColor: statusColorByKey[k] }]} />
+          <Text style={{ color: themeColors.text }}>{t(`report.status.${k}`)}</Text>
         </View>
       ))}
     </ScrollView>
@@ -151,13 +154,14 @@ export default function Relatorio() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
-  topHeader: { alignItems: 'flex-end', marginBottom: 10 },
-  logoContainer: { alignItems: 'center', marginBottom: 20, marginTop: 60 },
-  logo: { fontSize: 30, fontWeight: 'bold', marginBottom: 20, textAlign: 'center' },
-  title: { fontSize: 18, fontWeight: 'bold', textAlign: 'center', marginBottom: 1 },
-  subtitle: { fontSize: 16, fontWeight: 'bold', marginTop: 5, marginBottom: 10 },
+  container: { flex: 1, paddingHorizontal: 20 },
+  headerButtons: { height: 106, justifyContent: 'center'},
+  themeBtn: { right: 6, top: 23, zIndex: 10, padding: 100, paddingTop: 33 },
+  langBadge: { position: 'absolute', right: 60, top: 8, zIndex: 10, padding: 55, paddingRight: 8 },
+  logoRow: { alignSelf: 'center', marginTop: 4, marginBottom: 16 },
+  title: { fontSize: 18, fontWeight: 'bold', textAlign: 'center', marginBottom: 4 },
+  subtitle: { fontSize: 16, fontWeight: 'bold', marginTop: 8, marginBottom: 10 },
   legendaItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
   corBox: { width: 16, height: 16, borderRadius: 4, marginRight: 8 },
-  text: { fontSize: 16, textAlign: 'center', marginTop: 20 },
+  text: { fontSize: 16, textAlign: 'center', marginTop: 24 }
 });
