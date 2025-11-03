@@ -1,10 +1,10 @@
 {
-"home": {
+  "home": {
     "subtitle": "Para acceder a la aplicación elige tu función:",
     "operador": "Operador",
     "admin": "Administrador"
   },
-"login": {
+  "login": {
     "titleAdmin": "Inicio de sesión Administrador",
     "titleOperador": "Inicio de sesión Operador",
     "emailPlaceholder": "Correo",
@@ -13,7 +13,7 @@
     "naoPossuiConta": "¿No tienes cuenta?",
     "cadastreSe": "Regístrate"
   },
-"errors": {
+  "errors": {
     "invalidCredentials": "Correo o contraseña inválidos",
     "network": "No fue posible conectar con el servidor."
   },
@@ -46,6 +46,15 @@
       "senhasNaoConferem": "Las contraseñas no coinciden",
       "apenasLetras": "Solo letras"
     }
+  },
+  "operatorHome": {
+    "options": {
+      "patio": { "title": "Patio", "subtitle": "Mapa del patio y ubicación de las motos" },
+      "motos": { "title": "Motos registradas", "subtitle": "Registro de las motos ya registradas" },
+      "qrcode": { "title": "QR Code", "subtitle": "Escanear motos" },
+      "notificacoes": { "title": "Notificaciones", "subtitle": "Alertas operativas" },
+      "relatorios": { "title": "Informes de motos", "subtitle": "Actualización semanal de la filial" },
+      "perfil": { "title": "Mi perfil", "subtitle": "Gestionar mi perfil" }
+    }
   }
-
 }
