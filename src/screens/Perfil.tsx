@@ -6,16 +6,20 @@ import { useContext, useEffect, useState } from 'react';
 import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import ThemeToggleButton from '../components/ThemeToggleButton';
+import LanguageToggleButton from '../components/LanguageToggleButton';
+import LogoEasyMoto from '../components/LogoEasyMoto';
 import { ThemeContext } from '../contexts/ThemeContext';
+import { LanguageContext } from '../contexts/LanguageContext';
 import {
   atualizarUsuario,
   deletarUsuario,
   listarFiliais,
   obterUsuarioPorId,
-  UpdateUsuarioPayload,
-  Usuario,
+  type UpdateUsuarioPayload,
+  type Usuario,
 } from '../services/usuarios';
 import { colors } from '../styles/colors';
+import { t } from '../i18n';
 
 function formatarCPF(valor: string) {
   const n = valor.replace(/\D/g, '');
@@ -36,6 +40,7 @@ function formatarTelefone(valor: string) {
 
 export default function Perfil() {
   const { theme } = useContext(ThemeContext);
+  useContext(LanguageContext);
   const isDark = theme === 'dark';
   const themeColors = isDark ? colors.dark : colors.light;
   const navigation = useNavigation();
@@ -85,13 +90,13 @@ export default function Perfil() {
   }, []);
 
   const handleEscolherFonteImagem = () => {
-    Alert.alert('Selecionar imagem', 'Escolha uma opção', [
+    Alert.alert(t('profile.selectImageTitle'), t('profile.selectImageMessage'), [
       {
-        text: 'Galeria',
+        text: t('profile.image.gallery'),
         onPress: async () => {
           const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
           if (!perm.granted) {
-            Alert.alert('Permissão necessária', 'Permita acesso à galeria.');
+            Alert.alert(t('profile.permissionTitle'), t('profile.permissionGallery'));
             return;
           }
           const result = await ImagePicker.launchImageLibraryAsync({
@@ -107,11 +112,11 @@ export default function Perfil() {
         },
       },
       {
-        text: 'Câmera',
+        text: t('profile.image.camera'),
         onPress: async () => {
           const perm = await ImagePicker.requestCameraPermissionsAsync();
           if (!perm.granted) {
-            Alert.alert('Permissão necessária', 'Permita acesso à câmera.');
+            Alert.alert(t('profile.permissionTitle'), t('profile.permissionCamera'));
             return;
           }
           const result = await ImagePicker.launchCameraAsync({ allowsEditing: true, quality: 1 });
@@ -122,7 +127,7 @@ export default function Perfil() {
           }
         },
       },
-      { text: 'Cancelar', style: 'cancel' },
+      { text: t('common.cancel'), style: 'cancel' },
     ]);
   };
 
@@ -132,19 +137,19 @@ export default function Perfil() {
     const telLimpo = telefone.replace(/\D/g, '');
     const cepLimpo = filial.replace(/\D/g, '');
     if (!nome.trim()) {
-      Alert.alert('Nome inválido', 'Informe seu nome completo.');
+      Alert.alert(t('profile.invalidNameTitle'), t('profile.invalidNameMessage'));
       return;
     }
     if (!email.includes('@')) {
-      Alert.alert('Email inválido', 'Informe um email válido.');
+      Alert.alert(t('profile.invalidEmailTitle'), t('profile.invalidEmailMessage'));
       return;
     }
     if (!/^\d{11}$/.test(cpfLimpo)) {
-      Alert.alert('CPF inválido', 'Informe 11 dígitos.');
+      Alert.alert(t('profile.invalidCpfTitle'), t('profile.invalidCpfMessage'));
       return;
     }
     if (!/^\d{10,11}$/.test(telLimpo)) {
-      Alert.alert('Telefone inválido', 'Informe DDD + número.');
+      Alert.alert(t('profile.invalidPhoneTitle'), t('profile.invalidPhoneMessage'));
       return;
     }
 
@@ -152,7 +157,7 @@ export default function Perfil() {
     if (/^\d{8}$/.test(cepLimpo)) {
       try {
         const f = await listarFiliais(1, 200);
-        const achada = f.items.find((x) => x.cep.replace(/\D/g, '') === cepLimpo);
+        const achada = f.items.find((x: any) => x.cep.replace(/\D/g, '') === cepLimpo);
         if (achada) novoFilialId = achada.id;
       } catch {}
     }
@@ -175,29 +180,29 @@ export default function Perfil() {
       await AsyncStorage.setItem('usuarioAtual', JSON.stringify(atualizado));
       setNovaSenha('');
       setEditando(false);
-      Alert.alert('Sucesso', 'Informações atualizadas.');
+      Alert.alert(t('profile.successTitle'), t('profile.successMessage'));
     } catch {
-      Alert.alert('Erro', 'Não foi possível salvar as alterações.');
+      Alert.alert(t('common.error'), t('profile.errorSave'));
     }
   };
 
   const apagarConta = async () => {
     if (id == null) return;
-    Alert.alert('Apagar conta', 'Tem certeza? Esta ação é irreversível.', [
-      { text: 'Cancelar', style: 'cancel' },
+    Alert.alert(t('profile.delete.title'), t('profile.delete.message'), [
+      { text: t('common.cancel'), style: 'cancel' },
       {
-        text: 'Apagar',
+        text: t('profile.delete.remove'),
         style: 'destructive',
         onPress: async () => {
           try {
             await deletarUsuario(id);
             await AsyncStorage.removeItem('usuarioAtual');
             await AsyncStorage.removeItem('token');
-            Alert.alert('Conta apagada', 'Sua conta foi excluída.');
+            Alert.alert(t('profile.delete.doneTitle'), t('profile.delete.doneMsg'));
             // @ts-ignore
             navigation.navigate('Login', { role: perfil === 1 ? 'admin' : 'operador' });
           } catch {
-            Alert.alert('Erro', 'Não foi possível apagar a conta.');
+            Alert.alert(t('common.error'), t('profile.delete.error'));
           }
         },
       },
@@ -211,21 +216,22 @@ export default function Perfil() {
       // @ts-ignore
       navigation.reset({ index: 0, routes: [{ name: 'Login', params: { role: perfil === 1 ? 'admin' : 'operador' } }] });
     } catch {
-      Alert.alert('Erro', 'Não foi possível sair agora.');
+      Alert.alert(t('common.error'), t('profile.logoutError'));
     }
   };
 
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <ThemeToggleButton />
+      <View style={styles.toggle}><ThemeToggleButton /></View>
+      <View style={styles.langBadge}><LanguageToggleButton /></View>
 
       <TouchableOpacity style={styles.logoutButton} onPress={deslogar} activeOpacity={0.8}>
         <FontAwesome name="sign-out" size={20} color={isDark ? '#fff' : '#111'} />
       </TouchableOpacity>
 
-      <Text style={[styles.logo, { color: themeColors.text }]}>
-        <Text style={{ color: colors.primary }}>easy</Text>Moto
-      </Text>
+      <View style={styles.logoRow}>
+        <LogoEasyMoto size={38} />
+      </View>
 
       <TouchableOpacity onPress={handleEscolherFonteImagem} activeOpacity={0.9}>
         <View style={styles.avatar}>
@@ -237,26 +243,26 @@ export default function Perfil() {
         </View>
       </TouchableOpacity>
 
-      <Text style={[styles.name, { color: themeColors.text }]}>{nome || 'Usuário'}</Text>
+      <Text style={[styles.name, { color: themeColors.text }]}>{nome || t('profile.userFallback')}</Text>
       <Text style={[styles.role, { color: themeColors.text }]}>
-        {perfil === 1 ? 'Administrador' : 'Operador'}
+        {perfil === 1 ? t('profile.roleAdmin') : t('profile.roleOperador')}
       </Text>
 
-      <Text style={[styles.section, { color: themeColors.text }]}>Dados:</Text>
+      <Text style={[styles.section, { color: themeColors.text }]}>{t('profile.sectionData')}</Text>
 
       <TextInput
         style={styles.input}
         editable={editando}
         value={nome}
         onChangeText={setNome}
-        placeholder="Nome completo"
+        placeholder={t('profile.placeholders.nomeCompleto')}
       />
       <TextInput
         style={styles.input}
         editable={editando}
         value={email}
         onChangeText={setEmail}
-        placeholder="Email"
+        placeholder={t('profile.placeholders.email')}
         keyboardType="email-address"
       />
       <TextInput
@@ -264,7 +270,7 @@ export default function Perfil() {
         editable={editando}
         value={telefone}
         onChangeText={(v) => setTelefone(formatarTelefone(v))}
-        placeholder="Telefone"
+        placeholder={t('profile.placeholders.telefone')}
         keyboardType="phone-pad"
       />
       <TextInput
@@ -272,14 +278,14 @@ export default function Perfil() {
         editable={editando}
         value={cpf}
         onChangeText={(v) => setCpf(formatarCPF(v))}
-        placeholder="CPF"
+        placeholder={t('profile.placeholders.cpf')}
       />
       <TextInput
         style={styles.input}
         editable={editando}
         value={filial}
         onChangeText={setFilial}
-        placeholder="Filial"
+        placeholder={t('profile.placeholders.filial')}
       />
 
       {editando && (
@@ -287,35 +293,33 @@ export default function Perfil() {
           style={styles.input}
           value={novaSenha}
           onChangeText={setNovaSenha}
-          placeholder="Nova senha (opcional)"
+          placeholder={t('profile.placeholders.novaSenha')}
           secureTextEntry
         />
       )}
 
       {!editando ? (
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => setEditando(true)}
-          activeOpacity={0.9}
-        >
-          <Text style={styles.buttonText}>Editar informações</Text>
+        <TouchableOpacity style={styles.button} onPress={() => setEditando(true)} activeOpacity={0.9}>
+          <Text style={styles.buttonText}>{t('profile.actions.editar')}</Text>
         </TouchableOpacity>
       ) : (
         <TouchableOpacity style={styles.button} onPress={salvarAlteracoes} activeOpacity={0.9}>
-          <Text style={styles.buttonText}>Salvar alterações</Text>
+          <Text style={styles.buttonText}>{t('profile.actions.salvar')}</Text>
         </TouchableOpacity>
       )}
 
       <TouchableOpacity style={styles.deleteOutline} onPress={apagarConta} activeOpacity={0.9}>
-        <Text style={styles.deleteOutlineText}>Apagar conta</Text>
+        <Text style={styles.deleteOutlineText}>{t('profile.actions.apagarConta')}</Text>
       </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingTop: 60, paddingHorizontal: 30, alignItems: 'center' },
-  logo: { fontSize: 30, fontWeight: 'bold', marginBottom: 20 },
+  container: { flex: 1, paddingTop: 98, paddingHorizontal: 30, alignItems: 'center' },
+  toggle: { position: 'absolute', top: 16, right: 16, zIndex: 10 },
+  langBadge: { position: 'absolute', top: 16, right: 66, zIndex: 10, padding: 38, paddingRight: 1 },
+  logoRow: { alignSelf: 'center', marginBottom: 16 },
   logoutButton: { position: 'absolute', bottom: 16, right: 16, padding: 8, borderRadius: 20, zIndex: 20 },
   avatar: {
     width: 100,
@@ -324,7 +328,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#e4e4e4',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 10,
+    marginBottom: 10
   },
   avatarImage: { width: '100%', height: '100%', borderRadius: 50 },
   name: { fontSize: 18, fontWeight: 'bold' },
@@ -335,7 +339,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 10,
     width: '100%',
-    marginBottom: 10,
+    marginBottom: 10
   },
   button: {
     marginTop: 10,
@@ -343,7 +347,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 10,
     width: '100%',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   buttonText: { color: '#fff', fontWeight: 'bold' },
   deleteOutline: {
@@ -353,7 +357,7 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#B00020',
+    borderColor: '#B00020'
   },
-  deleteOutlineText: { color: '#B00020', fontWeight: 'bold' },
+  deleteOutlineText: { color: '#B00020', fontWeight: 'bold' }
 });

@@ -57,6 +57,15 @@
       "perfil": { "title": "Meu Perfil", "subtitle": "Gerenciar meu perfil" }
     }
   },
+  "adminHome": {
+    "options": {
+      "operadores": { "title": "Gerenciar Operadores", "subtitle": "Criar, editar e remover" },
+      "patio": { "title": "Pátio", "subtitle": "Mapa do pátio e localização das motos" },
+      "notificacoes": { "title": "Notificações", "subtitle": "Alertas operacionais" },
+      "relatorios": { "title": "Relatórios das Motos", "subtitle": "Atualização semanal da filial" },
+      "perfil": { "title": "Meu Perfil", "subtitle": "Gerenciar meu perfil" }
+    }
+  },
   "patio": {
     "title": "Pátio",
     "filters": { "Pop": "Pop", "Sport": "Sport", "E": "E" },
@@ -148,6 +157,96 @@
       "agendada": "Agendada para Manutenção",
       "pronta": "Pronta para Aluguel",
       "semPlaca": "Sem Placa"
+    }
+  },
+  "profile": {
+    "selectImageTitle": "Selecionar imagem",
+    "selectImageMessage": "Escolha uma opção",
+    "image": { "gallery": "Galeria", "camera": "Câmera" },
+    "permissionTitle": "Permissão necessária",
+    "permissionGallery": "Permita acesso à galeria.",
+    "permissionCamera": "Permita acesso à câmera.",
+    "invalidNameTitle": "Nome inválido",
+    "invalidNameMessage": "Informe seu nome completo.",
+    "invalidEmailTitle": "Email inválido",
+    "invalidEmailMessage": "Informe um email válido.",
+    "invalidCpfTitle": "CPF inválido",
+    "invalidCpfMessage": "Informe 11 dígitos.",
+    "invalidPhoneTitle": "Telefone inválido",
+    "invalidPhoneMessage": "Informe DDD + número.",
+    "successTitle": "Sucesso",
+    "successMessage": "Informações atualizadas.",
+    "errorSave": "Não foi possível salvar as alterações.",
+    "delete": {
+      "title": "Apagar conta",
+      "message": "Tem certeza? Esta ação é irreversível.",
+      "remove": "Apagar",
+      "doneTitle": "Conta apagada",
+      "doneMsg": "Sua conta foi excluída.",
+      "error": "Não foi possível apagar a conta."
+    },
+    "logoutError": "Não foi possível sair agora.",
+    "userFallback": "Usuário",
+    "roleAdmin": "Administrador",
+    "roleOperador": "Operador",
+    "sectionData": "Dados:",
+    "placeholders": {
+      "nomeCompleto": "Nome completo",
+      "email": "Email",
+      "telefone": "Telefone",
+      "cpf": "CPF",
+      "filial": "Filial",
+      "novaSenha": "Nova senha (opcional)"
+    },
+    "actions": {
+      "editar": "Editar informações",
+      "salvar": "Salvar alterações",
+      "apagarConta": "Apagar conta"
+    }
+  },
+  "operators": {
+    "create": "Cadastrar operador",
+    "saving": "Salvando...",
+    "loading": "Carregando operadores...",
+    "edit": "Editar",
+    "save": "Salvar",
+    "register": "Cadastrar",
+    "cancel": "Cancelar",
+    "empty": "Nenhum operador encontrado.",
+    "error": "Erro",
+    "errorSaveCepDados": "Não foi possível salvar. Verifique o CEP da filial e os dados informados.",
+    "errorSave": "Não foi possível salvar.",
+    "errorDelete": "Não foi possível excluir.",
+    "alert": "Atenção",
+    "checkFields": "Verifique os campos.",
+    "branchCep": "Filial CEP",
+    "delete": {
+      "title": "Excluir",
+      "message": "Deseja remover este operador?",
+      "cancel": "Cancelar",
+      "remove": "Remover",
+      "short": "Excluir"
+    },
+    "modal": {
+      "editTitle": "Editar Operador",
+      "newTitle": "Novo Operador"
+    },
+    "fields": {
+      "nome": "Nome",
+      "email": "Email",
+      "senhaMin": "Senha (mín. 8)",
+      "cpf": "CPF",
+      "cepFilial": "CEP da Filial",
+      "telefone": "Telefone"
+    },
+    "validation": {
+      "nomeInvalido": "Nome inválido. Use apenas letras e espaços.",
+      "emailInvalido": "Email inválido.",
+      "cpfInvalido": "CPF inválido. Informe 11 dígitos.",
+      "cepInvalido": "CEP inválido. Informe 8 dígitos.",
+      "telefoneInvalido": "Telefone inválido. Use DDD + número (10 ou 11 dígitos).",
+      "senhaCurta": "Senha deve ter pelo menos 8 caracteres.",
+      "novaSenhaCurta": "Nova senha deve ter pelo menos 8 caracteres."
     }
   }
 }

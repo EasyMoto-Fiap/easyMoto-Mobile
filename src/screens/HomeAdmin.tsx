@@ -5,9 +5,13 @@ import { useContext } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import ThemeToggleButton from '../components/ThemeToggleButton';
+import LanguageToggleButton from '../components/LanguageToggleButton';
+import LogoEasyMoto from '../components/LogoEasyMoto';
 import { ThemeContext } from '../contexts/ThemeContext';
+import { LanguageContext } from '../contexts/LanguageContext';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { colors } from '../styles/colors';
+import { t } from '../i18n';
 
 type Opcao = {
   id: 'operadores' | 'patio' | 'notificacoes' | 'relatorios' | 'perfil';
@@ -16,61 +20,52 @@ type Opcao = {
   icone: keyof typeof FontAwesome.glyphMap;
 };
 
-const opcoes: Opcao[] = [
-  {
-    id: 'operadores',
-    titulo: 'Gerenciar Operadores',
-    subtitulo: 'Criar, editar e remover',
-    icone: 'users',
-  },
-  {
-    id: 'patio',
-    titulo: 'Pátio',
-    subtitulo: 'Mapa do pátio e localização das motos',
-    icone: 'dashboard',
-  },
-  {
-    id: 'notificacoes',
-    titulo: 'Notificações',
-    subtitulo: 'Alertas operacionais',
-    icone: 'exclamation-circle',
-  },
-  {
-    id: 'relatorios',
-    titulo: 'Relatórios das Motos',
-    subtitulo: 'Atualização semanal da filial',
-    icone: 'bar-chart',
-  },
-  { id: 'perfil', titulo: 'Meu Perfil', subtitulo: 'Gerenciar meu perfil', icone: 'user' },
-];
-
 export default function HomeAdmin() {
   const { theme } = useContext(ThemeContext);
+  useContext(LanguageContext);
   const isDark = theme === 'dark';
   const themeColors = isDark ? colors.dark : colors.light;
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
+  const opcoes: Opcao[] = [
+    {
+      id: 'operadores',
+      titulo: t('adminHome.options.operadores.title'),
+      subtitulo: t('adminHome.options.operadores.subtitle'),
+      icone: 'users',
+    },
+    {
+      id: 'patio',
+      titulo: t('adminHome.options.patio.title'),
+      subtitulo: t('adminHome.options.patio.subtitle'),
+      icone: 'dashboard',
+    },
+    {
+      id: 'notificacoes',
+      titulo: t('adminHome.options.notificacoes.title'),
+      subtitulo: t('adminHome.options.notificacoes.subtitle'),
+      icone: 'exclamation-circle',
+    },
+    {
+      id: 'relatorios',
+      titulo: t('adminHome.options.relatorios.title'),
+      subtitulo: t('adminHome.options.relatorios.subtitle'),
+      icone: 'bar-chart',
+    },
+    {
+      id: 'perfil',
+      titulo: t('adminHome.options.perfil.title'),
+      subtitulo: t('adminHome.options.perfil.subtitle'),
+      icone: 'user',
+    },
+  ];
+
   function handlePress(item: Opcao) {
-    if (item.id === 'operadores') {
-      navigation.navigate('GerenciarOperadores');
-      return;
-    }
-    if (item.id === 'patio') {
-      navigation.navigate('PatioModelos');
-      return;
-    }
-    if (item.id === 'notificacoes') {
-      navigation.navigate('Notificacoes');
-      return;
-    }
-    if (item.id === 'relatorios') {
-      navigation.navigate('Relatorio');
-      return;
-    }
-    if (item.id === 'perfil') {
-      navigation.navigate('Perfil');
-      return;
-    }
+    if (item.id === 'operadores') { navigation.navigate('GerenciarOperadores'); return; }
+    if (item.id === 'patio') { navigation.navigate('PatioModelos'); return; }
+    if (item.id === 'notificacoes') { navigation.navigate('Notificacoes'); return; }
+    if (item.id === 'relatorios') { navigation.navigate('Relatorio'); return; }
+    if (item.id === 'perfil') { navigation.navigate('Perfil'); return; }
   }
 
   function renderItem({ item }: { item: Opcao }) {
@@ -83,9 +78,7 @@ export default function HomeAdmin() {
         <FontAwesome name={item.icone} size={26} color={isDark ? '#00c853' : colors.buttonBg} />
         <View style={styles.cardText}>
           <Text style={[styles.cardTitle, { color: themeColors.text }]}>{item.titulo}</Text>
-          <Text style={[styles.cardSub, { color: isDark ? '#ccc' : '#666' }]}>
-            {item.subtitulo}
-          </Text>
+          <Text style={[styles.cardSub, { color: isDark ? '#ccc' : '#666' }]}>{item.subtitulo}</Text>
         </View>
         <FontAwesome name="angle-right" size={20} color="#999" />
       </TouchableOpacity>
@@ -94,15 +87,18 @@ export default function HomeAdmin() {
 
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <ThemeToggleButton />
-      <Text style={[styles.logo, { color: themeColors.text }]}>
-        <Text style={{ color: colors.primary }}>easy</Text>Moto
-      </Text>
+      <View style={styles.toggle}><ThemeToggleButton /></View>
+      <View style={styles.langBadge}><LanguageToggleButton /></View>
+
+      <View style={styles.logoRow}>
+        <LogoEasyMoto size={42} />
+      </View>
+
       <FlatList
         data={opcoes}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: 30 }}
+        contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
       />
     </View>
@@ -110,17 +106,13 @@ export default function HomeAdmin() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingTop: 60, paddingHorizontal: 20 },
-  logo: { fontSize: 32, fontWeight: 'bold', marginBottom: 30, textAlign: 'center' },
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 16,
-    padding: 15,
-    marginBottom: 15,
-    gap: 15,
-  },
+  container: { flex: 1, paddingTop: 120, paddingHorizontal: 22 },
+  toggle: { position: 'absolute', top: 16, right: 16, zIndex: 10 },
+  langBadge: { position: 'absolute', top: 16, right: 56, zIndex: 10, padding: 35, paddingRight: 12 },
+  logoRow: { alignSelf: 'center', marginBottom: 28 },
+  listContent: { paddingBottom: 36, rowGap: 16 },
+  card: { flexDirection: 'row', alignItems: 'center', borderRadius: 18, padding: 18, gap: 16 },
   cardText: { flex: 1 },
   cardTitle: { fontSize: 16, fontWeight: '600' },
-  cardSub: { fontSize: 13, marginTop: 2 },
+  cardSub: { fontSize: 13, marginTop: 4 },
 });

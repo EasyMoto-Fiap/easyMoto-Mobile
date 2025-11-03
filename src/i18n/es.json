@@ -5,8 +5,8 @@
     "admin": "Administrador"
   },
   "login": {
-    "titleAdmin": "Inicio de sesión Administrador",
-    "titleOperador": "Inicio de sesión Operador",
+    "titleAdmin": "Login Administrador",
+    "titleOperador": "Login Operador",
     "emailPlaceholder": "Correo",
     "senhaPlaceholder": "Contraseña",
     "entrar": "Entrar",
@@ -31,8 +31,8 @@
     "emailJaCadastradoTitle": "Correo ya registrado",
     "emailJaCadastradoMessage": "Usa otro correo o inicia sesión.",
     "sucesso": "¡Registro realizado con éxito!",
-    "filialNaoEncontradaTitle": "Sucursal no encontrada",
-    "filialNaoEncontradaMessage": "No hay sucursal con este código postal.",
+    "filialNaoEncontradaTitle": "Filial no encontrada",
+    "filialNaoEncontradaMessage": "No hay filial con este código postal.",
     "cadastrando": "Registrando...",
     "jaTemConta": "¿Ya tienes cuenta?",
     "facaLogin": "Inicia sesión",
@@ -50,8 +50,17 @@
   "operatorHome": {
     "options": {
       "patio": { "title": "Patio", "subtitle": "Mapa del patio y ubicación de las motos" },
-      "motos": { "title": "Motos registradas", "subtitle": "Registro de las motos ya registradas" },
+      "motos": { "title": "Motos registradas", "subtitle": "Registro de motos ya registradas" },
       "qrcode": { "title": "QR Code", "subtitle": "Escanear motos" },
+      "notificacoes": { "title": "Notificaciones", "subtitle": "Alertas operativas" },
+      "relatorios": { "title": "Informes de motos", "subtitle": "Actualización semanal de la filial" },
+      "perfil": { "title": "Mi perfil", "subtitle": "Gestionar mi perfil" }
+    }
+  },
+  "adminHome": {
+    "options": {
+      "operadores": { "title": "Gestionar operadores", "subtitle": "Crear, editar y eliminar" },
+      "patio": { "title": "Patio", "subtitle": "Mapa del patio y ubicación de las motos" },
       "notificacoes": { "title": "Notificaciones", "subtitle": "Alertas operativas" },
       "relatorios": { "title": "Informes de motos", "subtitle": "Actualización semanal de la filial" },
       "perfil": { "title": "Mi perfil", "subtitle": "Gestionar mi perfil" }
@@ -82,7 +91,7 @@
       "prontaAluguel": "Lista para alquiler"
     },
     "legendSection": "Estado de la leyenda",
-    "operationalSection": "Estado operativo",
+    "operationalSection": "Estado operacional",
     "dataSection": "Datos",
     "statusOps": {
       "disponivel": "Disponible",
@@ -110,8 +119,8 @@
       "title": "Error",
       "load": "No fue posible cargar las motos.",
       "save": "No fue posible guardar.",
-      "branchNotFoundTitle": "Sucursal no encontrada",
-      "branchNotFoundMsg": "No fue posible identificar la filial del usuario.",
+      "branchNotFoundTitle": "Filial no encontrada",
+      "branchNotFoundMsg": "No se pudo identificar la filial del usuario.",
       "plateConflictTitle": "Placa ya registrada",
       "plateConflictMsg": "La placa informada ya existe.",
       "invalidDataTitle": "Datos inválidos",
@@ -148,6 +157,96 @@
       "agendada": "Programada para mantenimiento",
       "pronta": "Lista para alquiler",
       "semPlaca": "Sin placa"
+    }
+  },
+  "profile": {
+    "selectImageTitle": "Seleccionar imagen",
+    "selectImageMessage": "Elige una opción",
+    "image": { "gallery": "Galería", "camera": "Cámara" },
+    "permissionTitle": "Permiso requerido",
+    "permissionGallery": "Permite el acceso a la galería.",
+    "permissionCamera": "Permite el acceso a la cámara.",
+    "invalidNameTitle": "Nombre inválido",
+    "invalidNameMessage": "Ingresa tu nombre completo.",
+    "invalidEmailTitle": "Correo inválido",
+    "invalidEmailMessage": "Ingresa un correo válido.",
+    "invalidCpfTitle": "CPF no válido",
+    "invalidCpfMessage": "Ingresa 11 dígitos.",
+    "invalidPhoneTitle": "Teléfono inválido",
+    "invalidPhoneMessage": "Ingresa DDD + número.",
+    "successTitle": "Éxito",
+    "successMessage": "Información actualizada.",
+    "errorSave": "No fue posible guardar los cambios.",
+    "delete": {
+      "title": "Eliminar cuenta",
+      "message": "¿Estás seguro? Esta acción es irreversible.",
+      "remove": "Eliminar",
+      "doneTitle": "Cuenta eliminada",
+      "doneMsg": "Tu cuenta fue eliminada.",
+      "error": "No fue posible eliminar la cuenta."
+    },
+    "logoutError": "No fue posible cerrar sesión ahora.",
+    "userFallback": "Usuario",
+    "roleAdmin": "Administrador",
+    "roleOperador": "Operador",
+    "sectionData": "Datos:",
+    "placeholders": {
+      "nomeCompleto": "Nombre completo",
+      "email": "Correo",
+      "telefone": "Teléfono",
+      "cpf": "CPF",
+      "filial": "Filial",
+      "novaSenha": "Nueva contraseña (opcional)"
+    },
+    "actions": {
+      "editar": "Editar información",
+      "salvar": "Guardar cambios",
+      "apagarConta": "Eliminar cuenta"
+    }
+  },
+  "operators": {
+    "create": "Registrar operador",
+    "saving": "Guardando...",
+    "loading": "Cargando operadores...",
+    "edit": "Editar",
+    "save": "Guardar",
+    "register": "Registrar",
+    "cancel": "Cancelar",
+    "empty": "No se encontraron operadores.",
+    "error": "Error",
+    "errorSaveCepDados": "No fue posible guardar. Verifica el código postal de la filial y los datos informados.",
+    "errorSave": "No fue posible guardar.",
+    "errorDelete": "No fue posible eliminar.",
+    "alert": "Atención",
+    "checkFields": "Verifica los campos.",
+    "branchCep": "Filial C.P.",
+    "delete": {
+      "title": "Eliminar",
+      "message": "¿Deseas eliminar este operador?",
+      "cancel": "Cancelar",
+      "remove": "Eliminar",
+      "short": "Eliminar"
+    },
+    "modal": {
+      "editTitle": "Editar operador",
+      "newTitle": "Nuevo operador"
+    },
+    "fields": {
+      "nome": "Nombre",
+      "email": "Correo",
+      "senhaMin": "Contraseña (mín. 8)",
+      "cpf": "CPF",
+      "cepFilial": "Código postal de la filial",
+      "telefone": "Teléfono"
+    },
+    "validation": {
+      "nomeInvalido": "Nombre inválido. Usa solo letras y espacios.",
+      "emailInvalido": "Correo inválido.",
+      "cpfInvalido": "CPF inválido. Ingresa 11 dígitos.",
+      "cepInvalido": "Código postal inválido. Ingresa 8 dígitos.",
+      "telefoneInvalido": "Teléfono inválido. Usa DDD + número (10 u 11 dígitos).",
+      "senhaCurta": "La contraseña debe tener al menos 8 caracteres.",
+      "novaSenhaCurta": "La nueva contraseña debe tener al menos 8 caracteres."
     }
   }
 }
