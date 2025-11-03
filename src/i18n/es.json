@@ -49,12 +49,54 @@
   },
   "operatorHome": {
     "options": {
-      "patio": { "title": "Patio", "subtitle": "Mapa del patio y ubicación de las motos" },
-      "motos": { "title": "Motos registradas", "subtitle": "Registro de las motos ya registradas" },
-      "qrcode": { "title": "QR Code", "subtitle": "Escanear motos" },
-      "notificacoes": { "title": "Notificaciones", "subtitle": "Alertas operativas" },
-      "relatorios": { "title": "Informes de motos", "subtitle": "Actualización semanal de la filial" },
-      "perfil": { "title": "Mi perfil", "subtitle": "Gestionar mi perfil" }
+      "patio": {
+        "title": "Patio",
+        "subtitle": "Mapa del patio y ubicación de las motos"
+      },
+      "motos": {
+        "title": "Motos registradas",
+        "subtitle": "Registro de las motos ya registradas"
+      },
+      "qrcode": {
+        "title": "QR Code",
+        "subtitle": "Escanear motos"
+      },
+      "notificacoes": {
+        "title": "Notificaciones",
+        "subtitle": "Alertas operativas"
+      },
+      "relatorios": {
+        "title": "Informes de motos",
+        "subtitle": "Actualización semanal de la filial"
+      },
+      "perfil": {
+        "title": "Mi perfil",
+        "subtitle": "Gestionar mi perfil"
+      }
+    }
+  },
+  "patio": {
+    "title": "Patio",
+    "filters": {
+      "Pop": "Pop",
+      "Sport": "Sport",
+      "E": "E"
+    },
+    "modal": {
+      "type": "Tipo",
+      "latitude": "Latitud",
+      "longitude": "Longitud",
+      "close": "Cerrar"
+    }
+  },
+  "patioModelos": {
+    "title": "Modelos disponibles:",
+    "subtitle": "Visualiza en el mapa real por tipo",
+    "button": "Ver en el mapa",
+    "models": {
+      "pop": { "desc": "Primera Mottu" },
+      "sport": { "desc": "Más económica" },
+      "e": { "desc": "Moto eléctrica" }
     }
   }
 }

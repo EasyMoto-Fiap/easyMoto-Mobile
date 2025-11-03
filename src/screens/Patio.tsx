@@ -9,10 +9,12 @@ import MapView, { Marker } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ThemeContext } from '../contexts/ThemeContext';
+import { LanguageContext } from '../contexts/LanguageContext';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import api from '../services/api';
 import { listarMotos } from '../services/motos';
 import { colors } from '../styles/colors';
+import { t } from '../i18n';
 
 type MotoPin = {
   id: number;
@@ -33,6 +35,7 @@ export default function Patio() {
   const isDark = theme === 'dark';
   const themeColors = isDark ? colors.dark : colors.light;
   const mapRef = useRef<MapView | null>(null);
+  useContext(LanguageContext);
 
   const tipoInicial = (route?.params as any)?.tipo || 'Pop';
   const [filtro, setFiltro] = useState<'Pop' | 'Sport' | 'E'>(tipoInicial);
@@ -64,18 +67,16 @@ export default function Patio() {
 
   function corPorStatus(m: any, legendas: Record<number, string>): string {
     if (m?.cor) return String(m.cor);
-    if (m?.legendaStatusId != null && legendas[m.legendaStatusId])
-      return legendas[m.legendaStatusId];
+    if (m?.legendaStatusId != null && legendas[m.legendaStatusId]) return legendas[m.legendaStatusId];
     const fallbackByName: Record<string, string> = {
       Pendência: '#e6c300',
       'Reparos Simples': '#0074cc',
       'Danos Estruturais Graves': '#ff4500',
       Sinistro: '#ff0000',
       'Pronta para Aluguel': '#006400',
-      'Sem Placa': '#808080',
+      'Sem Placa': '#808080'
     };
-    if (m?.legendaStatusNome && fallbackByName[m.legendaStatusNome])
-      return fallbackByName[m.legendaStatusNome];
+    if (m?.legendaStatusNome && fallbackByName[m.legendaStatusNome]) return fallbackByName[m.legendaStatusNome];
     if (m?.statusOperacional === 0) return '#006400';
     if (m?.statusOperacional === 1) return '#e6c300';
     if (m?.statusOperacional === 2) return '#ff4500';
@@ -94,9 +95,7 @@ export default function Patio() {
 
       const data = await listarMotos(1, 1000);
       const lista: any[] = Array.isArray(data) ? data : (data?.items ?? []);
-      const filtrada = filialId
-        ? lista.filter((m) => Number(m.filialId) === Number(filialId))
-        : lista;
+      const filtrada = filialId ? lista.filter((m) => Number(m.filialId) === Number(filialId)) : lista;
 
       const mapped: MotoPin[] = filtrada.map((m) => ({
         id: Number(m.id),
@@ -104,7 +103,7 @@ export default function Patio() {
         tipo: catToTipo(m.categoria),
         lat: m.latitude ?? m.lat ?? undefined,
         lng: m.longitude ?? m.lng ?? undefined,
-        statusColor: corPorStatus(m, legendas),
+        statusColor: corPorStatus(m, legendas)
       }));
 
       setMotos(mapped);
@@ -115,9 +114,9 @@ export default function Patio() {
             latitude: primeira.lat ?? -23.5505,
             longitude: primeira.lng ?? -46.6333,
             latitudeDelta: 0.02,
-            longitudeDelta: 0.02,
+            longitudeDelta: 0.02
           },
-          600,
+          600
         );
       }
     } finally {
@@ -133,7 +132,7 @@ export default function Patio() {
     React.useCallback(() => {
       carregar();
       return () => {};
-    }, []),
+    }, [])
   );
 
   const motosFiltradas = motos.filter((m) => m.tipo === filtro);
@@ -146,9 +145,9 @@ export default function Patio() {
           latitude: primeira.lat ?? -23.5505,
           longitude: primeira.lng ?? -46.6333,
           latitudeDelta: 0.02,
-          longitudeDelta: 0.02,
+          longitudeDelta: 0.02
         },
-        600,
+        600
       );
     }
     setFiltro(tipo);
@@ -164,7 +163,7 @@ export default function Patio() {
         <AntDesign name="arrowleft" size={22} color="#fff" />
       </TouchableOpacity>
 
-      <Text style={[styles.titulo, { color: themeColors.text }]}>easyMoto — Pátio</Text>
+      <Text style={[styles.titulo, { color: themeColors.text }]}>{t('patio.title')}</Text>
 
       <View style={styles.filtros}>
         {(['Pop', 'Sport', 'E'] as const).map((tipo) => (
@@ -174,16 +173,14 @@ export default function Patio() {
               styles.botao,
               filtro === tipo
                 ? { backgroundColor: colors.primary }
-                : {
-                    backgroundColor: 'transparent',
-                    borderWidth: 1.5,
-                    borderColor: themeColors.text,
-                  },
+                : { backgroundColor: 'transparent', borderWidth: 1.5, borderColor: themeColors.text }
             ]}
             onPress={() => handleFiltroPress(tipo)}
             activeOpacity={0.9}
           >
-            <Text style={{ color: filtro === tipo ? '#fff' : themeColors.text }}>{tipo}</Text>
+            <Text style={{ color: filtro === tipo ? '#fff' : themeColors.text }}>
+              {t(`patio.filters.${tipo}`)}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -200,7 +197,7 @@ export default function Patio() {
             latitude: -23.5505,
             longitude: -46.6333,
             latitudeDelta: 0.05,
-            longitudeDelta: 0.05,
+            longitudeDelta: 0.05
           }}
         >
           {motosFiltradas.map((moto) => (
@@ -208,16 +205,12 @@ export default function Patio() {
               key={moto.id}
               coordinate={{
                 latitude: moto.lat ?? -23.5505,
-                longitude: moto.lng ?? -46.6333,
+                longitude: moto.lng ?? -46.6333
               }}
               onPress={() => setMotoSelecionada(moto)}
               anchor={{ x: 0.5, y: 0.5 }}
             >
-              <MaterialCommunityIcons
-                name="motorbike"
-                size={28}
-                color={moto.statusColor || colors.primary}
-              />
+              <MaterialCommunityIcons name="motorbike" size={28} color={moto.statusColor || colors.primary} />
             </Marker>
           ))}
         </MapView>
@@ -231,24 +224,13 @@ export default function Patio() {
       >
         <View style={styles.modalFundo}>
           <View style={[styles.modal, { backgroundColor: themeColors.background }]}>
-            <Text style={[styles.modalTitulo, { color: themeColors.text }]}>
-              {motoSelecionada?.nome}
-            </Text>
-            <Text style={{ color: themeColors.text }}>Tipo: {motoSelecionada?.tipo}</Text>
-            <Text style={{ color: themeColors.text }}>
-              Latitude: {motoSelecionada?.lat !== undefined ? motoSelecionada.lat.toFixed(6) : '--'}
-            </Text>
-            <Text style={{ color: themeColors.text }}>
-              Longitude:{' '}
-              {motoSelecionada?.lng !== undefined ? motoSelecionada.lng.toFixed(6) : '--'}
-            </Text>
+            <Text style={[styles.modalTitulo, { color: themeColors.text }]}>{motoSelecionada?.nome}</Text>
+            <Text style={{ color: themeColors.text }}>{t('patio.modal.type')}: {motoSelecionada?.tipo}</Text>
+            <Text style={{ color: themeColors.text }}>{t('patio.modal.latitude')}: {motoSelecionada?.lat !== undefined ? motoSelecionada.lat.toFixed(6) : '--'}</Text>
+            <Text style={{ color: themeColors.text }}>{t('patio.modal.longitude')}: {motoSelecionada?.lng !== undefined ? motoSelecionada.lng.toFixed(6) : '--'}</Text>
 
-            <TouchableOpacity
-              onPress={() => setMotoSelecionada(null)}
-              style={styles.fechar}
-              activeOpacity={0.9}
-            >
-              <Text style={{ color: '#fff', fontWeight: 'bold' }}>Fechar</Text>
+            <TouchableOpacity onPress={() => setMotoSelecionada(null)} style={styles.fechar} activeOpacity={0.9}>
+              <Text style={{ color: '#fff', fontWeight: 'bold' }}>{t('patio.modal.close')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -274,21 +256,10 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
-    elevation: 4,
+    elevation: 4
   },
-  modalFundo: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  modalFundo: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' },
   modal: { width: 280, padding: 20, borderRadius: 10 },
   modalTitulo: { fontWeight: 'bold', fontSize: 18, marginBottom: 10 },
-  fechar: {
-    marginTop: 15,
-    backgroundColor: '#00c853',
-    padding: 10,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
+  fechar: { marginTop: 15, backgroundColor: '#00c853', padding: 10, borderRadius: 8, alignItems: 'center' }
 });

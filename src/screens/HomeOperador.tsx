@@ -3,7 +3,6 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useContext } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
 import ThemeToggleButton from '../components/ThemeToggleButton';
 import LanguageToggleButton from '../components/LanguageToggleButton';
 import LogoEasyMoto from '../components/LogoEasyMoto';
