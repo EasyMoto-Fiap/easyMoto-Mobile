@@ -31,7 +31,8 @@
       "expo-font",
       "expo-secure-store",
       "expo-localization",
-      "expo-notifications"
+      "expo-notifications",
+      "expo-maps"
     ],
     "notification": {
       "color": "#00C853"

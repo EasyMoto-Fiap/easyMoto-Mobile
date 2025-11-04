@@ -4,7 +4,6 @@ import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { useContext, useEffect, useState } from 'react';
 import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-
 import ThemeToggleButton from '../components/ThemeToggleButton';
 import LanguageToggleButton from '../components/LanguageToggleButton';
 import LogoEasyMoto from '../components/LogoEasyMoto';

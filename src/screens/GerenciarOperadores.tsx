@@ -3,7 +3,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-
 import ThemeToggleButton from '../components/ThemeToggleButton';
 import LanguageToggleButton from '../components/LanguageToggleButton';
 import LogoEasyMoto from '../components/LogoEasyMoto';

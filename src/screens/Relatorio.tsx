@@ -3,7 +3,6 @@ import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BarChart } from 'react-native-chart-kit';
-
 import ThemeToggleButton from '../components/ThemeToggleButton';
 import LanguageToggleButton from '../components/LanguageToggleButton';
 import LogoEasyMoto from '../components/LogoEasyMoto';

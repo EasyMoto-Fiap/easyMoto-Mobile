@@ -6,7 +6,6 @@ import axios from 'axios';
 import { useContext, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { Controller } from 'react-hook-form';
-
 import ThemeToggleButton from '../components/ThemeToggleButton';
 import LanguageToggleButton from '../components/LanguageToggleButton';
 import VoltarParaHome from '../components/VoltarParaHome';
