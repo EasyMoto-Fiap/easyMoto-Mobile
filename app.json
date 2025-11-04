@@ -11,9 +11,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "ios": {
-      "supportsTablet": true
-    },
+    "ios": { "supportsTablet": true },
     "android": {
       "package": "com.easymoto.fiap",
       "googleServicesFile": "./google-services.json",
@@ -21,27 +19,32 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "config": {
+        "googleMaps": { "apiKey": "AIzaSyAj1UuC2IMPH8KKIpt_20l8GyKOBymN9KA" }
+      }
     },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
+    "web": { "favicon": "./assets/favicon.png" },
     "plugins": [
       "expo-asset",
       "expo-font",
       "expo-secure-store",
       "expo-localization",
       "expo-notifications",
-      "expo-maps"
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ]
     ],
-    "notification": {
-      "color": "#00C853"
-    },
+    "notification": { "color": "#00C853" },
     "extra": {
       "API_URL": "http://74.249.100.243",
-      "eas": {
-        "projectId": "5255d184-385a-4fbe-98c1-a9ba4b6fe99e"
-      }
+       "API_KEY": "super-secret-key",
+      "eas": { "projectId": "5255d184-385a-4fbe-98c1-a9ba4b6fe99e" }
     }
   }
 }
