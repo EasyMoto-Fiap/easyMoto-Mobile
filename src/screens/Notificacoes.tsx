@@ -1,5 +1,6 @@
 import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Notifications from 'expo-notifications';
 import { useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -9,8 +10,12 @@ import LogoEasyMoto from '../components/LogoEasyMoto';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { LanguageContext } from '../contexts/LanguageContext';
 import { deletarNotificacao, listarNotificacoes, type Notificacao } from '../services/notificacoes';
+import { registerForPushNotificationsAsync } from '../services/push';
 import { colors } from '../styles/colors';
 import { t } from '../i18n';
+
+const PUSH_STORE_KEY = 'pushHistory';
+const PUSH_TOKEN_KEY = 'pushToken';
 
 export default function Notificacoes() {
   const { theme } = useContext(ThemeContext);
@@ -21,15 +26,28 @@ export default function Notificacoes() {
   const [lista, setLista] = useState<Notificacao[]>([]);
   const [loading, setLoading] = useState(false);
 
+  async function getPushHistory(): Promise<Notificacao[]> {
+    const raw = await AsyncStorage.getItem(PUSH_STORE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  }
+
+  async function addPushHistory(item: Notificacao) {
+    const prev = await getPushHistory();
+    const next = [item, ...prev].slice(0, 200);
+    await AsyncStorage.setItem(PUSH_STORE_KEY, JSON.stringify(next));
+  }
+
   async function carregar() {
     setLoading(true);
     try {
       const userRaw = await AsyncStorage.getItem('usuarioAtual');
       const user = userRaw ? JSON.parse(userRaw) : undefined;
-      const itens = await listarNotificacoes({ page: 1, pageSize: 100, escopo: 0, filialId: user?.filialId });
-      setLista(itens);
+      const itensApi = await listarNotificacoes({ page: 1, pageSize: 100, escopo: 0, filialId: user?.filialId });
+      const itensPush = await getPushHistory();
+      setLista([...itensPush, ...itensApi]);
     } catch {
-      setLista([]);
+      const itensPush = await getPushHistory();
+      setLista(itensPush);
     } finally {
       setLoading(false);
     }
@@ -44,6 +62,7 @@ export default function Notificacoes() {
           await deletarNotificacao(n.id);
         } catch {}
       }
+      await AsyncStorage.removeItem(PUSH_STORE_KEY);
       await carregar();
     } finally {
       setLoading(false);
@@ -51,7 +70,26 @@ export default function Notificacoes() {
   }
 
   useEffect(() => {
+    let subReceive: Notifications.Subscription | undefined;
+
     carregar();
+
+    registerForPushNotificationsAsync().then(async (token) => {
+      if (token) await AsyncStorage.setItem(PUSH_TOKEN_KEY, token);
+    });
+
+    subReceive = Notifications.addNotificationReceivedListener(async (notif) => {
+      const title = notif.request.content.title ?? '';
+      const body = notif.request.content.body ?? '';
+      const msg = [title, body].filter(Boolean).join(' — ') || JSON.stringify(notif.request.content.data);
+      const item = { id: -Date.now(), mensagem: msg } as Notificacao;
+      setLista((prev) => [item, ...prev]);
+      await addPushHistory(item);
+    });
+
+    return () => {
+      subReceive?.remove();
+    };
   }, []);
 
   return (
@@ -75,7 +113,7 @@ export default function Notificacoes() {
               </Text>
             ) : (
               lista.map((n) => (
-                <View key={n.id} style={[styles.alertaItem, { backgroundColor: isDark ? '#1e1e1e' : '#f0f0f0' }]}>
+                <View key={String(n.id)} style={[styles.alertaItem, { backgroundColor: isDark ? '#1e1e1e' : '#f0f0f0' }]}>
                   <Text style={{ color: themeColors.text }}>{n.mensagem}</Text>
                 </View>
               ))

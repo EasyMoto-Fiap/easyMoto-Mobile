@@ -1,11 +1,11 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://10.0.2.2:5230/api',
+  baseURL: 'http://74.249.100.243/api',
   timeout: 15000,
 });
 
-const API_KEY = 'EM_3f8b2a4c9b7e4e6e9a7c1f2d3a5b8c';
+const API_KEY = 'super-secret-key';
 const API_VERSION = '2.0';
 
 api.interceptors.request.use((config) => {

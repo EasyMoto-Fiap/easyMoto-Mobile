@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "355737743961",
+    "project_id": "easymoto-6bc58",
+    "storage_bucket": "easymoto-6bc58.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:355737743961:android:9f58691bcef96ccbc1b748",
+        "android_client_info": {
+          "package_name": "com.easymoto.fiap"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAT5oU4AQendxwHCKy-0UjeGj1apa4ogqc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

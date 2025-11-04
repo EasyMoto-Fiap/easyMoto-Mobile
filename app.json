@@ -6,19 +6,17 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff",
-      "extra": {
-        "API_URL": "http://172.203.27.184"
-      }
+      "backgroundColor": "#ffffff"
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "package": "com.easymoto.fiap",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -32,7 +30,17 @@
       "expo-asset",
       "expo-font",
       "expo-secure-store",
-      "expo-localization"
-    ]
+      "expo-localization",
+      "expo-notifications"
+    ],
+    "notification": {
+      "color": "#00C853"
+    },
+    "extra": {
+      "API_URL": "http://74.249.100.243",
+      "eas": {
+        "projectId": "5255d184-385a-4fbe-98c1-a9ba4b6fe99e"
+      }
+    }
   }
 }
