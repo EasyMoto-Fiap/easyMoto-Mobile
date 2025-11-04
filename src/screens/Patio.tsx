@@ -1,4 +1,4 @@
-import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { NavigationProp, RouteProp } from '@react-navigation/native';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
@@ -25,6 +25,8 @@ type MotoPin = {
 };
 
 type Legenda = { id: number; nome?: string; cor?: string };
+
+const bikePin = require('../../assets/img/motorcycle.png');
 
 export default function Patio() {
   const route = useRoute<RouteProp<RootStackParamList, 'Patio'>>();
@@ -208,9 +210,8 @@ export default function Patio() {
               }}
               onPress={() => setMotoSelecionada(moto)}
               anchor={{ x: 0.5, y: 0.5 }}
-            >
-              <MaterialCommunityIcons name="motorbike" size={28} color={moto.statusColor || colors.primary} />
-            </Marker>
+              image={bikePin}
+            />
           ))}
         </MapView>
       )}

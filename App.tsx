@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -7,8 +7,11 @@ import RootNavigator from './src/navigation/RootNavigator';
 import { ThemeProvider } from './src/contexts/ThemeContext';
 import { AuthProvider } from './src/contexts/AuthContext';
 import { LanguageProvider } from './src/contexts/LanguageContext';
-import * as Notifications from 'expo-notifications';
 import * as SplashScreen from 'expo-splash-screen';
+import * as Notifications from 'expo-notifications';
+import { useFonts } from 'expo-font';
+import { FontAwesome, Feather, AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
+import { registerForPushNotificationsAsync } from './src/services/push';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -18,46 +21,51 @@ Notifications.setNotificationHandler({
     shouldPlaySound: true,
     shouldSetBadge: false,
     shouldShowBanner: true,
-    shouldShowList: true,
-  }),
+    shouldShowList: true
+  })
 });
 
 const PERSISTENCE_KEY = 'NAVIGATION_STATE_V1';
 
 function AppContent() {
-  const [isReady, setIsReady] = useState(false);
-  const [initialState, setInitialState] = useState<InitialState | undefined>();
+  const [ready, setReady] = useState(false);
+  const [navState, setNavState] = useState<InitialState | undefined>();
+  const [fontsLoaded] = useFonts({
+    ...FontAwesome.font,
+    ...Feather.font,
+    ...AntDesign.font,
+    ...MaterialCommunityIcons.font
+  });
 
   useEffect(() => {
-    const prepare = async () => {
+    (async () => {
       try {
         const saved = await AsyncStorage.getItem(PERSISTENCE_KEY);
-        if (saved) {
-          try {
-            setInitialState(JSON.parse(saved));
-          } catch {
-            await AsyncStorage.removeItem(PERSISTENCE_KEY);
-          }
-        }
-      } finally {
-        setIsReady(true);
-      }
-    };
-    prepare();
-  }, []);
+        if (saved) setNavState(JSON.parse(saved));
+      } catch {}
+      try {
+        await Notifications.setNotificationChannelAsync('default', {
+          name: 'default',
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250]
+        });
+      } catch {}
+      try {
+        await registerForPushNotificationsAsync();
+      } catch {}
+      setReady(true);
+      try {
+        await SplashScreen.hideAsync();
+      } catch {}
+    })();
+  }, [fontsLoaded]);
 
-  const onLayoutRootView = useCallback(async () => {
-    if (isReady) {
-      await SplashScreen.hideAsync().catch(() => {});
-    }
-  }, [isReady]);
-
-  if (!isReady) return null;
+  if (!fontsLoaded || !ready) return null;
 
   return (
-    <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+    <View style={{ flex: 1 }}>
       <NavigationContainer
-        initialState={initialState}
+        initialState={navState}
         onStateChange={async (state) => {
           try {
             await AsyncStorage.setItem(PERSISTENCE_KEY, JSON.stringify(state));
