@@ -1,7 +1,6 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Dimensions, ScrollView, StyleSheet, Text, View, SafeAreaView } from 'react-native';
 import { BarChart } from 'react-native-chart-kit';
 import ThemeToggleButton from '../components/ThemeToggleButton';
 import LanguageToggleButton from '../components/LanguageToggleButton';
@@ -51,7 +50,6 @@ export default function Relatorio() {
   const { theme } = useContext(ThemeContext);
   const isDark = theme === 'dark';
   const themeColors = isDark ? colors.dark : colors.light;
-  const insets = useSafeAreaInsets();
 
   useContext(LanguageContext);
 
@@ -98,69 +96,86 @@ export default function Relatorio() {
   };
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: themeColors.background }]}
-      contentContainerStyle={{ paddingBottom: 40 }}
-    >
-      <View style={[styles.headerButtons, { paddingTop: insets.top + 8 }]}>
-        <View style={styles.themeBtn}><ThemeToggleButton /></View>
-        <View style={styles.langBadge}><LanguageToggleButton /></View>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: themeColors.background }]}>
+      <View style={styles.togglesRow}>
+        <View style={styles.langBadge}>
+          <LanguageToggleButton />
+        </View>
+        <View style={{ width: 8 }} />
+        <ThemeToggleButton />
       </View>
 
-      <View style={styles.logoRow}><LogoEasyMoto size={42} /></View>
-
-      <Text style={[styles.title, { color: themeColors.text }]}>{t('report.title')}</Text>
-
-      {values.length > 0 ? (
-        <BarChart
-          data={chartData}
-          width={Dimensions.get('window').width - 40}
-          height={320}
-          withInnerLines
-          withCustomBarColorFromData
-          flatColor
-          segments={5}
-          yAxisLabel=""
-          yAxisSuffix=""
-          chartConfig={{
-            backgroundColor: themeColors.background,
-            backgroundGradientFrom: themeColors.background,
-            backgroundGradientTo: themeColors.background,
-            fillShadowGradientOpacity: 1,
-            barPercentage: 0.6,
-            decimalPlaces: 0,
-            color: () => 'rgba(0,0,0,1)',
-            labelColor: () => themeColors.text,
-            propsForBackgroundLines: { stroke: isDark ? '#444' : '#ccc' },
-          }}
-          style={{ marginTop: 24, marginBottom: 30, borderRadius: 16 }}
-          fromZero
-          showValuesOnTopOfBars
-        />
-      ) : (
-        <Text style={[styles.text, { color: themeColors.text }]}>{t('report.noData')}</Text>
-      )}
-
-      <Text style={[styles.subtitle, { color: themeColors.text }]}>{t('report.legend')}</Text>
-      {legendOrder.map((k) => (
-        <View key={k} style={styles.legendaItem}>
-          <View style={[styles.corBox, { backgroundColor: statusColorByKey[k] }]} />
-          <Text style={{ color: themeColors.text }}>{t(`report.status.${k}`)}</Text>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={{ paddingBottom: 40 }}
+      >
+        <View style={styles.logoRow}>
+          <LogoEasyMoto size={42} />
         </View>
-      ))}
-    </ScrollView>
+
+        <Text style={[styles.title, { color: themeColors.text }]}>{t('report.title')}</Text>
+
+        {values.length > 0 ? (
+          <BarChart
+            data={chartData}
+            width={Dimensions.get('window').width - 40}
+            height={320}
+            withInnerLines
+            withCustomBarColorFromData
+            flatColor
+            segments={5}
+            yAxisLabel=""
+            yAxisSuffix=""
+            chartConfig={{
+              backgroundColor: themeColors.background,
+              backgroundGradientFrom: themeColors.background,
+              backgroundGradientTo: themeColors.background,
+              fillShadowGradientOpacity: 1,
+              barPercentage: 0.6,
+              decimalPlaces: 0,
+              color: () => 'rgba(0,0,0,1)',
+              labelColor: () => themeColors.text,
+              propsForBackgroundLines: { stroke: isDark ? '#444' : '#ccc' },
+            }}
+            style={{ marginTop: 24, marginBottom: 30, borderRadius: 16 }}
+            fromZero
+            showValuesOnTopOfBars
+          />
+        ) : (
+          <Text style={[styles.text, { color: themeColors.text }]}>{t('report.noData')}</Text>
+        )}
+
+        <Text style={[styles.subtitle, { color: themeColors.text }]}>{t('report.legend')}</Text>
+        {legendOrder.map((k) => (
+          <View key={k} style={styles.legendaItem}>
+            <View style={[styles.corBox, { backgroundColor: statusColorByKey[k] }]} />
+            <Text style={{ color: themeColors.text }}>{t(`report.status.${k}`)}</Text>
+          </View>
+        ))}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingHorizontal: 20 },
-  headerButtons: { height: 106, justifyContent: 'center'},
-  themeBtn: { right: 6, top: 23, zIndex: 10, padding: 100, paddingTop: 33 },
-  langBadge: { position: 'absolute', right: 60, top: 8, zIndex: 10, padding: 55, paddingRight: 8 },
-  logoRow: { alignSelf: 'center', marginTop: 4, marginBottom: 16 },
+  safeArea: { flex: 1 },
+  container: { flex: 1, paddingHorizontal: 20, paddingTop: 120 },
+  togglesRow: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    zIndex: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  langBadge: {
+    padding: 20,
+    paddingRight: 1,
+  },
+  logoRow: { alignSelf: 'center', marginBottom: 16 },
   title: { fontSize: 18, fontWeight: 'bold', textAlign: 'center', marginBottom: 4 },
   subtitle: { fontSize: 16, fontWeight: 'bold', marginTop: 8, marginBottom: 10 },
   legendaItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
   corBox: { width: 16, height: 16, borderRadius: 4, marginRight: 8 },
-  text: { fontSize: 16, textAlign: 'center', marginTop: 24 }
+  text: { fontSize: 16, textAlign: 'center', marginTop: 24 },
 });

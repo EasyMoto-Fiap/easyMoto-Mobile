@@ -11,7 +11,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
@@ -55,9 +57,9 @@
       "API_URL": "http://74.249.100.243",
       "API_KEY": "super-secret-key",
       "eas": {
-        "projectId": "84b6021c-b4ac-441a-b595-4f9ec14701e1"
+        "projectId": "b0be3891-b078-46a1-a72f-a380c1c53547"
       }
     },
-    "owner": "akevc"
+    "owner": "akemisky"
   }
 }

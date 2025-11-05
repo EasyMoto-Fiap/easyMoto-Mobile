@@ -2,11 +2,10 @@ import { AntDesign } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { NavigationProp, RouteProp } from '@react-navigation/native';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import { useContext, useEffect, useRef, useState } from 'react';
-import React from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { LanguageContext } from '../contexts/LanguageContext';
 import type { RootStackParamList } from '../navigation/RootNavigator';
@@ -45,9 +44,15 @@ export default function Patio() {
   const [loading, setLoading] = useState(false);
 
   function catToTipo(c: any): 'Pop' | 'Sport' | 'E' {
-    if (c === 1 || `${c}`.toLowerCase() === 'pop') return 'Pop';
-    if (c === 2 || `${c}`.toLowerCase() === 'sport') return 'Sport';
-    return 'E';
+    const n = Number(c);
+    if (n === 0) return 'Pop';
+    if (n === 1) return 'Sport';
+    if (n === 2) return 'E';
+    const s = `${c}`.toLowerCase();
+    if (s === 'pop') return 'Pop';
+    if (s === 'sport') return 'Sport';
+    if (s === 'e') return 'E';
+    return 'Pop';
   }
 
   async function ensureAuth() {
@@ -98,7 +103,7 @@ export default function Patio() {
       const lista: any[] = Array.isArray(data) ? data : (data?.items ?? []);
       const filtrada = filialId ? lista.filter((m) => Number(m.filialId) === Number(filialId)) : lista;
 
-      const mapped: MotoPin[] = filtrada.map((m) => ({
+      const basePins: MotoPin[] = filtrada.map((m) => ({
         id: Number(m.id),
         nome: `${m.modelo ?? ''} • ${m.placa ?? ''}`.trim(),
         tipo: catToTipo(m.categoria),
@@ -107,7 +112,23 @@ export default function Patio() {
         statusColor: corPorStatus(m, legendas)
       }));
 
+      const coordCount: Record<string, number> = {};
+      const mapped: MotoPin[] = basePins.map((pin) => {
+        const baseLat = pin.lat ?? -23.5505;
+        const baseLng = pin.lng ?? -46.6333;
+        const key = `${baseLat.toFixed(5)},${baseLng.toFixed(5)}`;
+        const idx = coordCount[key] ?? 0;
+        coordCount[key] = idx + 1;
+        const jitter = 0.0003 * idx;
+        return {
+          ...pin,
+          lat: baseLat + jitter,
+          lng: baseLng + jitter
+        };
+      });
+
       setMotos(mapped);
+
       const primeira = mapped.find((x) => x.tipo === filtro);
       if (primeira && mapRef.current) {
         mapRef.current.animateToRegion(
@@ -155,35 +176,35 @@ export default function Patio() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <TouchableOpacity
-        onPress={() => navigation.goBack()}
-        style={[styles.botaoVoltar, { top: insets.top + 8 }]}
-        activeOpacity={0.9}
-      >
-        <AntDesign name="arrowleft" size={22} color="#fff" />
-      </TouchableOpacity>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 8, backgroundColor: themeColors.background }]}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.botaoVoltar}
+          activeOpacity={0.9}
+        >
+          <AntDesign name="arrowleft" size={22} color="#fff" />
+        </TouchableOpacity>
 
-      <Text style={[styles.titulo, { color: themeColors.text }]}>{t('patio.title')}</Text>
-
-      <View style={styles.filtros}>
-        {(['Pop', 'Sport', 'E'] as const).map((tipo) => (
-          <TouchableOpacity
-            key={tipo}
-            style={[
-              styles.botao,
-              filtro === tipo
-                ? { backgroundColor: colors.primary }
-                : { backgroundColor: 'transparent', borderWidth: 1.5, borderColor: themeColors.text }
-            ]}
-            onPress={() => handleFiltroPress(tipo)}
-            activeOpacity={0.9}
-          >
-            <Text style={{ color: filtro === tipo ? '#fff' : themeColors.text }}>
-              {t(`patio.filters.${tipo}`)}
-            </Text>
-          </TouchableOpacity>
-        ))}
+        <View style={styles.filtrosRow}>
+          {(['Pop', 'Sport', 'E'] as const).map((tipo) => (
+            <TouchableOpacity
+              key={tipo}
+              style={[
+                styles.botao,
+                filtro === tipo
+                  ? { backgroundColor: colors.primary }
+                  : { backgroundColor: 'transparent', borderWidth: 1.5, borderColor: themeColors.text }
+              ]}
+              onPress={() => handleFiltroPress(tipo)}
+              activeOpacity={0.9}
+            >
+              <Text style={{ color: filtro === tipo ? '#fff' : themeColors.text }}>
+                {t(`patio.filters.${tipo}`)}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
 
       {loading ? (
@@ -225,41 +246,65 @@ export default function Patio() {
         <View style={styles.modalFundo}>
           <View style={[styles.modal, { backgroundColor: themeColors.background }]}>
             <Text style={[styles.modalTitulo, { color: themeColors.text }]}>{motoSelecionada?.nome}</Text>
-            <Text style={{ color: themeColors.text }}>{t('patio.modal.type')}: {motoSelecionada?.tipo}</Text>
-            <Text style={{ color: themeColors.text }}>{t('patio.modal.latitude')}: {motoSelecionada?.lat !== undefined ? motoSelecionada.lat.toFixed(6) : '--'}</Text>
-            <Text style={{ color: themeColors.text }}>{t('patio.modal.longitude')}: {motoSelecionada?.lng !== undefined ? motoSelecionada.lng.toFixed(6) : '--'}</Text>
+            <Text style={{ color: themeColors.text }}>
+              {t('patio.modal.type')}: {motoSelecionada?.tipo}
+            </Text>
+            <Text style={{ color: themeColors.text }}>
+              {t('patio.modal.latitude')}:{' '}
+              {motoSelecionada?.lat !== undefined ? motoSelecionada.lat.toFixed(6) : '--'}
+            </Text>
+            <Text style={{ color: themeColors.text }}>
+              {t('patio.modal.longitude')}:{' '}
+              {motoSelecionada?.lng !== undefined ? motoSelecionada.lng.toFixed(6) : '--'}
+            </Text>
 
-            <TouchableOpacity onPress={() => setMotoSelecionada(null)} style={styles.fechar} activeOpacity={0.9}>
+            <TouchableOpacity
+              onPress={() => setMotoSelecionada(null)}
+              style={styles.fechar}
+              activeOpacity={0.9}
+            >
               <Text style={{ color: '#fff', fontWeight: 'bold' }}>{t('patio.modal.close')}</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  titulo: { fontSize: 20, fontWeight: 'bold', padding: 16, textAlign: 'center' },
-  filtros: { flexDirection: 'row', justifyContent: 'center', gap: 10, marginBottom: 10 },
-  botao: { paddingHorizontal: 15, paddingVertical: 8, borderRadius: 8, marginHorizontal: 5 },
+  header: {
+    paddingHorizontal: 20,
+    paddingRight: 50,
+    paddingBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  filtrosRow: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  botao: { paddingHorizontal: 15, paddingVertical: 8, borderRadius: 8, marginHorizontal: 4 },
   map: { flex: 1 },
   botaoVoltar: {
-    position: 'absolute',
-    left: 16,
-    zIndex: 10,
-    padding: 10,
-    borderRadius: 100,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#00c853',
+    marginRight: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
-    elevation: 4
+    elevation: 4,
   },
   modalFundo: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' },
   modal: { width: 280, padding: 20, borderRadius: 10 },
   modalTitulo: { fontWeight: 'bold', fontSize: 18, marginBottom: 10 },
-  fechar: { marginTop: 15, backgroundColor: '#00c853', padding: 10, borderRadius: 8, alignItems: 'center' }
+  fechar: { marginTop: 15, backgroundColor: '#00c853', padding: 10, borderRadius: 8, alignItems: 'center' },
 });

@@ -3,8 +3,9 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useContext } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import ThemeToggleButton from '../components/ThemeToggleButton';
-import LanguageToggleButton from '../components/LanguageToggleButton';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import TopRightToggles from '../components/TopRightToggles';
 import LogoEasyMoto from '../components/LogoEasyMoto';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { LanguageContext } from '../contexts/LanguageContext';
@@ -62,13 +63,8 @@ export default function HomeOperador() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <View style={styles.toggle}>
-        <ThemeToggleButton />
-      </View>
-      <View style={styles.langBadge}>
-        <LanguageToggleButton />
-      </View>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
+      <TopRightToggles />
 
       <View style={styles.logoRow}>
         <LogoEasyMoto size={42} />
@@ -81,14 +77,12 @@ export default function HomeOperador() {
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, paddingTop: 120, paddingHorizontal: 22 },
-  toggle: { position: 'absolute', top: 16, right: 16, zIndex: 10 },
-  langBadge: { position: 'absolute', top: 16, right: 60, zIndex: 10, padding: 35, paddingRight: 10 },
   logoRow: { alignSelf: 'center', marginBottom: 28 },
   listContent: { paddingBottom: 36, rowGap: 16 },
   card: { flexDirection: 'row', alignItems: 'center', borderRadius: 18, padding: 18, gap: 16 },

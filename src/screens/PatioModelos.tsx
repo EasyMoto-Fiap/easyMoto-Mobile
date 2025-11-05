@@ -2,7 +2,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useContext } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, SafeAreaView } from 'react-native';
 import ThemeToggleButton from '../components/ThemeToggleButton';
 import LanguageToggleButton from '../components/LanguageToggleButton';
 import LogoEasyMoto from '../components/LogoEasyMoto';
@@ -28,12 +28,13 @@ export default function PatioModelos() {
   ];
 
   return (
-    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <View style={styles.toggle}>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
+      <View style={styles.togglesRow}>
+        <View style={styles.langBadge}>
+          <LanguageToggleButton />
+        </View>
+        <View style={{ width: 8 }} />
         <ThemeToggleButton />
-      </View>
-      <View style={styles.langBadge}>
-        <LanguageToggleButton />
       </View>
 
       <View style={styles.logoRow}>
@@ -44,7 +45,10 @@ export default function PatioModelos() {
       <Text style={[styles.subtitle, { color: themeColors.text }]}>{t('patioModelos.subtitle')}</Text>
 
       {modelos.map((item) => (
-        <View key={item.nome} style={[styles.card, { backgroundColor: isDark ? '#1e1e1e' : '#f3f3f3' }]}>
+        <View
+          key={item.nome}
+          style={[styles.card, { backgroundColor: isDark ? '#1e1e1e' : '#f3f3f3' }]}
+        >
           <FontAwesome name="motorcycle" size={26} color="#00c853" />
           <View style={styles.textos}>
             <Text style={[styles.cardTitle, { color: themeColors.text }]}>{item.nome}</Text>
@@ -60,14 +64,24 @@ export default function PatioModelos() {
           <FontAwesome name="angle-right" size={20} color="#888" />
         </View>
       ))}
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, paddingTop: 120, paddingHorizontal: 22 },
-  toggle: { position: 'absolute', top: 16, right: 16, zIndex: 10 },
-  langBadge: { position: 'absolute', top: 16, right: 60, zIndex: 10, padding: 35, paddingRight: 10 },
+  togglesRow: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    zIndex: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  langBadge: {
+    padding: 20,
+    paddingRight: 1,
+  },
   logoRow: { alignSelf: 'center', marginBottom: 28 },
   title: { fontSize: 18, fontWeight: 'bold' },
   subtitle: { fontSize: 14, marginBottom: 20 },

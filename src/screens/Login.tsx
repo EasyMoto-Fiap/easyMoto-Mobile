@@ -5,9 +5,10 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import axios from 'axios';
 import { useContext, useState } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Controller } from 'react-hook-form';
-import ThemeToggleButton from '../components/ThemeToggleButton';
-import LanguageToggleButton from '../components/LanguageToggleButton';
+
+import TopRightToggles from '../components/TopRightToggles';
 import VoltarParaHome from '../components/VoltarParaHome';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { LanguageContext } from '../contexts/LanguageContext';
@@ -37,8 +38,12 @@ export default function Login() {
   async function submit(values: { email: string; senha: string }) {
     try {
       const resp = await login({ email: values.email, senha: values.senha });
-      if (role === 'operador' && resp.usuario.perfil !== 0) throw new Error('Você tentou logar como Operador usando uma conta de Administrador.');
-      if (role === 'admin' && resp.usuario.perfil !== 1) throw new Error('Você tentou logar como Administrador usando uma conta de Operador.');
+      if (role === 'operador' && resp.usuario.perfil !== 0) {
+        throw new Error('Você tentou logar como Operador usando uma conta de Administrador.');
+      }
+      if (role === 'admin' && resp.usuario.perfil !== 1) {
+        throw new Error('Você tentou logar como Administrador usando uma conta de Operador.');
+      }
       await AsyncStorage.setItem('token', resp.token ?? '');
       await AsyncStorage.setItem('usuarioAtual', JSON.stringify(resp.usuario));
       navigation.replace(resp.usuario.perfil === 0 ? 'HomeOperador' : 'HomeAdmin');
@@ -54,11 +59,8 @@ export default function Login() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <ThemeToggleButton />
-      <View pointerEvents="box-none" style={styles.langBadge}>
-        <LanguageToggleButton />
-      </View>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
+      <TopRightToggles />
 
       <View style={styles.content}>
         <Text style={styles.logoRow}>
@@ -75,7 +77,11 @@ export default function Login() {
             name="email"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
-                style={[styles.input, { backgroundColor: colors.inputBg, color: '#111' }, errors.email && styles.inputError]}
+                style={[
+                  styles.input,
+                  { backgroundColor: colors.inputBg, color: '#111' },
+                  errors.email && styles.inputError,
+                ]}
                 placeholder={t('login.emailPlaceholder')}
                 placeholderTextColor="#666"
                 autoCapitalize="none"
@@ -86,7 +92,9 @@ export default function Login() {
               />
             )}
           />
-          {errors.email && <Text style={styles.errorText}>{errors.email.message as string}</Text>}
+          {errors.email && (
+            <Text style={styles.errorText}>{errors.email.message as string}</Text>
+          )}
         </View>
 
         <View style={[styles.field, styles.senhaContainer]}>
@@ -95,7 +103,11 @@ export default function Login() {
             name="senha"
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
-                style={[styles.input, { backgroundColor: colors.inputBg, color: '#111', paddingRight: 48 }, errors.senha && styles.inputError]}
+                style={[
+                  styles.input,
+                  { backgroundColor: colors.inputBg, color: '#111', paddingRight: 48 },
+                  errors.senha && styles.inputError,
+                ]}
                 placeholder={t('login.senhaPlaceholder')}
                 placeholderTextColor="#666"
                 secureTextEntry={!mostrarSenha}
@@ -108,7 +120,9 @@ export default function Login() {
           <Text onPress={() => setMostrarSenha(v => !v)} style={styles.iconeOlho}>
             <FontAwesome name={mostrarSenha ? 'eye-slash' : 'eye'} size={20} color="#666" />
           </Text>
-          {errors.senha && <Text style={styles.errorText}>{errors.senha.message as string}</Text>}
+          {errors.senha && (
+            <Text style={styles.errorText}>{errors.senha.message as string}</Text>
+          )}
         </View>
 
         <View style={styles.buttonWrapper}>
@@ -116,31 +130,59 @@ export default function Login() {
             title={t('login.entrar')}
             loading={loadingVisible}
             disabled={!isValid || loadingVisible}
-            onPress={() => run(handleSubmit(submit), { loadingText: t('login.entrar') + '...' })}
+            onPress={() =>
+              run(handleSubmit(submit), { loadingText: t('login.entrar') + '...' })
+            }
           />
         </View>
 
         <View style={styles.signupRow}>
-          <Text style={[styles.signupText, { color: isDark ? '#A6A6A6' : '#686868' }]}>{t('login.naoPossuiConta')} </Text>
-          <Text onPress={() => navigation.navigate('Register', { role })} style={[styles.signupLink, { color: colors.primary }]}>{t('login.cadastreSe')}</Text>
+          <Text
+            style={[
+              styles.signupText,
+              { color: isDark ? '#A6A6A6' : '#686868' },
+            ]}
+          >
+            {t('login.naoPossuiConta')}{' '}
+          </Text>
+          <Text
+            onPress={() => navigation.navigate('Register', { role })}
+            style={[styles.signupLink, { color: colors.primary }]}
+          >
+            {t('login.cadastreSe')}
+          </Text>
         </View>
 
         {errorVisible && (
-          <View style={[styles.bannerInline, { backgroundColor: themeColors.background, borderColor: colors.primary }]}>
-            <Text style={[styles.bannerText, { color: themeColors.text }]} numberOfLines={2}>{errorMessage}</Text>
-            <Text onPress={hideError} style={[styles.bannerActionText, { color: colors.primary }]}>Fechar</Text>
+          <View
+            style={[
+              styles.bannerInline,
+              { backgroundColor: themeColors.background, borderColor: colors.primary },
+            ]}
+          >
+            <Text
+              style={[styles.bannerText, { color: themeColors.text }]}
+              numberOfLines={2}
+            >
+              {errorMessage}
+            </Text>
+            <Text
+              onPress={hideError}
+              style={[styles.bannerActionText, { color: colors.primary }]}
+            >
+              Fechar
+            </Text>
           </View>
         )}
       </View>
 
       <VoltarParaHome />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, paddingHorizontal: 24, justifyContent: 'center' },
-  langBadge: { position: 'absolute', top: 16, right: 56, zIndex: 10, padding: 20, paddingRight: 1 },
   content: { width: '100%', maxWidth: 420, alignSelf: 'center' },
   logoRow: { alignSelf: 'center', marginBottom: 16 },
   title: { fontSize: 18, marginBottom: 16, textAlign: 'center' },
@@ -151,10 +193,24 @@ const styles = StyleSheet.create({
   senhaContainer: { position: 'relative' },
   iconeOlho: { position: 'absolute', right: 18, top: 18 },
   buttonWrapper: { marginTop: 8, marginBottom: 12 },
-  signupRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: 6 },
+  signupRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
   signupText: { fontSize: 14 },
   signupLink: { fontSize: 14, fontWeight: '700' },
-  bannerInline: { marginTop: 8, paddingVertical: 12, paddingHorizontal: 14, borderRadius: 14, borderWidth: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  bannerInline: {
+    marginTop: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   bannerText: { flex: 1, marginRight: 12, fontSize: 14 },
   bannerActionText: { fontSize: 14, fontWeight: '700' },
 });

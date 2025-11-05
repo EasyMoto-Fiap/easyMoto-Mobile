@@ -2,9 +2,17 @@ import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { useContext, useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import ThemeToggleButton from '../components/ThemeToggleButton';
-import LanguageToggleButton from '../components/LanguageToggleButton';
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import TopRightToggles from '../components/TopRightToggles';
 import LogoEasyMoto from '../components/LogoEasyMoto';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { LanguageContext } from '../contexts/LanguageContext';
@@ -41,7 +49,12 @@ export default function Notificacoes() {
     try {
       const userRaw = await AsyncStorage.getItem('usuarioAtual');
       const user = userRaw ? JSON.parse(userRaw) : undefined;
-      const itensApi = await listarNotificacoes({ page: 1, pageSize: 100, escopo: 0, filialId: user?.filialId });
+      const itensApi = await listarNotificacoes({
+        page: 1,
+        pageSize: 100,
+        escopo: 0,
+        filialId: user?.filialId,
+      });
       const itensPush = await getPushHistory();
       setLista([...itensPush, ...itensApi]);
     } catch {
@@ -80,7 +93,9 @@ export default function Notificacoes() {
     subReceive = Notifications.addNotificationReceivedListener(async (notif) => {
       const title = notif.request.content.title ?? '';
       const body = notif.request.content.body ?? '';
-      const msg = [title, body].filter(Boolean).join(' — ') || JSON.stringify(notif.request.content.data);
+      const msg =
+        [title, body].filter(Boolean).join(' — ') ||
+        JSON.stringify(notif.request.content.data);
       const item = { id: -Date.now(), mensagem: msg } as Notificacao;
       setLista((prev) => [item, ...prev]);
       await addPushHistory(item);
@@ -92,12 +107,16 @@ export default function Notificacoes() {
   }, []);
 
   return (
-    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <View style={styles.toggle}><ThemeToggleButton /></View>
-      <View style={styles.langBadge}><LanguageToggleButton /></View>
-      <View style={styles.logoRow}><LogoEasyMoto size={42} /></View>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>   
+      <TopRightToggles />
 
-      <Text style={[styles.title, { color: themeColors.text }]}>{t('notifications.historyTitle')}</Text>
+      <View style={styles.logoRow}>
+        <LogoEasyMoto size={42} />
+      </View>
+
+      <Text style={[styles.title, { color: themeColors.text }]}>
+        {t('notifications.historyTitle')}
+      </Text>
 
       <View style={{ flex: 1, alignSelf: 'stretch' }}>
         {loading ? (
@@ -105,14 +124,28 @@ export default function Notificacoes() {
             <ActivityIndicator size="small" color={colors.primary} />
           </View>
         ) : (
-          <ScrollView style={{ marginTop: 10, flex: 1 }} contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}>
+          <ScrollView
+            style={{ marginTop: 10, flex: 1 }}
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
+          >
             {!lista || lista.length === 0 ? (
-              <Text style={[styles.text, { color: themeColors.text, textAlign: 'center', marginTop: 20 }]}>
+              <Text
+                style={[
+                  styles.text,
+                  { color: themeColors.text, textAlign: 'center', marginTop: 20 },
+                ]}
+              >
                 {t('notifications.empty')}
               </Text>
             ) : (
               lista.map((n) => (
-                <View key={String(n.id)} style={[styles.alertaItem, { backgroundColor: isDark ? '#1e1e1e' : '#f0f0f0' }]}>
+                <View
+                  key={String(n.id)}
+                  style={[
+                    styles.alertaItem,
+                    { backgroundColor: isDark ? '#1e1e1e' : '#f0f0f0' },
+                  ]}
+                >
                   <Text style={{ color: themeColors.text }}>{n.mensagem}</Text>
                 </View>
               ))
@@ -121,7 +154,12 @@ export default function Notificacoes() {
         )}
       </View>
 
-      <View style={[styles.bottomActions, { borderTopColor: isDark ? '#333' : '#ddd' }]}>
+      <View
+        style={[
+          styles.bottomActions,
+          { borderTopColor: isDark ? '#333' : '#ddd' },
+        ]}
+      >
         <TouchableOpacity style={styles.iconButton} onPress={carregar}>
           <FontAwesome name="refresh" size={20} color={themeColors.text} />
         </TouchableOpacity>
@@ -129,18 +167,22 @@ export default function Notificacoes() {
           <FontAwesome name="trash" size={20} color={themeColors.text} />
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, paddingTop: 120, paddingHorizontal: 22, alignItems: 'center' },
-  toggle: { position: 'absolute', top: 16, right: 16, zIndex: 10 },
-  langBadge: { position: 'absolute', top: 16, right: 60, zIndex: 10, padding: 35, paddingRight: 10 },
   logoRow: { alignSelf: 'center', marginBottom: 12 },
   title: { fontSize: 18, fontWeight: 'bold', marginBottom: 8, alignSelf: 'flex-start' },
   text: { fontSize: 16 },
   alertaItem: { padding: 12, borderRadius: 12, marginBottom: 10 },
   iconButton: { padding: 12, marginHorizontal: 8 },
-  bottomActions: { flexDirection: 'row', justifyContent: 'center', paddingVertical: 12, borderTopWidth: 1, alignSelf: 'stretch' }
+  bottomActions: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    alignSelf: 'stretch',
+  },
 });

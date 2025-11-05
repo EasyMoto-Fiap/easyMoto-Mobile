@@ -2,9 +2,20 @@ import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useContext, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import ThemeToggleButton from '../components/ThemeToggleButton';
-import LanguageToggleButton from '../components/LanguageToggleButton';
+import {
+  ActivityIndicator,
+  Alert,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import TopRightToggles from '../components/TopRightToggles';
 import LogoEasyMoto from '../components/LogoEasyMoto';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { LanguageContext } from '../contexts/LanguageContext';
@@ -15,7 +26,10 @@ import { t } from '../i18n';
 
 function formatarCPF(valor: string) {
   const n = valor.replace(/\D/g, '');
-  return n.replace(/^(\d{3})(\d)/, '$1.$2').replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3').replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+  return n
+    .replace(/^(\d{3})(\d)/, '$1.$2')
+    .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
 }
 function desmascararCPF(v: string) { return v.replace(/\D/g, ''); }
 function formatarTelefone(valor: string) {
@@ -52,7 +66,14 @@ export default function GerenciarOperadores() {
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [editandoId, setEditandoId] = useState<number | null>(null);
-  const [form, setForm] = useState<Form>({ nomeCompleto: '', email: '', senha: '', cpf: '', cepFilial: '', telefone: '' });
+  const [form, setForm] = useState<Form>({
+    nomeCompleto: '',
+    email: '',
+    senha: '',
+    cpf: '',
+    cepFilial: '',
+    telefone: '',
+  });
   const [saving, setSaving] = useState(false);
 
   async function ensureAuthHeader() {
@@ -71,7 +92,9 @@ export default function GerenciarOperadores() {
     }
   }
 
-  useEffect(() => { carregar(); }, []);
+  useEffect(() => {
+    carregar();
+  }, []);
 
   function abrirNovo() {
     setEditandoId(null);
@@ -193,9 +216,9 @@ export default function GerenciarOperadores() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <View style={styles.toggle}><ThemeToggleButton /></View>
-      <View style={styles.langBadge}><LanguageToggleButton /></View>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
+      <TopRightToggles />
+
       <View style={styles.logoRow}><LogoEasyMoto size={42} /></View>
 
       <TouchableOpacity style={styles.botaoPrincipal} onPress={abrirNovo} activeOpacity={0.9} disabled={saving}>
@@ -210,12 +233,17 @@ export default function GerenciarOperadores() {
       ) : (
         <ScrollView style={{ flex: 1 }}>
           {lista.map((u) => (
-            <View key={u.id} style={[styles.card, { backgroundColor: isDark ? '#1e1e1e' : '#f3f3f3' }]}>
+            <View
+              key={u.id}
+              style={[styles.card, { backgroundColor: isDark ? '#1e1e1e' : '#f3f3f3' }]}
+            >
               <FontAwesome name="user" size={22} color={isDark ? '#00c853' : colors.buttonBg} />
               <View style={{ flex: 1, marginLeft: 10 }}>
                 <Text style={[styles.cardTitulo, { color: themeColors.text }]}>{u.nomeCompleto}</Text>
                 <Text style={{ color: isDark ? '#ccc' : '#666' }}>{u.email}</Text>
-                <Text style={{ color: isDark ? '#ccc' : '#666' }}>{t('operators.branchCep')}: {u.cepFilial}</Text>
+                <Text style={{ color: isDark ? '#ccc' : '#666' }}>
+                  {t('operators.branchCep')}: {u.cepFilial}
+                </Text>
               </View>
               <TouchableOpacity onPress={() => abrirEdicao(u)} style={{ paddingHorizontal: 8 }}>
                 <Text style={styles.linkEditar}>{t('operators.edit')}</Text>
@@ -277,7 +305,9 @@ export default function GerenciarOperadores() {
               placeholder={t('operators.fields.cpf')}
               placeholderTextColor="#aaa"
               value={form.cpf}
-              onChangeText={(tvalue) => setForm((p) => ({ ...p, cpf: formatarCPF(tvalue) }))}
+              onChangeText={(tvalue) =>
+                setForm((p) => ({ ...p, cpf: formatarCPF(tvalue) }))
+              }
               keyboardType="number-pad"
               maxLength={14}
             />
@@ -286,7 +316,9 @@ export default function GerenciarOperadores() {
               placeholder={t('operators.fields.cepFilial')}
               placeholderTextColor="#aaa"
               value={form.cepFilial}
-              onChangeText={(tvalue) => setForm((p) => ({ ...p, cepFilial: formatarCEP(tvalue) }))}
+              onChangeText={(tvalue) =>
+                setForm((p) => ({ ...p, cepFilial: formatarCEP(tvalue) }))
+              }
               keyboardType="number-pad"
               maxLength={9}
             />
@@ -295,28 +327,47 @@ export default function GerenciarOperadores() {
               placeholder={t('operators.fields.telefone')}
               placeholderTextColor="#aaa"
               value={form.telefone || ''}
-              onChangeText={(tvalue) => setForm((p) => ({ ...p, telefone: formatarTelefone(tvalue) }))}
+              onChangeText={(tvalue) =>
+                setForm((p) => ({ ...p, telefone: formatarTelefone(tvalue) }))
+              }
               keyboardType="phone-pad"
               maxLength={15}
             />
 
-            <TouchableOpacity style={styles.botaoPrincipal} onPress={salvar} activeOpacity={0.9} disabled={saving}>
-              <Text style={styles.botaoPrincipalTexto}>{saving ? t('operators.saving') : (editandoId ? t('operators.save') : t('operators.register'))}</Text>
+            <TouchableOpacity
+              style={styles.botaoPrincipal}
+              onPress={salvar}
+              activeOpacity={0.9}
+              disabled={saving}
+            >
+              <Text style={styles.botaoPrincipalTexto}>
+                {saving
+                  ? t('operators.saving')
+                  : editandoId
+                  ? t('operators.save')
+                  : t('operators.register')}
+              </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setModalVisible(false)} activeOpacity={0.8} disabled={saving}>
-              <Text style={{ marginTop: 10, color: themeColors.text, textAlign: 'center' }}>{t('operators.cancel')}</Text>
+            <TouchableOpacity
+              onPress={() => setModalVisible(false)}
+              activeOpacity={0.8}
+              disabled={saving}
+            >
+              <Text
+                style={{ marginTop: 10, color: themeColors.text, textAlign: 'center' }}
+              >
+                {t('operators.cancel')}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, paddingTop: 120, paddingHorizontal: 22 },
-  toggle: { position: 'absolute', top: 16, right: 16, zIndex: 10 },
-  langBadge: { position: 'absolute', top: 16, right: 56, zIndex: 10, padding: 38, paddingRight: 12 },
   logoRow: { alignSelf: 'center', marginBottom: 16 },
   botaoPrincipal: { backgroundColor: '#00c853', padding: 12, borderRadius: 10, alignItems: 'center', marginVertical: 12 },
   botaoPrincipalTexto: { color: '#fff', fontWeight: 'bold', fontSize: 16 },

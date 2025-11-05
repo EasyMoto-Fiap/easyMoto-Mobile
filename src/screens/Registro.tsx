@@ -16,9 +16,11 @@ import {
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  View
+  View,
+  SafeAreaView,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as Notifications from 'expo-notifications';           
 import ThemeToggleButton from '../components/ThemeToggleButton';
 import LanguageToggleButton from '../components/LanguageToggleButton';
 import LogoEasyMoto from '../components/LogoEasyMoto';
@@ -32,12 +34,13 @@ import {
   deletarMoto,
   listarMotos,
   type Moto as MotoAPI,
-  type StatusOperacionalNum
+  type StatusOperacionalNum,
 } from '../services/motos';
 import { criarNotificacao } from '../services/notificacoes';
 import { registrarEntradaPatio } from '../services/patio';
 import { colors } from '../styles/colors';
 import { t } from '../i18n';
+import { registerForPushNotificationsAsync } from '../services/push'; 
 
 type TipoMoto = 'Pop' | 'Sport' | 'E';
 type CorHex = '#e6c300' | '#0074cc' | '#ff4500' | '#ff0000' | '#808080' | '#006400' | '#da70d6';
@@ -68,7 +71,7 @@ const legendaIdPorCor: Record<CorHex, number> = {
   '#ff0000': 4,
   '#808080': 5,
   '#006400': 6,
-  '#da70d6': 7
+  '#da70d6': 7,
 };
 
 const categoriaMap: Record<TipoMoto, CategoriaNum> = { Pop: 0, Sport: 1, E: 2 };
@@ -84,7 +87,7 @@ export default function Registro() {
     text: isDark ? '#f2f2f2' : '#111',
     subtext: isDark ? '#bdbdbd' : '#555',
     border: isDark ? '#2a2a2a' : '#e5e5e5',
-    shadow: '#000'
+    shadow: '#000',
   };
 
   useContext(LanguageContext);
@@ -96,7 +99,7 @@ export default function Registro() {
     ano: '',
     tipo: 'Pop',
     cor: '#006400',
-    statusOperacional: 0
+    statusOperacional: 0,
   });
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -106,11 +109,26 @@ export default function Registro() {
   const scaleAnim = useRef(new Animated.Value(0.95)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
 
+  useEffect(() => {
+    registerForPushNotificationsAsync().catch(() => {});
+  }, []);
+
+  async function dispararNotificacaoLocal(title: string, body: string) {
+    try {
+      await Notifications.scheduleNotificationAsync({
+        content: { title, body },
+        trigger: null, 
+      });
+    } catch (e) {
+      console.log('Erro ao disparar notificação local', e);
+    }
+  }
+
   function statusOps() {
     return [
       { label: t('registro.statusOps.disponivel'), value: 0 as StatusOperacionalNum, color: '#006400' },
       { label: t('registro.statusOps.alugada'), value: 1 as StatusOperacionalNum, color: '#e6c300' },
-      { label: t('registro.statusOps.manutencao'), value: 2 as StatusOperacionalNum, color: '#0074cc' }
+      { label: t('registro.statusOps.manutencao'), value: 2 as StatusOperacionalNum, color: '#0074cc' },
     ];
   }
 
@@ -126,7 +144,7 @@ export default function Registro() {
   function openModal(editId?: number) {
     setEditandoId(editId ?? null);
     if (editId) {
-      const m = motos.find(x => x.id === editId);
+      const m = motos.find((x) => x.id === editId);
       if (m) {
         setNovaMoto({
           placa: m.placa,
@@ -134,7 +152,7 @@ export default function Registro() {
           ano: String(m.ano),
           tipo: m.tipo,
           cor: m.cor as CorHex,
-          statusOperacional: m.statusOperacional
+          statusOperacional: m.statusOperacional,
         });
       }
     } else {
@@ -143,14 +161,14 @@ export default function Registro() {
     setModalVisible(true);
     Animated.parallel([
       Animated.timing(scaleAnim, { toValue: 1, duration: 180, useNativeDriver: true, easing: Easing.out(Easing.quad) }),
-      Animated.timing(opacityAnim, { toValue: 1, duration: 180, useNativeDriver: true })
+      Animated.timing(opacityAnim, { toValue: 1, duration: 180, useNativeDriver: true }),
     ]).start();
   }
 
   function closeModal() {
     Animated.parallel([
       Animated.timing(scaleAnim, { toValue: 0.95, duration: 150, useNativeDriver: true, easing: Easing.in(Easing.quad) }),
-      Animated.timing(opacityAnim, { toValue: 0, duration: 150, useNativeDriver: true })
+      Animated.timing(opacityAnim, { toValue: 0, duration: 150, useNativeDriver: true }),
     ]).start(({ finished }) => {
       if (finished) setModalVisible(false);
     });
@@ -161,7 +179,7 @@ export default function Registro() {
   }
 
   function motosPorTipo(tipo: TipoMoto) {
-    return motos.filter(m => m.tipo === tipo);
+    return motos.filter((m) => m.tipo === tipo);
   }
 
   function validar() {
@@ -193,8 +211,8 @@ export default function Registro() {
     if (data.message) msgs.push(String(data.message));
     if (data.title && (!msgs.length || data.title !== msgs[0])) msgs.push(String(data.title));
     if (data.errors && typeof data.errors === 'object') {
-      Object.values<any>(data.errors).forEach(arr => {
-        if (Array.isArray(arr)) arr.forEach(m => msgs.push(String(m)));
+      Object.values<any>(data.errors).forEach((arr) => {
+        if (Array.isArray(arr)) arr.forEach((m) => msgs.push(String(m)));
       });
     }
     return msgs.filter(Boolean).join('\n');
@@ -210,16 +228,20 @@ export default function Registro() {
     try {
       await ensureAuthHeader();
       const res: any = await listarMotos(1, 500);
-      const src: MotoAPI[] = (Array.isArray(res) ? res : (res?.items ?? [])) as MotoAPI[];
-      const items: MotoUI[] = src.map((m): MotoUI => ({
-        id: m.id,
-        placa: m.placa,
-        modelo: m.modelo,
-        ano: m.ano,
-        tipo: categoriaReverse[m.categoria],
-        cor: ((Object.keys(legendaIdPorCor).find(c => legendaIdPorCor[c as CorHex] === m.legendaStatusId) as CorHex) ?? (m.cor as CorHex) ?? '#006400') as CorHex,
-        statusOperacional: m.statusOperacional as StatusOperacionalNum
-      }));
+      const src: MotoAPI[] = (Array.isArray(res) ? res : res?.items ?? []) as MotoAPI[];
+      const items: MotoUI[] = src.map(
+        (m): MotoUI => ({
+          id: m.id,
+          placa: m.placa,
+          modelo: m.modelo,
+          ano: m.ano,
+          tipo: categoriaReverse[m.categoria],
+          cor: ((Object.keys(legendaIdPorCor).find((c) => legendaIdPorCor[c as CorHex] === m.legendaStatusId) as CorHex) ??
+            (m.cor as CorHex) ??
+            '#006400') as CorHex,
+          statusOperacional: m.statusOperacional as StatusOperacionalNum,
+        }),
+      );
       setMotos(items);
     } catch {
       Alert.alert(t('registro.errors.title'), t('registro.errors.load'));
@@ -263,15 +285,23 @@ export default function Registro() {
       statusOperacional: novaMoto.statusOperacional,
       legendaStatusId: legendaIdPorCor[novaMoto.cor],
       qrCode: `MOTO-${placaSan}`,
-      cor: novaMoto.cor
+      cor: novaMoto.cor,
     };
     setSaving(true);
     try {
       if (editandoId) {
         await atualizarMoto(editandoId, payload as any);
         try {
-          if (usuarioOrigemId) await criarNotificacao({ tipo: 1, mensagem: 'Moto atualizada', motoId: editandoId, usuarioOrigemId, escopo: 0 });
+          if (usuarioOrigemId)
+            await criarNotificacao({
+              tipo: 1,
+              mensagem: 'Moto atualizada',
+              motoId: editandoId,
+              usuarioOrigemId,
+              escopo: 0,
+            });
         } catch {}
+        await dispararNotificacaoLocal('Moto atualizada', `${payload.modelo} • ${payload.placa}`);
       } else {
         let created: any = null;
         try {
@@ -280,8 +310,8 @@ export default function Registro() {
           if (isTransientAxiosError(e)) {
             try {
               const res = await listarMotos(1, 50);
-              const src: MotoAPI[] = (Array.isArray(res) ? res : ((res as any)?.items ?? [])) as MotoAPI[];
-              const existente = src.find(m => m.placa?.toUpperCase() === placaSan);
+              const src: MotoAPI[] = (Array.isArray(res) ? res : (res as any)?.items ?? []) as MotoAPI[];
+              const existente = src.find((m) => m.placa?.toUpperCase() === placaSan);
               if (existente) created = existente;
             } catch {}
           }
@@ -292,7 +322,14 @@ export default function Registro() {
             await registrarEntradaPatio({ motoId: created.id, filialId, statusOperacional: payload.statusOperacional });
           } catch {}
           try {
-            if (usuarioOrigemId) await criarNotificacao({ tipo: 0, mensagem: 'Moto cadastrada', motoId: created.id, usuarioOrigemId, escopo: 0 });
+            if (usuarioOrigemId)
+              await criarNotificacao({
+                tipo: 0,
+                mensagem: 'Moto cadastrada',
+                motoId: created.id,
+                usuarioOrigemId,
+                escopo: 0,
+              });
           } catch {}
         }
         const novoUI: MotoUI = {
@@ -302,9 +339,11 @@ export default function Registro() {
           ano: payload.ano,
           tipo: novaMoto.tipo,
           cor: novaMoto.cor,
-          statusOperacional: payload.statusOperacional
+          statusOperacional: payload.statusOperacional,
         };
-        setMotos(prev => [novoUI, ...prev]);
+        setMotos((prev) => [novoUI, ...prev]);
+
+        await dispararNotificacaoLocal('Moto cadastrada', `${payload.modelo} • ${payload.placa}`);
       }
     } catch (err: any) {
       setSaving(false);
@@ -330,6 +369,7 @@ export default function Registro() {
   }
 
   function excluir(id: number) {
+    const motoRemovida = motos.find((m) => m.id === id);             
     Alert.alert(t('registro.delete.title'), t('registro.delete.message'), [
       { text: t('registro.delete.cancel'), style: 'cancel' },
       {
@@ -339,29 +379,63 @@ export default function Registro() {
           try {
             await ensureAuthHeader();
             await deletarMoto(id);
-            setMotos(prev => prev.filter(m => m.id !== id));
+            setMotos((prev) => prev.filter((m) => m.id !== id));
+
+            if (motoRemovida) {
+              await dispararNotificacaoLocal(
+                'Moto removida',
+                `${motoRemovida.modelo} • ${motoRemovida.placa}`
+              );
+            }
           } catch {
             Alert.alert(t('registro.errors.title'), t('registro.errors.save'));
           }
-        }
-      }
+        },
+      },
     ]);
   }
 
-  function Segmented<T extends string | number>({ items, value, onChange }: { items: { label: string; value: T }[]; value: T; onChange: (v: T) => void }) {
+  function Segmented<T extends string | number>({
+    items,
+    value,
+    onChange,
+  }: {
+    items: { label: string; value: T }[];
+    value: T;
+    onChange: (v: T) => void;
+  }) {
     const isDarkLocal = isDark;
     return (
-      <View style={[styles.segmented, { borderColor: isDarkLocal ? '#2a2a2a' : '#e5e5e5', backgroundColor: isDarkLocal ? '#0f0f0f' : '#fff' }]}>
+      <View
+        style={[
+          styles.segmented,
+          {
+            borderColor: isDarkLocal ? '#2a2a2a' : '#e5e5e5',
+            backgroundColor: isDarkLocal ? '#0f0f0f' : '#fff',
+          },
+        ]}
+      >
         {items.map((it, i) => {
           const selected = it.value === value;
           return (
             <TouchableOpacity
               key={String(it.value)}
-              style={[styles.segmentedItem, selected && { backgroundColor: colors.primary }, i > 0 && { borderLeftWidth: 1, borderLeftColor: isDarkLocal ? '#2a2a2a' : '#e5e5e5' }]}
+              style={[
+                styles.segmentedItem,
+                selected && { backgroundColor: colors.primary },
+                i > 0 && { borderLeftWidth: 1, borderLeftColor: isDarkLocal ? '#2a2a2a' : '#e5e5e5' },
+              ]}
               activeOpacity={0.9}
               onPress={() => onChange(it.value)}
             >
-              <Text style={[styles.segmentedText, { color: selected ? '#fff' : (isDarkLocal ? '#bdbdbd' : '#666') }]}>{it.label}</Text>
+              <Text
+                style={[
+                  styles.segmentedText,
+                  { color: selected ? '#fff' : isDarkLocal ? '#bdbdbd' : '#666' },
+                ]}
+              >
+                {it.label}
+              </Text>
             </TouchableOpacity>
           );
         })}
@@ -372,12 +446,13 @@ export default function Registro() {
   const motosFiltradas = filtroTipo ? motosPorTipo(filtroTipo) : motos;
 
   return (
-    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <View style={styles.toggle}>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
+      <View style={styles.togglesRow}>
+        <View style={styles.langBadge}>
+          <LanguageToggleButton />
+        </View>
+        <View style={{ width: 8 }} />
         <ThemeToggleButton />
-      </View>
-      <View style={styles.langBadge}>
-        <LanguageToggleButton />
       </View>
 
       <View style={[styles.logoRow, { marginTop: insets.top }]}>
@@ -389,12 +464,34 @@ export default function Registro() {
           {(['Pop', 'Sport', 'E'] as TipoMoto[]).map((tipo) => {
             const selected = filtroTipo === tipo;
             return (
-              <TouchableOpacity key={tipo} style={[styles.tab, { borderColor: selected ? colors.primary : themeColors.border, backgroundColor: themeColors.card }]} onPress={() => setFiltroTipo(prev => prev === tipo ? null : tipo)} activeOpacity={0.9}>
+              <TouchableOpacity
+                key={tipo}
+                style={[
+                  styles.tab,
+                  {
+                    borderColor: selected ? colors.primary : themeColors.border,
+                    backgroundColor: themeColors.card,
+                  },
+                ]}
+                onPress={() => setFiltroTipo((prev) => (prev === tipo ? null : tipo))}
+                activeOpacity={0.9}
+              >
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <FontAwesome name={tipo === 'Pop' ? 'motorcycle' : tipo === 'Sport' ? 'bolt' : 'battery'} size={14} color={colors.primary} />
+                  <FontAwesome
+                    name={tipo === 'Pop' ? 'motorcycle' : tipo === 'Sport' ? 'bolt' : 'battery'}
+                    size={14}
+                    color={colors.primary}
+                  />
                   <Text style={[styles.tabTitle, { color: themeColors.text }]}>{tipo}</Text>
                 </View>
-                <View style={{ backgroundColor: colors.primary, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999 }}>
+                <View
+                  style={{
+                    backgroundColor: colors.primary,
+                    paddingHorizontal: 8,
+                    paddingVertical: 4,
+                    borderRadius: 999,
+                  }}
+                >
                   <Text style={{ color: '#fff', fontWeight: '700' }}>{motosPorTipo(tipo).length}</Text>
                 </View>
               </TouchableOpacity>
@@ -404,18 +501,41 @@ export default function Registro() {
 
         <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
           {motosFiltradas.map((m) => (
-            <View key={m.id} style={[styles.card, { backgroundColor: themeColors.card, borderColor: themeColors.border, shadowColor: themeColors.shadow }]}>
+            <View
+              key={m.id}
+              style={[
+                styles.card,
+                {
+                  backgroundColor: themeColors.card,
+                  borderColor: themeColors.border,
+                  shadowColor: themeColors.shadow,
+                },
+              ]}
+            >
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-                <FontAwesome name="motorcycle" size={14} color={m.cor} style={{ marginRight: 8 }} />
-                <Text style={{ color: themeColors.text, fontWeight: '800' }}>{m.modelo} • {m.placa}</Text>
+                <FontAwesome
+                  name="motorcycle"
+                  size={14}
+                  color={m.cor}
+                  style={{ marginRight: 8 }}
+                />
+                <Text style={{ color: themeColors.text, fontWeight: '800' }}>
+                  {m.modelo} • {m.placa}
+                </Text>
               </View>
-              <Text style={{ color: themeColors.subtext, marginBottom: 6 }}>{t('registro.card.ano')} {m.ano} • {m.tipo}</Text>
+              <Text style={{ color: themeColors.subtext, marginBottom: 6 }}>
+                {t('registro.card.ano')} {m.ano} • {m.tipo}
+              </Text>
               <View style={{ flexDirection: 'row', gap: 10 }}>
                 <TouchableOpacity onPress={() => openModal(m.id)} style={styles.linkBtn}>
-                  <Text style={{ color: colors.primary, fontWeight: '700' }}>{t('registro.actions.editar')}</Text>
+                  <Text style={{ color: colors.primary, fontWeight: '700' }}>
+                    {t('registro.actions.editar')}
+                  </Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => excluir(m.id)} style={styles.linkBtn}>
-                  <Text style={{ color: '#e53935', fontWeight: '700' }}>{t('registro.actions.excluir')}</Text>
+                  <Text style={{ color: '#e53935', fontWeight: '700' }}>
+                    {t('registro.actions.excluir')}
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -434,115 +554,259 @@ export default function Registro() {
           )}
         </ScrollView>
 
-        <TouchableOpacity onPress={() => openModal()} style={[styles.fab, { backgroundColor: colors.primary, shadowColor: themeColors.shadow }]} activeOpacity={0.9}>
+        <TouchableOpacity
+          onPress={() => openModal()}
+          style={[styles.fab, { backgroundColor: colors.primary, shadowColor: themeColors.shadow }]}
+          activeOpacity={0.9}
+        >
           <FontAwesome name="plus" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
 
       <Modal visible={modalVisible} transparent animationType="none" onRequestClose={closeModal}>
-        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,.5)', paddingHorizontal: 12, justifyContent: 'center' }}>
-          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={80}>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(0,0,0,.5)',
+            paddingHorizontal: 12,
+            justifyContent: 'center',
+          }}
+        >
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            keyboardVerticalOffset={80}
+          >
             <Animated.View style={{ transform: [{ scale: scaleAnim }], opacity: opacityAnim }}>
-              <ScrollView keyboardShouldPersistTaps="handled" style={[styles.modalCard, { backgroundColor: themeColors.card, borderColor: themeColors.border }]}>
-                <Text style={[styles.modalTitulo, { color: themeColors.text }]}>{editandoId ? t('registro.modal.editarTitulo') : t('registro.modal.novoTitulo')}</Text>
+              <ScrollView
+                keyboardShouldPersistTaps="handled"
+                style={[
+                  styles.modalCard,
+                  { backgroundColor: themeColors.card, borderColor: themeColors.border },
+                ]}
+              >
+                <Text style={[styles.modalTitulo, { color: themeColors.text }]}>
+                  {editandoId ? t('registro.modal.editarTitulo') : t('registro.modal.novoTitulo')}
+                </Text>
 
-                <Text style={[styles.sectionLabel, { color: themeColors.subtext }]}>{t('registro.legendSection')}</Text>
-                {(['#e6c300', '#0074cc', '#ff4500', '#ff0000', '#808080', '#006400', '#da70d6'] as CorHex[]).map((c) => (
-                  <TouchableWithoutFeedback key={c} onPress={() => setNovaMoto(prev => ({ ...prev, cor: c }))}>
-                    <View style={[styles.colorRow, { borderColor: novaMoto.cor === c ? colors.primary : themeColors.border, backgroundColor: isDark ? '#0f0f0f' : '#fff' }]}>
+                <Text style={[styles.sectionLabel, { color: themeColors.subtext }]}>
+                  {t('registro.legendSection')}
+                </Text>
+                {(
+                  ['#e6c300', '#0074cc', '#ff4500', '#ff0000', '#808080', '#006400', '#da70d6'] as CorHex[]
+                ).map((c) => (
+                  <TouchableWithoutFeedback
+                    key={c}
+                    onPress={() => setNovaMoto((prev) => ({ ...prev, cor: c }))}
+                  >
+                    <View
+                      style={[
+                        styles.colorRow,
+                        {
+                          borderColor:
+                            novaMoto.cor === c ? colors.primary : themeColors.border,
+                          backgroundColor: isDark ? '#0f0f0f' : '#fff',
+                        },
+                      ]}
+                    >
                       <View style={[styles.colorSwatch, { backgroundColor: c }]} />
-                      <Text style={[styles.colorRowText, { color: themeColors.text }]}>{legendLabel(c)}</Text>
-                      {novaMoto.cor === c && <FontAwesome name="check" size={18} color={colors.primary} />}
+                      <Text style={[styles.colorRowText, { color: themeColors.text }]}>
+                        {legendLabel(c)}
+                      </Text>
+                      {novaMoto.cor === c && (
+                        <FontAwesome name="check" size={18} color={colors.primary} />
+                      )}
                     </View>
                   </TouchableWithoutFeedback>
                 ))}
 
-                <Text style={[styles.sectionLabel, { color: themeColors.subtext }]}>{t('registro.operationalSection')}</Text>
+                <Text style={[styles.sectionLabel, { color: themeColors.subtext }]}>
+                  {t('registro.operationalSection')}
+                </Text>
                 <Segmented
-                  items={statusOps().map(s => ({ label: s.label, value: s.value }))}
+                  items={statusOps().map((s) => ({ label: s.label, value: s.value }))}
                   value={novaMoto.statusOperacional}
-                  onChange={(v) => setNovaMoto(prev => ({ ...prev, statusOperacional: v }))}
+                  onChange={(v) =>
+                    setNovaMoto((prev) => ({ ...prev, statusOperacional: v }))
+                  }
                 />
 
-                <Text style={[styles.sectionLabel, { color: themeColors.subtext }]}>{t('registro.dataSection')}</Text>
+                <Text style={[styles.sectionLabel, { color: themeColors.subtext }]}>
+                  {t('registro.dataSection')}
+                </Text>
                 <TextInput
                   value={novaMoto.placa}
-                  onChangeText={(tx) => setNovaMoto(prev => ({ ...prev, placa: formatarPlaca(tx) }))}
+                  onChangeText={(tx) =>
+                    setNovaMoto((prev) => ({ ...prev, placa: formatarPlaca(tx) }))
+                  }
                   placeholder={t('registro.inputs.placa')}
                   placeholderTextColor="#888"
-                  style={[styles.input, isDark ? styles.inputDark : styles.inputLight, { color: themeColors.text }]}
+                  style={[
+                    styles.input,
+                    isDark ? styles.inputDark : styles.inputLight,
+                    { color: themeColors.text },
+                  ]}
                   autoCapitalize="characters"
                 />
 
                 <TextInput
                   value={novaMoto.modelo}
-                  onChangeText={(tx) => setNovaMoto(prev => ({ ...prev, modelo: tx }))}
+                  onChangeText={(tx) => setNovaMoto((prev) => ({ ...prev, modelo: tx }))}
                   placeholder={t('registro.inputs.modelo')}
                   placeholderTextColor="#888"
-                  style={[styles.input, isDark ? styles.inputDark : styles.inputLight, { color: themeColors.text }]}
+                  style={[
+                    styles.input,
+                    isDark ? styles.inputDark : styles.inputLight,
+                    { color: themeColors.text },
+                  ]}
                 />
 
                 <TextInput
                   value={novaMoto.ano}
-                  onChangeText={(tx) => setNovaMoto(prev => ({ ...prev, ano: tx.replace(/[^0-9]/g, '').slice(0, 4) }))}
+                  onChangeText={(tx) =>
+                    setNovaMoto((prev) => ({
+                      ...prev,
+                      ano: tx.replace(/[^0-9]/g, '').slice(0, 4),
+                    }))
+                  }
                   placeholder={t('registro.inputs.ano')}
                   placeholderTextColor="#888"
                   keyboardType="number-pad"
-                  style={[styles.input, isDark ? styles.inputDark : styles.inputLight, { color: themeColors.text }]}
+                  style={[
+                    styles.input,
+                    isDark ? styles.inputDark : styles.inputLight,
+                    { color: themeColors.text },
+                  ]}
                 />
 
-                <Text style={[styles.sectionLabel, { color: themeColors.subtext }]}>{t('registro.typeSection')}</Text>
+                <Text style={[styles.sectionLabel, { color: themeColors.subtext }]}>
+                  {t('registro.typeSection')}
+                </Text>
                 <Segmented
                   items={[
                     { label: 'Pop', value: 'Pop' as TipoMoto },
                     { label: 'Sport', value: 'Sport' as TipoMoto },
-                    { label: 'E', value: 'E' as TipoMoto }
+                    { label: 'E', value: 'E' as TipoMoto },
                   ]}
                   value={novaMoto.tipo}
-                  onChange={(v) => setNovaMoto(prev => ({ ...prev, tipo: v }))}
+                  onChange={(v) => setNovaMoto((prev) => ({ ...prev, tipo: v }))}
                 />
 
-                <TouchableOpacity style={[styles.primaryBtn, saving && { opacity: 0.9 }]} onPress={salvar} activeOpacity={0.95} disabled={saving}>
-                  {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryBtnText}>{editandoId ? t('registro.actions.salvarEdicao') : t('registro.actions.cadastrar')}</Text>}
+                <TouchableOpacity
+                  style={[styles.primaryBtn, saving && { opacity: 0.9 }]}
+                  onPress={salvar}
+                  activeOpacity={0.95}
+                  disabled={saving}
+                >
+                  {saving ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <Text style={styles.primaryBtnText}>
+                      {editandoId
+                        ? t('registro.actions.salvarEdicao')
+                        : t('registro.actions.cadastrar')}
+                    </Text>
+                  )}
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={closeModal} activeOpacity={0.9} style={{ alignSelf: 'center', marginTop: 6, marginBottom: 4 }}>
-                  <Text style={{ color: themeColors.text, textAlign: 'center' }}>{t('registro.actions.cancelar')}</Text>
+                <TouchableOpacity
+                  onPress={closeModal}
+                  activeOpacity={0.9}
+                  style={{ alignSelf: 'center', marginTop: 6, marginBottom: 4 }}
+                >
+                  <Text style={{ color: themeColors.text, textAlign: 'center' }}>
+                    {t('registro.actions.cancelar')}
+                  </Text>
                 </TouchableOpacity>
               </ScrollView>
             </Animated.View>
           </KeyboardAvoidingView>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, paddingTop: 120, paddingHorizontal: 16 },
-  toggle: { position: 'absolute', top: 16, right: 16, zIndex: 10 },
-  langBadge: { position: 'absolute', top: 16, right: 60, zIndex: 10, padding: 35, paddingRight: 10 },
+  togglesRow: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    zIndex: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  langBadge: {
+    padding: 20,
+    paddingRight: 1,
+  },
   logoRow: { alignSelf: 'center', marginBottom: 20 },
   content: { flex: 1 },
   tabs: { flexDirection: 'row', gap: 12, marginBottom: 12 },
-  tab: { flex: 1, padding: 12, borderWidth: 1, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  tab: {
+    flex: 1,
+    padding: 12,
+    borderWidth: 1,
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   tabTitle: { fontWeight: '800', marginLeft: 8 },
-  card: { borderWidth: 1, borderRadius: 16, padding: 14, marginBottom: 12, shadowOpacity: 0.12, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 2 },
+  card: {
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 12,
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 2,
+  },
   linkBtn: { paddingVertical: 6, paddingHorizontal: 10, borderRadius: 8 },
-  fab: { position: 'absolute', right: 16, bottom: 24, width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center' },
+  fab: {
+    position: 'absolute',
+    right: 16,
+    bottom: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   modalCard: { borderRadius: 20, padding: 18, borderWidth: 1 },
   modalTitulo: { fontSize: 20, fontWeight: '800', marginBottom: 10, textAlign: 'center' },
   sectionLabel: { fontSize: 13, fontWeight: '700', marginTop: 10, marginBottom: 8 },
-  input: { borderRadius: 12, paddingVertical: 14, paddingHorizontal: 14, borderWidth: 1.5, borderColor: 'transparent', marginBottom: 12 },
+  input: {
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    borderWidth: 1.5,
+    borderColor: 'transparent',
+    marginBottom: 12,
+  },
   inputLight: { backgroundColor: colors.inputBg },
   inputDark: { backgroundColor: '#1c1c1c' },
   inputFocused: { borderColor: colors.primary },
   segmented: { flexDirection: 'row', borderWidth: 1, borderRadius: 12, overflow: 'hidden', marginBottom: 8 },
   segmentedItem: { flex: 1, paddingVertical: 10, alignItems: 'center', justifyContent: 'center' },
   segmentedText: { fontWeight: '700', color: '#666' },
-  colorRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 12, borderWidth: 1, borderRadius: 12 },
+  colorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderRadius: 12,
+  },
   colorRowText: { flex: 1, fontWeight: '700' },
   colorSwatch: { width: 22, height: 14, borderRadius: 4, marginRight: 10 },
-  primaryBtn: { marginTop: 10, backgroundColor: colors.primary, paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
-  primaryBtnText: { color: '#fff', fontWeight: '800', fontSize: 16 }
+  primaryBtn: {
+    marginTop: 10,
+    backgroundColor: colors.primary,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  primaryBtnText: { color: '#fff', fontWeight: '800', fontSize: 16 },
 });

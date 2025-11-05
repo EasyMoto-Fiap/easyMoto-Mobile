@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { useContext, useEffect, useState } from 'react';
-import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, SafeAreaView } from 'react-native';
 import ThemeToggleButton from '../components/ThemeToggleButton';
 import LanguageToggleButton from '../components/LanguageToggleButton';
 import LogoEasyMoto from '../components/LogoEasyMoto';
@@ -220,9 +220,14 @@ export default function Perfil() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <View style={styles.toggle}><ThemeToggleButton /></View>
-      <View style={styles.langBadge}><LanguageToggleButton /></View>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
+      <View style={styles.togglesRow}>
+        <View style={styles.langBadge}>
+          <LanguageToggleButton />
+        </View>
+        <View style={{ width: 8 }} />
+        <ThemeToggleButton />
+      </View>
 
       <TouchableOpacity style={styles.logoutButton} onPress={deslogar} activeOpacity={0.8}>
         <FontAwesome name="sign-out" size={20} color={isDark ? '#fff' : '#111'} />
@@ -310,14 +315,24 @@ export default function Perfil() {
       <TouchableOpacity style={styles.deleteOutline} onPress={apagarConta} activeOpacity={0.9}>
         <Text style={styles.deleteOutlineText}>{t('profile.actions.apagarConta')}</Text>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, paddingTop: 98, paddingHorizontal: 30, alignItems: 'center' },
-  toggle: { position: 'absolute', top: 16, right: 16, zIndex: 10 },
-  langBadge: { position: 'absolute', top: 16, right: 66, zIndex: 10, padding: 38, paddingRight: 1 },
+  togglesRow: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    zIndex: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  langBadge: {
+    padding: 20,
+    paddingRight: 1,
+  },
   logoRow: { alignSelf: 'center', marginBottom: 16 },
   logoutButton: { position: 'absolute', bottom: 16, right: 16, padding: 8, borderRadius: 20, zIndex: 20 },
   avatar: {
@@ -327,7 +342,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#e4e4e4',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 10
+    marginBottom: 10,
   },
   avatarImage: { width: '100%', height: '100%', borderRadius: 50 },
   name: { fontSize: 18, fontWeight: 'bold' },
@@ -338,7 +353,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 10,
     width: '100%',
-    marginBottom: 10
+    marginBottom: 10,
   },
   button: {
     marginTop: 10,
@@ -346,7 +361,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 10,
     width: '100%',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   buttonText: { color: '#fff', fontWeight: 'bold' },
   deleteOutline: {
@@ -356,7 +371,7 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#B00020'
+    borderColor: '#B00020',
   },
-  deleteOutlineText: { color: '#B00020', fontWeight: 'bold' }
+  deleteOutlineText: { color: '#B00020', fontWeight: 'bold' },
 });

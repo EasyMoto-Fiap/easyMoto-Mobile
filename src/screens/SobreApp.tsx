@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, SafeAreaView } from 'react-native';
 import Constants from 'expo-constants';
 import ThemeToggleButton from '../components/ThemeToggleButton';
 import LanguageToggleButton from '../components/LanguageToggleButton';
@@ -37,9 +37,14 @@ export default function SobreApp() {
     : '-';
 
   return (
-    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <View style={styles.toggle}><ThemeToggleButton /></View>
-      <View style={styles.langBadge}><LanguageToggleButton /></View>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
+      <View style={styles.togglesRow}>
+        <View style={styles.langBadge}>
+          <LanguageToggleButton />
+        </View>
+        <View style={{ width: 8 }} />
+        <ThemeToggleButton />
+      </View>
 
       <Text style={[styles.title, { color: themeColors.text }]}>{t('about.title')}</Text>
 
@@ -51,7 +56,10 @@ export default function SobreApp() {
         <Text style={[styles.value, { color: themeColors.text }]}>{version}</Text>
 
         <Text style={[styles.label, { color: muted }]}>{t('about.commit')}</Text>
-        <TouchableOpacity activeOpacity={0.9} onLongPress={() => Alert.alert('Commit', `Hash: ${commitHash}`)}>
+        <TouchableOpacity
+          activeOpacity={0.9}
+          onLongPress={() => Alert.alert('Commit', `Hash: ${commitHash}`)}
+        >
           <Text style={[styles.value, styles.mono, { color: themeColors.text }]}>{commitHash}</Text>
         </TouchableOpacity>
 
@@ -60,18 +68,28 @@ export default function SobreApp() {
       </View>
 
       <Text style={[styles.hint, { color: muted }]}>{t('about.hint')}</Text>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, paddingTop: 120, paddingHorizontal: 22 },
-  toggle: { position: 'absolute', top: 16, right: 16, zIndex: 10 },
-  langBadge: { position: 'absolute', top: 16, right: 56, zIndex: 10, padding: 35, paddingRight: 12 },
+  togglesRow: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    zIndex: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  langBadge: {
+    padding: 20,
+    paddingRight: 1,
+  },
   title: { fontSize: 26, fontWeight: '800', marginBottom: 16 },
   card: { borderRadius: 18, padding: 18, gap: 6 },
   label: { fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.5 },
   value: { fontSize: 16, fontWeight: '600', marginBottom: 8 },
   mono: { fontFamily: 'monospace' },
-  hint: { fontSize: 12, marginTop: 14 }
+  hint: { fontSize: 12, marginTop: 14 },
 });

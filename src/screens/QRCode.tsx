@@ -1,6 +1,6 @@
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View, SafeAreaView } from 'react-native';
 import ThemeToggleButton from '../components/ThemeToggleButton';
 import LanguageToggleButton from '../components/LanguageToggleButton';
 import LogoEasyMoto from '../components/LogoEasyMoto';
@@ -25,22 +25,39 @@ export default function QRCode() {
   }, [permission, requestPermission]);
 
   if (!permission) return <View />;
+
   if (!permission.granted) {
     return (
-      <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-        <View style={styles.toggle}><ThemeToggleButton /></View>
-        <View style={styles.langBadge}><LanguageToggleButton /></View>
-        <View style={styles.logoRow}><LogoEasyMoto size={42} /></View>
+      <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
+        <View style={styles.togglesRow}>
+          <View style={styles.langBadge}>
+            <LanguageToggleButton />
+          </View>
+          <View style={{ width: 8 }} />
+          <ThemeToggleButton />
+        </View>
+
+        <View style={styles.logoRow}>
+          <LogoEasyMoto size={42} />
+        </View>
         <Text style={[styles.text, { color: themeColors.text }]}>{t('qrcode.permissionDenied')}</Text>
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <View style={styles.toggle}><ThemeToggleButton /></View>
-      <View style={styles.langBadge}><LanguageToggleButton /></View>
-      <View style={styles.logoRow}><LogoEasyMoto size={42} /></View>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
+      <View style={styles.togglesRow}>
+        <View style={styles.langBadge}>
+          <LanguageToggleButton />
+        </View>
+        <View style={{ width: 8 }} />
+        <ThemeToggleButton />
+      </View>
+
+      <View style={styles.logoRow}>
+        <LogoEasyMoto size={42} />
+      </View>
 
       <Text style={[styles.title, { color: themeColors.text }]}>{t('qrcode.title')}</Text>
 
@@ -57,16 +74,26 @@ export default function QRCode() {
         }}
         barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, paddingTop: 120, alignItems: 'center' },
-  toggle: { position: 'absolute', top: 16, right: 16, zIndex: 10 },
-  langBadge: { position: 'absolute', top: 16, right: 60, zIndex: 10, padding: 35, paddingRight: 10 },
+  togglesRow: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    zIndex: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  langBadge: {
+    padding: 20,
+    paddingRight: 1,
+  },
   logoRow: { alignSelf: 'center', marginBottom: 20 },
   title: { fontSize: 18, fontWeight: 'bold', marginBottom: 20 },
   camera: { width: '90%', height: 320, borderRadius: 12, overflow: 'hidden' },
-  text: { marginTop: 12, fontSize: 16, textAlign: 'center' }
+  text: { marginTop: 12, fontSize: 16, textAlign: 'center' },
 });

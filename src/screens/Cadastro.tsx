@@ -4,10 +4,10 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useContext, useState } from 'react';
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Controller } from 'react-hook-form';
 import ErrorSnackbar from '../components/ErrorSnackbar';
-import ThemeToggleButton from '../components/ThemeToggleButton';
-import LanguageToggleButton from '../components/LanguageToggleButton';
+import TopRightToggles from '../components/TopRightToggles';
 import VoltarParaHome from '../components/VoltarParaHome';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { LanguageContext } from '../contexts/LanguageContext';
@@ -16,7 +16,6 @@ import type { RootStackParamList } from '../navigation/RootNavigator';
 import { criarUsuario, listarFiliais, buscarUsuarioPorEmail } from '../services/usuarios';
 import { colors } from '../styles/colors';
 import GradientButton from '../components/GradientButton';
-import LogoEasyMoto from '../components/LogoEasyMoto';
 import { useCadastroForm, formatarCEP, formatarCPF, formatarTelefone } from '../components/FormValidation';
 import { t } from '../i18n';
 
@@ -74,18 +73,10 @@ export default function Cadastro() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <View style={styles.togglesRow}>
-        <View style={styles.langBadge}>  
-            <LanguageToggleButton />
-        </View>
-        <View style={{ width: 8 }} />
-        <ThemeToggleButton />
-      </View>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
+      <TopRightToggles />
 
       <View style={styles.content}>
-        <Text style={styles.logoRow}><LogoEasyMoto size={38} /></Text>
-
         <Text style={[styles.title, { color: themeColors.text }]}>
           {role === 'operador' ? t('signup.titleOperador') : t('signup.titleAdministrador')}
         </Text>
@@ -247,16 +238,13 @@ export default function Cadastro() {
 
       <VoltarParaHome />
       <ErrorSnackbar visible={reqErrorVisible} message={reqErrorMessage} onDismiss={hideError} />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  langBadge: { position: 'absolute', top: 16, right: 56, zIndex: 10, padding: 20, paddingRight: 1  },
   container: { flex: 1, paddingHorizontal: 24, justifyContent: 'center' },
-  togglesRow: { position: 'absolute', top: 16, right: 16, zIndex: 10, flexDirection: 'row', alignItems: 'center' },
   content: { width: '100%', maxWidth: 420, alignSelf: 'center', paddingBottom: 90 },
-  logoRow: { alignSelf: 'center', marginBottom: 16 },
   title: { fontSize: 18, marginBottom: 16, textAlign: 'center' },
   field: { marginBottom: 12 },
   input: { padding: 16, borderRadius: 30 },

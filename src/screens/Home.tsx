@@ -2,8 +2,9 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useContext } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import ThemeToggleButton from '../components/ThemeToggleButton';
-import LanguageToggleButton from '../components/LanguageToggleButton';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import TopRightToggles from '../components/TopRightToggles';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { LanguageContext } from '../contexts/LanguageContext';
 import type { RootStackParamList } from '../navigation/RootNavigator';
@@ -20,12 +21,8 @@ export default function Home() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   return (
-    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <ThemeToggleButton />
-      <View style={styles.langBadge}>
-        <LanguageToggleButton />
-      </View>
-
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
+      <TopRightToggles />
       <LogoEasyMoto style={styles.logoText} />
 
       <Text style={[styles.subtext, { color: themeColors.text }]}>
@@ -42,7 +39,7 @@ export default function Home() {
           onPress={() => navigation.navigate('Login', { role: 'admin' })}
         />
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -50,6 +47,5 @@ const styles = StyleSheet.create({
   container: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 30 },
   logoText: { fontSize: 36, fontWeight: 'bold', marginBottom: 50 },
   subtext: { fontSize: 16, textAlign: 'center', marginBottom: 40 },
-  buttonContainer: { width: '100%', gap: 20},
-  langBadge: { position: 'absolute', top: 16, right: 56, zIndex: 10, padding: 20, paddingRight: 1  }
+  buttonContainer: { width: '100%', gap: 20 },
 });
