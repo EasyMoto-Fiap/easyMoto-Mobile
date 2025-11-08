@@ -7,14 +7,15 @@
 Aplicativo mobile **React Native + Expo (TypeScript)** para gestão de motos, pátio e operação de locação.
 Integra com backend **.NET/C#** (CRUD completo de **motos** e **usuários**).
 
-**Backend (Swagger):** http://74.249.100.243/swagger/index.html?urls.primaryName=EasyMoto.Api+v2  
+**Backend (Swagger):** http://74.249.100.243/swagger/index.html?urls.primaryName=EasyMoto.Api+v2   
+**Api-Key:** `super-secret-key` <br>
 **Package (Android):** `com.easymoto.fiap`
 
 ---
 
 ## 🔗 Links da Sprint
-- 🎬 **Link do vídeo:** [] 
-- 📦 **Link do APK:** [https://expo.dev/accounts/akemisky/projects/EasyMotoTS/builds/6d61b90b-e09c-491a-8813-25b40b825d69]
+- 🎬 **Link do vídeo:** [https://www.youtube.com/watch?v=FL7-uC8fDTk] 
+- 📦 **Link do APK:** [https://expo.dev/accounts/akemisky/projects/EasyMotoTS/builds/6d61b90b-e09c-491a-8813-25b40b825d69] 
 
 > Observação: o APK foi distribuído via **Firebase App Distribution**. Para instalar, o tester precisa aceitar o convite e permitir **instalar apps de fontes desconhecidas** no Android.
 
